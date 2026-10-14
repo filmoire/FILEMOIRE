@@ -69,7 +69,7 @@ test("parcours de démonstration complet : les 19 étapes de validation", async 
   await page.getByRole("button", { name: "Écrire ma réponse" }).click();
   await page.locator("#answer").fill("La boulangerie de mes parents, à Douarnenez.\n\nLe four chauffait toute la maison.");
   await page.getByRole("button", { name: "Enregistrer ma réponse" }).click();
-  await expect(page.getByText("Votre réponse est enregistrée")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Enregistrer les modifications", exact: true })).toBeVisible();
   await page.getByLabel("Moi et mon éditeur familial").check();
 
   // 9. Souvenir vocal (vrai MediaRecorder sur micro simulé par Chromium) + transcription simulée relue
@@ -94,7 +94,11 @@ test("parcours de démonstration complet : les 19 étapes de validation", async 
   await page.getByRole("button", { name: "Recevoir la question suivante maintenant" }).click();
   await page.locator("#answer").fill("Un souvenir que je préfère garder pour moi.");
   await page.getByRole("button", { name: "Enregistrer ma réponse" }).click();
-  await expect(page.getByText("Votre réponse est enregistrée")).toBeVisible();
+  // Les notifications des deux sauvegardes peuvent se chevaucher : vérifier le souvenir persistant.
+  await expect(page.getByRole("button", { name: "Enregistrer les modifications", exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.locator("#answer")).toHaveValue("Un souvenir que je préfère garder pour moi.");
+  await expect(page.getByRole("button", { name: "Enregistrer les modifications", exact: true })).toBeVisible();
 
   // 11. Progression
   await page.getByRole("navigation", { name: "Navigation de l'espace" }).getByRole("link", { name: "Questions" }).click();
