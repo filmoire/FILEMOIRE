@@ -174,10 +174,9 @@ export async function runJob(job: Job) {
       );
       for (const j of jobs.rows) {
         const payload = unseal<Record<string, unknown>>(j.payload);
-        if (
-          payload.projectId === p.id ||
-          String(payload.text ?? "").includes(p.narrator.email)
-        )
+        // Recipient addresses and message text are not project ownership.
+        // The same narrator may participate in several independent books.
+        if (payload.projectId === p.id)
           await db.query("DELETE FROM jobs WHERE id=$1", [j.id]);
       }
       await db.query("DELETE FROM projects WHERE id=$1", [p.id]);

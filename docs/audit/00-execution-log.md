@@ -26,7 +26,7 @@ The initial sandboxed integration attempt failed with local-network `EPERM`; rer
 
 1. Extracted all 14 slides and enumerated 245 tracked files.
 2. Reviewed all server modules and migrations; continuing frontend, tools, tests and documentation review.
-3. Independent security verification confirmed an unapproved transcript exposure in role-filtered project responses. Regression and repair pending.
+3. Independent security verification confirmed an unapproved transcript exposure in role-filtered project responses. Regression reproduced and repair verified; see FILE-SEC-001.
 4. Installed the matching Vitest V8 coverage provider and added an explicit scope including every server module and shared book rules. Coverage targets will be reported honestly, including untested files.
 
 Remaining: complete per-file review, full requirement matrix and API tests, frontend regression, measured performance, backlog repairs, final verification and release decision. External launch gates remain unverified.
@@ -39,3 +39,11 @@ Remaining: complete per-file review, full requirement matrix and API tests, fron
 - Combined suite: 93 passed (28 original unit + 23 original integration + 42 audit integration). Critical scope: 78.99% lines, 76.40% statements, 63.66% branches.
 - Existing live browser journeys: 10 passed across desktop and Pixel7 emulation. Existing demo journeys:25 passed.
 - Runtime advisory check:207 dependencies, zero advisories. Full dependency audit:one high build-only braces advisory with no patched release (GHSA-vfj7-8cjw-p6xm); reachability assessment remains documented work.
+
+## Requested local retest — 14 October 2026
+
+- Fresh TypeScript and ESLint passed; standalone unit suite: 28 passed.
+- Full instrumented domain suite: 95 passed (28 unit, 23 original integration, 44 audit integration). Coverage: 79.08% lines, 76.48% statements, 63.79% branches, 80% functions. The 90% target remains unmet.
+- FILE-LIFE-001: both deletion regressions reproduced before repair, then verified against the isolated test database. Unrelated project jobs survive deletion; cancellation after the grace deadline cannot restore partially erased media.
+- Optimized application, standalone HTML and worker bundles built successfully. Live browser tests: 10 passed; demo/HTML browser tests: 25 passed. Fresh migrations, repeated migrations, local SMTP login delivery, worker heartbeat and encrypted backup restoration passed. See `local-test-results-2026-10-14.md`.
+- Evidence: `local-*.log` in `artifacts/production/audit-2026-10-14/`; these generated logs are intentionally ignored by Git.

@@ -28,6 +28,9 @@ import { id, seal, unseal } from "../../src/server/security";
 import type { Project } from "../../src/lib/types";
 import type { Account } from "../../src/server/auth";
 import { handleApi } from "../../src/server/api";
+import { runJob } from "../../src/server/worker";
+import { enqueue } from "../../src/server/jobs";
+import * as storage from "../../src/server/storage";
 
 const cookieJar = vi.hoisted(() => new Map<string, string>());
 vi.mock("next/headers", () => ({
@@ -75,6 +78,119 @@ function request(
 }
 
 describe("audit privacy regressions", () => {
+  it("deletes only the target project jobs, even when another recipient email contains the narrator address", async () => {
+    const b = await book();
+    const row = await accessProject(pool(), b.narrator, b.projectId);
+    const p = unseal<Project>(row.payload);
+    p.narrator.email = "ann@example.test";
+    await pool().query("UPDATE projects SET payload=$2 WHERE id=$1", [
+      b.projectId,
+      seal(p),
+    ]);
+    const other = await book();
+    const key = `foreign-gift:${id()}`;
+    await enqueue(
+      pool(),
+      "email",
+      {
+        projectId: other.projectId,
+        to: "joann@example.test",
+        text: "Connectez-vous avec joann@example.test",
+      },
+      key,
+      new Date(Date.now() + 86400000),
+    );
+    const deleted = await updateProject(b.narrator, b.projectId, row.revision, {
+      type: "delete-project",
+      confirm: "DELETE",
+    });
+    await pool().query(
+      "UPDATE projects SET deletion_at=now()-interval '1 second' WHERE id=$1",
+      [b.projectId],
+    );
+    await runJob({
+      id: id(),
+      kind: "delete-project",
+      payload: {
+        projectId: b.projectId,
+        requestedAt: deleted.project.deletionRequestedAt,
+      },
+      attempts: 1,
+      lock: id(),
+    });
+    expect(
+      (await pool().query("SELECT id FROM jobs WHERE dedupe_key=$1", [key]))
+        .rowCount,
+    ).toBe(1);
+    expect(
+      (
+        await pool().query("SELECT id FROM projects WHERE id=$1", [
+          other.projectId,
+        ])
+      ).rowCount,
+    ).toBe(1);
+  });
+  it("rejects cancellation after partial destructive cleanup and permits idempotent cleanup retry", async () => {
+    const b = await book();
+    for (let i = 0; i < 2; i++) {
+      const mid = id(),
+        key = `media/${b.projectId}/${mid}`;
+      await storage.putObject(key, Buffer.from("synthetic media"));
+      await pool().query(
+        "INSERT INTO media(id,project_id,owner_id,object_key,kind,mime,bytes) VALUES($1,$2,$3,$4,'audio','audio/wav',15)",
+        [mid, b.projectId, b.narrator.id, key],
+      );
+    }
+    const deleted = await updateProject(
+      b.narrator,
+      b.projectId,
+      b.view.revision,
+      { type: "delete-project", confirm: "DELETE" },
+    );
+    await pool().query(
+      "UPDATE projects SET deletion_at=now()-interval '1 second' WHERE id=$1",
+      [b.projectId],
+    );
+    const job = {
+      id: id(),
+      kind: "delete-project",
+      payload: {
+        projectId: b.projectId,
+        requestedAt: deleted.project.deletionRequestedAt,
+      },
+      attempts: 1,
+      lock: id(),
+    };
+    const realDelete = storage.deleteObject;
+    const mock = vi
+      .spyOn(storage, "deleteObject")
+      .mockImplementationOnce(realDelete)
+      .mockRejectedValueOnce(new Error("synthetic storage interruption"));
+    try {
+      await expect(runJob(job)).rejects.toThrow(
+        "synthetic storage interruption",
+      );
+    } finally {
+      mock.mockRestore();
+    }
+    await expect(
+      updateProject(b.narrator, b.projectId, deleted.revision, {
+        type: "cancel-deletion",
+      }),
+    ).rejects.toMatchObject({ status: 409 });
+    await runJob(job);
+    expect(
+      (await pool().query("SELECT id FROM projects WHERE id=$1", [b.projectId]))
+        .rowCount,
+    ).toBe(0);
+    expect(
+      (
+        await pool().query("SELECT id FROM media WHERE project_id=$1", [
+          b.projectId,
+        ])
+      ).rowCount,
+    ).toBe(0);
+  });
   it("keeps editor-only memories out of contributor views and suggestions", async () => {
     const b = await book();
     const answered = await answer(b, "ONLY THE FAMILY EDITOR");

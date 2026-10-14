@@ -748,6 +748,11 @@ export async function updateProject(
         at,
       );
     } else if (cmd.type === "cancel-deletion") {
+      assert(
+        row.deletion_at && new Date(row.deletion_at).getTime() > now,
+        409,
+        "Le délai d’annulation est terminé. La suppression peut déjà avoir commencé.",
+      );
       await db.query("UPDATE projects SET deletion_at=NULL WHERE id=$1", [
         row.id,
       ]);
