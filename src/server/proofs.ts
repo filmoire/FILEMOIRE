@@ -1,5 +1,6 @@
 import type { Account } from "./auth";
 import type { Project } from "@/lib/types";
+import { isLocked } from "@/lib/rules";
 import { pool, transaction } from "./db";
 import { accessProject, bookHash } from "./projects";
 import { assert, hash, id, unseal } from "./security";
@@ -11,15 +12,33 @@ export async function prepareProof(a: Account, projectId: string) {
   return transaction(async (db) => {
     const row = await accessProject(db, a, projectId, true);
     assert(row.role === "narrator" && !row.deletion_at, 403, "Accès refusé.");
-    const p = unseal<Project>(row.payload),
-      contentHash = bookHash(p);
+    const p = unseal<Project>(row.payload);
+    const locked = isLocked(p);
     const existing = (
       await db.query(
-        "SELECT id,pdf_media_id FROM book_versions WHERE project_id=$1 AND revision=$2 AND content_hash=$3",
-        [projectId, row.revision, contentHash],
+        `SELECT id,revision,content_hash,pdf_media_id,approved_at FROM book_versions
+         WHERE project_id=$1 AND (($3 AND approved_at IS NOT NULL) OR (NOT $3 AND revision=$2))
+         ORDER BY revision DESC LIMIT 1`,
+        [projectId, row.revision, locked],
       )
     ).rows[0];
-    if (existing?.pdf_media_id)
+    // Approval freezes the bytes, including across renderer upgrades or later
+    // preference revisions. A missing approved artifact must never be recreated.
+    if (locked || existing?.approved_at) {
+      assert(
+        existing?.approved_at && existing.pdf_media_id,
+        503,
+        "Épreuve approuvée indisponible.",
+      );
+      return {
+        versionId: existing.id,
+        contentHash: existing.content_hash,
+        revision: existing.revision,
+        mediaId: existing.pdf_media_id,
+      };
+    }
+    const contentHash = bookHash(p);
+    if (existing?.pdf_media_id && existing.content_hash === contentHash)
       return {
         versionId: existing.id,
         contentHash,
@@ -36,10 +55,13 @@ export async function prepareProof(a: Account, projectId: string) {
     );
     const version = (
       await db.query(
-        "INSERT INTO book_versions(id,project_id,revision,content_hash,payload,pdf_media_id) VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT(project_id,revision) DO UPDATE SET pdf_media_id=EXCLUDED.pdf_media_id RETURNING id",
+        `INSERT INTO book_versions(id,project_id,revision,content_hash,payload,pdf_media_id) VALUES($1,$2,$3,$4,$5,$6)
+         ON CONFLICT(project_id,revision) DO UPDATE SET pdf_media_id=EXCLUDED.pdf_media_id,content_hash=EXCLUDED.content_hash,payload=EXCLUDED.payload
+         WHERE book_versions.approved_at IS NULL RETURNING id`,
         [id(), projectId, row.revision, contentHash, row.payload, mediaId],
       )
     ).rows[0];
+    assert(version, 409, "Cette épreuve est déjà approuvée.");
     return {
       versionId: version.id,
       contentHash,
