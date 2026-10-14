@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { PhotoImg, QrImage } from "@/components/media";
 import { absoluteUrl } from "@/lib/nav";
+import { isLive } from "@/lib/mode";
 import { composeBook, isLowRes, paginate, type Page, type PageBlock, type Viewer } from "@/lib/rules";
 import type { Project } from "@/lib/types";
 import { cn, fmtDate } from "@/lib/utils";
@@ -236,7 +237,7 @@ function Block({ b, project, showWarnings }: { b: PageBlock; project: Project; s
   }
   return (
     <div className="flex items-center gap-[3cqi] rounded border border-or/60 p-[2.4cqi]">
-      <QrImage value={absoluteUrl(`/ecouter/${b.audio.qr.token}`)} size={64} className="w-[15cqi]" />
+      {b.audio.qr.token && <QrImage value={absoluteUrl(isLive ? `/ecoute#token=${b.audio.qr.token}` : `/ecouter/${b.audio.qr.token}`)} size={64} className="w-[15cqi]" />}
       <div className="font-sans text-[2.5cqi] leading-snug">
         <p className="flex items-center gap-1 font-semibold text-prune">
           <Headphones className="size-[3cqi]" aria-hidden /> Écoutez ce souvenir raconté par {project.narrator.firstName}

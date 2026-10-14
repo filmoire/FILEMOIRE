@@ -15,6 +15,7 @@ import {
   answer,
   newestEmailToken,
 } from "./helpers";
+import { composeBook } from "../../src/lib/rules";
 import { pool } from "../../src/server/db";
 import {
   accessProject,
@@ -78,6 +79,46 @@ function request(
 }
 
 describe("audit privacy regressions", () => {
+  it("allows a private voice-first draft but rejects an empty completed story", async () => {
+    const b = await book();
+    const command = {
+      type: "answer" as const,
+      questionId: b.view.project.questions[0].id,
+      text: "",
+      visibility: "moi" as const,
+    };
+    await expect(
+      updateProject(b.narrator, b.projectId, b.view.revision, {
+        ...command,
+        draft: false,
+      }),
+    ).rejects.toThrow();
+    let view = await updateProject(b.narrator, b.projectId, b.view.revision, {
+      ...command,
+      draft: true,
+    });
+    expect(view.project.memories[0]).toMatchObject({
+      text: "",
+      draft: "",
+      status: "brouillon",
+      visibility: "moi",
+    });
+    expect(composeBook(view.project, { kind: "narrateur" })).toEqual([]);
+    expect(
+      projectView(await accessProject(pool(), b.buyer, b.projectId)).project
+        .memories,
+    ).toEqual([]);
+    view = await updateProject(b.narrator, b.projectId, view.revision, {
+      ...command,
+      text: "Mon histoire racontée avec ma voix.",
+      draft: false,
+    });
+    expect(view.project.questions[0].status).toBe("repondue");
+    expect(
+      composeBook(view.project, { kind: "narrateur" })[0].memories[0].memory
+        .text,
+    ).toBe("Mon histoire racontée avec ma voix.");
+  });
   it("deletes only the target project jobs, even when another recipient email contains the narrator address", async () => {
     const b = await book();
     const row = await accessProject(pool(), b.narrator, b.projectId);
@@ -249,7 +290,7 @@ describe("audit privacy regressions", () => {
         text: "PRIVATE UNAPPROVED TRANSCRIPT",
         simulated: false,
       },
-      qr: { enabled: false, token: "" },
+      qr: { enabled: true, token: "NARRATOR-LINK-ONLY" },
     });
     await pool().query("UPDATE projects SET payload=$2 WHERE id=$1", [
       b.projectId,
@@ -283,6 +324,7 @@ describe("audit privacy regressions", () => {
         "PRIVATE UNAPPROVED TRANSCRIPT",
       );
       expect(result.project.audios).toHaveLength(1);
+      expect(JSON.stringify(result)).not.toContain("NARRATOR-LINK-ONLY");
     }
     await as(b.buyer);
     expect(
@@ -294,6 +336,7 @@ describe("audit privacy regressions", () => {
     const narratorView = projectView(
       await accessProject(pool(), b.narrator, b.projectId),
     );
+    expect(narratorView.project.audios[0].qr.token).toBe("NARRATOR-LINK-ONLY");
     expect(narratorView.project.audios[0].transcript.text).toBe(
       "PRIVATE UNAPPROVED TRANSCRIPT",
     );

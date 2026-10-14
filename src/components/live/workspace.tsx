@@ -643,6 +643,9 @@ function AnswerForm({
   latestText.current = text;
   saveRef.current = mutate;
   useEffect(() => {
+    if (!dirty.current && !pending.current) setText(m?.draft ?? m?.text ?? "");
+  }, [m?.draft, m?.text]);
+  useEffect(() => {
     const timer = setInterval(async () => {
       if (
         !dirty.current ||
@@ -659,7 +662,7 @@ function AnswerForm({
           type: "answer",
           questionId: qid,
           text: saving,
-          visibility: m?.visibility ?? "moi",
+          visibility: m?.visibility ?? p.privacy.defaultVisibility,
           draft: true,
         });
         if (latestText.current === saving) {
@@ -692,7 +695,7 @@ function AnswerForm({
       markUnsaved(false);
       window.removeEventListener("beforeunload", warn);
     };
-  }, [qid, m?.visibility]);
+  }, [qid, m?.visibility, p.privacy.defaultVisibility]);
   const save = async () => {
     setBusy(true);
     while (pending.current) await new Promise((r) => setTimeout(r, 20));
@@ -703,7 +706,7 @@ function AnswerForm({
         type: "answer",
         questionId: qid,
         text,
-        visibility: m?.visibility ?? "moi",
+        visibility: m?.visibility ?? p.privacy.defaultVisibility,
         draft: false,
       });
       dirty.current = false;
@@ -741,6 +744,36 @@ function AnswerForm({
       </p>
       <Message error={error} />
       <div className="flex flex-wrap gap-3">
+        {!m &&
+          !text.trim() &&
+          (p.kind === "personal" || p.packageCode !== "essentiel") && (
+            <Button
+              variant="outline"
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                setError("");
+                try {
+                  await mutate({
+                    type: "answer",
+                    questionId: qid,
+                    text: "",
+                    visibility: "moi",
+                    draft: true,
+                  });
+                  setStatus(
+                    "Brouillon vocal créé. Enregistrez votre voix dans le souvenir ci-dessous.",
+                  );
+                } catch (e) {
+                  setError((e as Error).message);
+                } finally {
+                  setBusy(false);
+                }
+              }}
+            >
+              Répondre avec ma voix
+            </Button>
+          )}
         <Button disabled={busy || !text.trim()} onClick={() => void save()}>
           Enregistrer ma réponse
         </Button>
@@ -1093,14 +1126,22 @@ function Transcript({
           </Button>
           <Button
             variant="outline"
-            disabled={locked || audio.transcript.status !== "validee"}
+            disabled={
+              locked ||
+              audio.transcript.status !== "validee" ||
+              text !== audio.transcript.text
+            }
             onClick={async () => {
               try {
                 const m = p.memories.find((m) => m.id === audio.memoryId)!;
                 await mutate({
-                  type: "memory",
-                  memoryId: m.id,
-                  text: [m.text, text].filter(Boolean).join("\n\n"),
+                  type: "answer",
+                  questionId: m.questionId,
+                  text: [m.draft ?? m.text, audio.transcript.text]
+                    .filter(Boolean)
+                    .join("\n\n"),
+                  visibility: m.visibility,
+                  draft: false,
                 });
                 setMessage("Transcription ajoutée au souvenir.");
               } catch (e) {
@@ -1517,8 +1558,8 @@ function FamilySettings({
         </label>
         <p className="text-sm">
           Vos proches ne voient que les souvenirs que vous partagez. Leurs
-          corrections sont soumises à votre validation. Un contributeur voit
-          les souvenirs partagés avec la famille ; les souvenirs réservés à
+          corrections sont soumises à votre validation. Un contributeur voit les
+          souvenirs partagés avec la famille ; les souvenirs réservés à
           l’éditeur familial restent accessibles uniquement à cet éditeur.
         </p>
         <Button type="submit">Envoyer l’invitation</Button>

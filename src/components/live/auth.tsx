@@ -219,6 +219,7 @@ export function AudioAccessScreen() {
                 body: JSON.stringify({ token, code }),
               });
               if (!r.ok) throw new Error((await r.json()).error);
+              setError("");
               setUrl(URL.createObjectURL(await r.blob()));
             } catch (e) {
               setError((e as Error).message);

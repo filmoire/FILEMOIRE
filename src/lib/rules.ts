@@ -156,7 +156,7 @@ export function composeBook(p: Project, v: Viewer): BookChapter[] {
         memory: m,
         question: p.questions.find((q) => q.id === m.questionId)?.text ?? "",
         paras: paragraphs(m.text),
-        audio: pkg(p.packageCode).qr ? p.audios.find((a) => a.memoryId === m.id && a.qr.enabled && a.transcript.status === "validee") : undefined,
+        audio: (p.kind === "personal" || p.orderId === null || pkg(p.packageCode).qr) ? p.audios.find((a) => a.memoryId === m.id && a.qr.enabled && a.transcript.status === "validee") : undefined,
       }));
     const visibleMemoryIds = new Set(memories.map((m) => m.memory.id));
     const photos = p.photos
@@ -265,7 +265,7 @@ export function printChecklist(p: Project): CheckItem[] {
   const low = photosInBook.filter(isLowRes);
   const hidden = p.memories.filter((m) => !m.inBook).length + p.photos.filter((ph) => !ph.inBook).length;
   const pending = p.suggestions.filter((s) => s.status === "en_attente").length;
-  const qrPkg = pkg(p.packageCode).qr;
+  const qrPkg = (p.kind === "personal" || p.orderId === null || pkg(p.packageCode).qr);
   const qrAudios = p.audios.filter((a) => a.qr.enabled);
   const qrNotReady = qrAudios.filter((a) => a.transcript.status !== "validee");
   const approved = isLocked(p);

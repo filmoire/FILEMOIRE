@@ -130,6 +130,35 @@ describe("confidentialité", () => {
 });
 
 describe("livre et impression", () => {
+  it("includes approved private audio in personal books without granting paid-package QR access", () => {
+    const p = madeleine();
+    p.packageCode = "essentiel";
+    const audio = p.audios[0];
+    audio.qr.enabled = true;
+    audio.transcript.status = "validee";
+    const memory = p.memories.find((m) => m.id === audio.memoryId)!;
+    memory.status = "terminee";
+    memory.inBook = true;
+    expect(
+      composeBook(p, { kind: "narrateur" })
+        .flatMap((c) => c.memories)
+        .some((m) => m.audio),
+    ).toBe(false);
+    p.kind = "personal";
+    expect(
+      composeBook(p, { kind: "narrateur" })
+        .flatMap((c) => c.memories)
+        .find((m) => m.memory.id === memory.id)?.audio?.id,
+    ).toBe(audio.id);
+    // Existing encrypted personal payloads predate the view-only kind field.
+    delete p.kind;
+    p.orderId = null;
+    expect(
+      composeBook(p, { kind: "narrateur" })
+        .flatMap((c) => c.memories)
+        .find((m) => m.memory.id === memory.id)?.audio?.id,
+    ).toBe(audio.id);
+  });
   it("pagination : couverture, titre, dédicace, sommaire, chapitres, fin", () => {
     const p = madeleine();
     const pages = paginate(p, composeBook(p, { kind: "narrateur" }));

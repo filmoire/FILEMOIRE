@@ -3,12 +3,17 @@ import {
   configureTests,
   resetTests,
   book,
+  account,
   answer,
   newestEmailToken,
 } from "./helpers";
 import { requestLogin } from "../../src/server/auth";
 import { pool } from "../../src/server/db";
-import { accessProject, updateProject } from "../../src/server/projects";
+import {
+  accessProject,
+  createPersonalProject,
+  updateProject,
+} from "../../src/server/projects";
 import sharp from "sharp";
 import AxeBuilder from "@axe-core/playwright";
 import { randomUUID } from "node:crypto";
@@ -279,12 +284,31 @@ test("public live mode hides demo controls, redirects legacy routes and persists
   );
 });
 
-test("records browser audio and sends original bytes to the server", async ({
+test("starts with voice, finishes a personal story and renders its private QR", async ({
   page,
+  isMobile,
 }) => {
-  const b = await book();
-  await answer(b);
+  const narrator = await account();
+  process.env.PERSONAL_DRAFTS_ENABLED = "true";
+  let personal;
+  try {
+    personal = await createPersonalProject(narrator, {
+      requestKey: randomUUID(),
+      firstName: "Camille",
+      lastName: "Test",
+      title: "Mon récit vocal",
+      theme: "vie",
+      accepted: true,
+      consentVersion: "2026-10-13",
+    });
+  } finally {
+    delete process.env.PERSONAL_DRAFTS_ENABLED;
+  }
+  const b = { narrator, projectId: personal.id };
   await login(page, b.narrator.email);
+  await page
+    .getByRole("button", { name: "Répondre avec ma voix", exact: true })
+    .click();
   await page
     .getByRole("button", { name: "Enregistrer ma voix", exact: true })
     .click();
@@ -308,6 +332,72 @@ test("records browser audio and sends original bytes to the server", async ({
   await expect(
     page.getByText("Transcription validée.", { exact: true }),
   ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Ajouter au récit", exact: true })
+    .click();
+  await expect(
+    page.getByText("Transcription ajoutée au souvenir.", { exact: true }),
+  ).toBeVisible();
+  await page.reload();
+  await page
+    .getByRole("combobox", { name: "Votre question", exact: true })
+    .selectOption(personal.project.questions[0].id);
+  await expect(page.getByLabel("Votre souvenir", { exact: true })).toHaveValue(
+    "Je conserve ma voix et corrige moi-même ce souvenir.",
+  );
+  await expect(
+    page.getByText("Réponse validée", { exact: false }),
+  ).toBeVisible();
+  await page.getByLabel("Activer l’écoute par QR").check();
+  await page
+    .getByLabel("Code d’écoute (8 caractères minimum)")
+    .fill("local-family-code");
+  await page
+    .getByRole("button", { name: "Enregistrer l’accès audio", exact: true })
+    .click();
+  await expect(
+    page.getByText("Communiquez le code séparément", { exact: false }),
+  ).toBeVisible();
+  const snapshot = await (
+    await page.request.get(`/api/v1/projects/${b.projectId}`)
+  ).json();
+  const token = snapshot.project.audios[0].qr.token;
+  expect(token).toBeTruthy();
+  expect(snapshot.project.memories[0].status).toBe("terminee");
+  const preview = await (
+    await page.request.get(`/api/v1/projects/${b.projectId}/preview`)
+  ).json();
+  expect(preview.book[0].memories[0].audio?.qr.token).toBe(token);
+  const pdf = await page.request.get(`/api/v1/projects/${b.projectId}/proof`);
+  expect(pdf.status()).toBe(200);
+  expect(pdf.headers()["content-type"]).toContain("application/pdf");
+  await page.getByRole("button", { name: "Livre", exact: true }).click();
+  await page
+    .getByLabel("Aller à")
+    .selectOption({ label: "Chapitre 1 — Origines" });
+  if (isMobile)
+    await page
+      .getByRole("button", { name: "Page suivante", exact: true })
+      .click();
+  await expect(
+    page
+      .getByRole("img", {
+        name: `QR code vers http://localhost:3300/ecoute#token=${token}`,
+        exact: true,
+      })
+      .first(),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Déconnexion", exact: true }).click();
+  await expect(page).toHaveURL(/\/acces$/);
+  await page.goto(`/ecoute#token=${token}`);
+  await page.getByLabel("Code famille").fill("incorrect-code");
+  await page.getByRole("button", { name: "Écouter", exact: true }).click();
+  await expect(
+    page.getByText("Lien ou code invalide.", { exact: true }),
+  ).toBeVisible();
+  await page.getByLabel("Code famille").fill("local-family-code");
+  await page.getByRole("button", { name: "Écouter", exact: true }).click();
+  await expect(page.locator("audio")).toHaveAttribute("src", /^blob:/);
   expect(
     (
       await pool().query(

@@ -219,7 +219,7 @@ export function projectView(row: ProjectRow) {
     ...audio,
     blobKey: undefined,
     src: `/api/v1/media/${audio.id}`,
-    qr: { ...audio.qr, token: "" },
+    qr: { ...audio.qr, token: role === "narrator" ? audio.qr.token : "" },
   }));
   p.photos = p.photos.map((photo) => ({
     ...photo,
@@ -261,121 +261,133 @@ const address = z
     country: z.string().trim().length(2),
   })
   .strict();
-export const commandSchema = z.discriminatedUnion("type", [
-  z
-    .object({
-      type: z.literal("answer"),
-      questionId: target,
-      text,
-      visibility: visibility.default("moi"),
-      draft: z.boolean().default(false),
-    })
-    .strict(),
-  z
-    .object({
-      type: z.literal("memory"),
-      memoryId: target,
-      text: text.optional(),
-      visibility: visibility.optional(),
-      inBook: z.boolean().optional(),
-      chapterId: target.optional(),
-    })
-    .strict(),
-  z.object({ type: z.literal("delete-memory"), memoryId: target }).strict(),
-  z
-    .object({
-      type: z.literal("question"),
-      questionId: target,
-      action: z.enum(["skip", "postpone", "open"]),
-      days: z.number().int().min(1).max(90).default(7),
-    })
-    .strict(),
-  z
-    .object({
-      type: z.literal("preferences"),
-      cadenceDays: z.number().int().min(0).max(30),
-      reminders: z.enum(["douces", "aucune"]),
-      buyerSeesProgress: z.boolean(),
-      defaultVisibility: visibility,
-      marketing: z.boolean(),
-    })
-    .strict(),
-  z
-    .object({
-      type: z.literal("onboard"),
-      consentVersion: z.literal("2026-10-13"),
-      accepted: z.literal(true),
-    })
-    .strict(),
-  z
-    .object({
-      type: z.literal("cover"),
-      title: z.string().trim().min(1).max(100),
-      subtitle: z.string().max(200),
-      dedication: z.string().max(3000),
-      template: z.enum(["prune", "creme", "terre"]),
-    })
-    .strict(),
-  z
-    .object({
-      type: z.literal("chapters"),
-      chapters: z
-        .array(
-          z
-            .object({ id: target, title: z.string().trim().min(1).max(100) })
-            .strict(),
-        )
-        .min(1)
-        .max(30),
-    })
-    .strict(),
-  z
-    .object({
-      type: z.literal("suggest"),
-      memoryId: target,
-      text,
-      note: z.string().max(1000).default(""),
-    })
-    .strict(),
-  z
-    .object({
-      type: z.literal("decide"),
-      suggestionId: target,
-      accept: z.boolean(),
-    })
-    .strict(),
-  z
-    .object({
-      type: z.literal("transcript"),
-      audioId: target,
-      text,
-      approved: z.boolean(),
-    })
-    .strict(),
-  z
-    .object({
-      type: z.literal("photo"),
-      photoId: target,
-      caption: z.string().max(1000),
-      date: z.string().max(100),
-      people: z.string().max(500),
-      inBook: z.boolean(),
-      order: z.number().int().min(0).max(1000),
-    })
-    .strict(),
-  z
-    .object({
-      type: z.literal("approve"),
-      contentHash: z.string().length(64),
-      address: address.optional(),
-    })
-    .strict(),
-  z.object({ type: z.literal("reopen") }).strict(),
-  z
-    .object({ type: z.literal("delete-project"), confirm: z.literal("DELETE") })
-    .strict(),
-  z.object({ type: z.literal("cancel-deletion") }).strict(),
-]);
+export const commandSchema = z
+  .discriminatedUnion("type", [
+    z
+      .object({
+        type: z.literal("answer"),
+        questionId: target,
+        text: z.string().trim().max(100000),
+        visibility: visibility.default("moi"),
+        draft: z.boolean().default(false),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("memory"),
+        memoryId: target,
+        text: text.optional(),
+        visibility: visibility.optional(),
+        inBook: z.boolean().optional(),
+        chapterId: target.optional(),
+      })
+      .strict(),
+    z.object({ type: z.literal("delete-memory"), memoryId: target }).strict(),
+    z
+      .object({
+        type: z.literal("question"),
+        questionId: target,
+        action: z.enum(["skip", "postpone", "open"]),
+        days: z.number().int().min(1).max(90).default(7),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("preferences"),
+        cadenceDays: z.number().int().min(0).max(30),
+        reminders: z.enum(["douces", "aucune"]),
+        buyerSeesProgress: z.boolean(),
+        defaultVisibility: visibility,
+        marketing: z.boolean(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("onboard"),
+        consentVersion: z.literal("2026-10-13"),
+        accepted: z.literal(true),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("cover"),
+        title: z.string().trim().min(1).max(100),
+        subtitle: z.string().max(200),
+        dedication: z.string().max(3000),
+        template: z.enum(["prune", "creme", "terre"]),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("chapters"),
+        chapters: z
+          .array(
+            z
+              .object({ id: target, title: z.string().trim().min(1).max(100) })
+              .strict(),
+          )
+          .min(1)
+          .max(30),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("suggest"),
+        memoryId: target,
+        text,
+        note: z.string().max(1000).default(""),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("decide"),
+        suggestionId: target,
+        accept: z.boolean(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("transcript"),
+        audioId: target,
+        text,
+        approved: z.boolean(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("photo"),
+        photoId: target,
+        caption: z.string().max(1000),
+        date: z.string().max(100),
+        people: z.string().max(500),
+        inBook: z.boolean(),
+        order: z.number().int().min(0).max(1000),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("approve"),
+        contentHash: z.string().length(64),
+        address: address.optional(),
+      })
+      .strict(),
+    z.object({ type: z.literal("reopen") }).strict(),
+    z
+      .object({
+        type: z.literal("delete-project"),
+        confirm: z.literal("DELETE"),
+      })
+      .strict(),
+    z.object({ type: z.literal("cancel-deletion") }).strict(),
+  ])
+  .superRefine((command, ctx) => {
+    if (command.type === "answer" && !command.draft && !command.text)
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["text"],
+        message: "Ajoutez votre récit avant de valider la réponse.",
+      });
+  });
 export type Command = z.infer<typeof commandSchema>;
 export function bookHash(p: Project) {
   // Only rendered content belongs in the approval fingerprint. Preferences,
