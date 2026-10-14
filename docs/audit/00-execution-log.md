@@ -56,3 +56,12 @@ Remaining: complete per-file review, full requirement matrix and API tests, fron
 - TypeScript, ESLint, both demo/live optimized builds, standalone HTML and worker builds passed. Final measured coverage is 79.32% lines, 76.77% statements, 64.84% branches and 80.40% functions. The 90% requirement is still unmet.
 - Local working website health returned `ok` and login HTTP 200 at port 3100. Existing working data was preserved. Evidence and operational checks are summarized in `local-test-results-2026-10-14.md`; logs use the `final-` prefix.
 - This completes the requested local test pass. The larger production audit remains in progress, including remaining source review, workflow gaps, provider acceptance, coverage and reports 05–15. No production launch is approved.
+
+## English/French interface — user-requested follow-up
+
+- Application commit `9424f5b` enables FR / EN in public, authentication, listening, legal and account headers; browser preferences persist across routes, reloads and sign-in. Added 357 English dictionary entries for live controls, explanations and API errors.
+- Translation preserves mounted forms and active recorders. User-authored stories, captions and book titles remain unchanged. Public fictional sample data may be localized; generated emails and fixed server-PDF editorial text retain their existing language. See `../production/LANGUAGE.md`.
+- The new recording test exposed translation child-slot removal that remounted controls. Preserving child positions fixed it. A full run also exposed a responsive book-preview jump; retaining the selected page rather than its spread index fixed it, with an explicit viewport regression.
+- Final results: **102 domain tests + 14 live browser tests + 25 demo/HTML tests = 141 passing cases**. TypeScript, ESLint, live/demo optimized builds and standalone HTML passed. Accessibility and viewport checks passed on the exercised English privacy screen.
+- Evidence: `artifacts/production/language-2026-10-14/` contains `domain.log`, `live-verified-final.log`, `demo-verified-final.log`, build/check logs and desktop/mobile screenshots. Earlier failed or interrupted diagnostic runs are retained and are not counted as acceptance.
+- Local working website health is `ok`, sign-in HTTP 200. Test resets were restricted to `filemoire_test`; working data was preserved. The broader production audit and external launch gates remain open.
