@@ -1,0 +1,19 @@
+# Local services only. Application runs with APP_MODE=live and next dev.
+services:
+  db:
+    image: postgres:17-bookworm
+    environment:
+      POSTGRES_USER: filemoire
+      POSTGRES_PASSWORD: local_development_only
+      POSTGRES_DB: filemoire
+    ports: ["127.0.0.1:55432:5432"]
+    volumes: ["db_data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U filemoire"]
+      interval: 5s
+      retries: 10
+  mail:
+    image: axllent/mailpit:v1
+    ports: ["127.0.0.1:1025:1025", "127.0.0.1:8025:8025"]
+volumes:
+  db_data:

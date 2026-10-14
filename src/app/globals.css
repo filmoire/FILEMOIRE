@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root { color-scheme: light; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { @apply bg-creme text-ink font-sans antialiased; font-size: 17px; line-height: 1.6; }
+  h1, h2, h3, h4 { @apply font-serif font-semibold text-prune; line-height: 1.15; letter-spacing: -0.005em; }
+  h1 { font-size: clamp(2rem, 4.2vw, 2.9rem); }
+  h2 { font-size: clamp(1.45rem, 2.6vw, 1.9rem); }
+  h3 { font-size: 1.3rem; }
+  a { @apply underline-offset-4; }
+  :focus-visible { outline: 3px solid #B65D45; outline-offset: 3px; border-radius: 4px; }
+  ::selection { background: #EFE3D3; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  }
+}
+
+@layer components {
+  .container-page { @apply mx-auto w-full max-w-6xl px-4 sm:px-6; }
+  .eyebrow { @apply text-xs font-semibold uppercase tracking-[0.14em] text-terre; }
+  .quote { @apply font-serif italic text-prune; }
+  .gold-rule { @apply h-px w-full bg-gradient-to-r from-transparent via-or to-transparent; }
+  .card { @apply rounded-lg border border-line bg-white shadow-soft; }
+  .muted { @apply text-ink-muted; }
+  .paper { background: #FFFDF9; }
+  .sr-only-focusable:not(:focus) { @apply sr-only; }
+}
+
+@media print {
+  body { background: white !important; }
+  .no-print { display: none !important; }
+  .print-page { break-after: page; box-shadow: none !important; margin: 0 auto !important; }
+}
+
+/* Account actions remain readable at narrow viewport widths. */
+.live-workspace button { white-space: normal; height: auto; min-height: 44px; padding-top: .5rem; padding-bottom: .5rem; }
+.live-workspace input, .live-workspace textarea, .live-workspace select { max-width: 100%; }
+.live-workspace .eyebrow { color: #984936; }
