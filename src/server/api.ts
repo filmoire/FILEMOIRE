@@ -348,7 +348,8 @@ export async function handleApi(req: Request, path: string[]) {
       }
       if (sub === "print" && method === "POST")
         return reply(await requestPrint(a, pid, await json(req)), 201);
-      if (sub === "export" && method === "GET") return exportArchive(a, pid);
+      if (sub === "export" && method === "GET")
+        return await exportArchive(a, pid);
       if (sub === "audit" && method === "GET") {
         const row = await accessProject(pool(), a, pid);
         assert(row.role === "narrator", 403, "Accès refusé.");

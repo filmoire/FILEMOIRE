@@ -1517,7 +1517,9 @@ function FamilySettings({
         </label>
         <p className="text-sm">
           Vos proches ne voient que les souvenirs que vous partagez. Leurs
-          corrections sont soumises à votre validation.
+          corrections sont soumises à votre validation. Un contributeur voit
+          les souvenirs partagés avec la famille ; les souvenirs réservés à
+          l’éditeur familial restent accessibles uniquement à cet éditeur.
         </p>
         <Button type="submit">Envoyer l’invitation</Button>
       </form>

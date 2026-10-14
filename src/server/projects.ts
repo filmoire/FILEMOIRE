@@ -175,8 +175,7 @@ export function readable(m: Memory, role: ProjectRow["role"]) {
       m.inBook &&
       (role === "support" ||
         m.visibility === "famille" ||
-        ((role === "editor" || role === "contributor") &&
-          m.visibility === "editeur")))
+        (role === "editor" && m.visibility === "editeur")))
   );
 }
 export function projectView(row: ProjectRow) {
@@ -192,7 +191,17 @@ export function projectView(row: ProjectRow) {
     p.photos = p.photos.filter(
       (x) => x.inBook && !!x.memoryId && mids.has(x.memoryId),
     );
-    p.audios = p.audios.filter((x) => mids.has(x.memoryId));
+    p.audios = p.audios
+      .filter((x) => mids.has(x.memoryId))
+      .map((audio) => ({
+        ...audio,
+        // A shared recording does not publish a draft transcription. Keep this
+        // boundary on the server, including for temporary support access.
+        transcript:
+          audio.transcript.status === "validee"
+            ? audio.transcript
+            : { status: audio.transcript.status, text: "", simulated: false },
+      }));
     p.editors = [];
     p.narrator.email = "";
     p.privacy = {
