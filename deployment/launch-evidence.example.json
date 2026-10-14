@@ -1,0 +1,18 @@
+{
+  "scopeApproved": false,
+  "legalReviewUrl": "",
+  "processorContractsApproved": false,
+  "stagingUrl": "",
+  "restoreDrillDate": "",
+  "rollbackDrillDate": "",
+  "paymentSandboxEvidence": "",
+  "emailDeliveryEvidence": "",
+  "transcriptionQualityEvidence": "",
+  "supplierPdfAcceptance": "",
+  "physicalBooksAccepted": 0,
+  "realPilotFamilies": 0,
+  "deviceAccessibilityEvidence": "",
+  "supportOwner": "",
+  "securityReview": "",
+  "goLiveApproved": false
+}

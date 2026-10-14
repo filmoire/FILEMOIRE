@@ -1,0 +1,14 @@
+node_modules
+.next*
+.git
+.env*
+!.env.example
+.private-media
+.production-test
+artifacts
+dist
+.html-build
+test-results
+playwright-report
+*.tsbuildinfo
+.filemoire-local.lock
