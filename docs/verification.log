@@ -1,0 +1,161 @@
+# Vérification — 2026-10-13T11:45:19+02:00
+## node v22.22.0, pnpm 10.28.0
+
+### $ pnpm typecheck
+
+> filemoire-prototype@0.1.0 typecheck /home/claude/filemoire-prototype
+> tsc --noEmit
+
+### exit=0
+
+### $ pnpm lint
+
+> filemoire-prototype@0.1.0 lint /home/claude/filemoire-prototype
+> eslint src
+
+### exit=0
+
+### $ pnpm test
+
+> filemoire-prototype@0.1.0 test /home/claude/filemoire-prototype
+> vitest run
+
+
+ RUN  v3.2.4 /home/claude/filemoire-prototype
+
+ ✓ src/lib/rules.test.ts (20 tests) 17ms
+ ✓ src/i18n/core.test.ts (5 tests) 24ms
+
+ Test Files  2 passed (2)
+      Tests  25 passed (25)
+   Start at  11:45:33
+   Duration  1.07s (transform 253ms, setup 0ms, collect 408ms, tests 42ms, environment 0ms, prepare 150ms)
+
+### exit=0
+
+### $ pnpm build
+
+> filemoire-prototype@0.1.0 build /home/claude/filemoire-prototype
+> next build
+
+   ▲ Next.js 15.5.4
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 8.5s
+   Linting and checking validity of types ...
+
+ ⚠ The Next.js plugin was not detected in your ESLint configuration. See https://nextjs.org/docs/app/api-reference/config/eslint#migrating-existing-config
+   Collecting page data ...
+   Generating static pages (0/35) ...
+   Generating static pages (8/35)
+   Generating static pages (17/35)
+   Generating static pages (26/35)
+ ✓ Generating static pages (35/35)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                    4.07 kB         235 kB
+├ ○ /_not-found                            997 B         103 kB
+├ ○ /acheteur                            5.73 kB         196 kB
+├ ○ /acheteur/cadeaux                    5.92 kB         218 kB
+├ ○ /acheteur/commandes                  6.24 kB         218 kB
+├ ○ /acheteur/offrir                       11 kB         235 kB
+├ ○ /acheteur/suivi                      7.15 kB         219 kB
+├ ○ /admin                               5.42 kB         196 kB
+├ ○ /admin/commandes                     5.41 kB         192 kB
+├ ○ /admin/impression                    8.43 kB         216 kB
+├ ○ /admin/projets                       3.65 kB         231 kB
+├ ○ /admin/questions                     8.05 kB         216 kB
+├ ○ /admin/support                       4.23 kB         201 kB
+├ ○ /apple-icon.png                          0 B            0 B
+├ ○ /comment-ca-marche                   1.73 kB         233 kB
+├ ○ /connexion                           3.66 kB         232 kB
+├ ○ /demo/boite-mail                     3.21 kB         209 kB
+├ ƒ /ecouter/[token]                     5.59 kB         221 kB
+├ ○ /editeur                                6 kB         197 kB
+├ ○ /editeur/livres                      4.53 kB         195 kB
+├ ƒ /editeur/livres/[id]                 7.18 kB         239 kB
+├ ○ /editeur/relecture                   5.98 kB         214 kB
+├ ○ /icon.png                                0 B            0 B
+├ ƒ /invitation/[token]                  3.66 kB         210 kB
+├ ○ /livre-exemple                        2.8 kB         197 kB
+├ ○ /narrateur                           7.09 kB         208 kB
+├ ○ /narrateur/apercu                     7.1 kB         246 kB
+├ ○ /narrateur/bienvenue                 8.77 kB         210 kB
+├ ○ /narrateur/chapitres                 5.48 kB         217 kB
+├ ○ /narrateur/confidentialite           9.55 kB         217 kB
+├ ○ /narrateur/famille                    8.6 kB         243 kB
+├ ○ /narrateur/livre                     6.93 kB         235 kB
+├ ○ /narrateur/photos                    3.15 kB         231 kB
+├ ○ /narrateur/questions                 4.91 kB         206 kB
+├ ƒ /narrateur/questions/[id]            13.3 kB         246 kB
+├ ○ /narrateur/souvenirs                 4.83 kB         233 kB
+└ ○ /offres                              1.15 kB         232 kB
++ First Load JS shared by all             102 kB
+  ├ chunks/47eba7ba-472671789b508ca1.js  54.2 kB
+  ├ chunks/5476-93bcb7f450c5ddb1.js        46 kB
+  └ other shared chunks (total)          1.95 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+### exit=0
+
+### $ pnpm build:html
+
+> filemoire-prototype@0.1.0 build:html /home/claude/filemoire-prototype
+> node scripts/build-html.mjs
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+
+Rebuilding...
+
+Done in 1080ms.
+dist/filemoire-prototype.html — 1335 Ko
+### exit=0
+
+### $ pnpm test:e2e
+
+> filemoire-prototype@0.1.0 test:e2e /home/claude/filemoire-prototype
+> playwright test
+
+
+Running 25 tests using 1 worker
+
+  ✓   1 [bureau] › e2e/demo.spec.ts:7:5 › parcours de démonstration complet : les 19 étapes de validation (18.7s)
+  ✓   2 [bureau] › e2e/en-flow.spec.ts:8:5 › English: the 19-step demo works end to end and nothing is left untranslated (17.0s)
+  ✓   3 [bureau] › e2e/en.spec.ts:13:5 › anglais : toutes les pages sont traduites (13.8s)
+  ✓   4 [bureau] › e2e/en.spec.ts:52:5 › anglais : la démo réinitialisée en anglais crée ses données en anglais (2.5s)
+  ✓   5 [bureau] › e2e/rules.spec.ts:5:7 › confidentialité et autorisations › l'acheteuse ne lit que ce qui est partagé avec la famille (2.1s)
+  ✓   6 [bureau] › e2e/rules.spec.ts:16:7 › confidentialité et autorisations › l'éditeur familial perd l'accès dès qu'il est révoqué (2.9s)
+  ✓   7 [bureau] › e2e/rules.spec.ts:32:7 › confidentialité et autorisations › les Opérations ne lisent un manuscrit qu'avec une autorisation temporaire (3.3s)
+  ✓   8 [bureau] › e2e/rules.spec.ts:48:7 › confidentialité et autorisations › un visiteur ne peut pas ouvrir l'espace narrateur (1.3s)
+  ✓   9 [bureau] › e2e/rules.spec.ts:56:7 › confidentialité et autorisations › invitation expirée puis renvoyée (5.0s)
+  ✓  10 [bureau] › e2e/rules.spec.ts:75:7 › confidentialité et autorisations › la transcription simulée en échec conserve l'enregistrement (5.1s)
+  ✓  11 [bureau] › e2e/rules.spec.ts:90:5 › toutes les routes s'affichent sans erreur, pour le bon rôle (9.6s)
+  ✓  12 [bureau] › e2e/mic.spec.ts:7:5 › micro refusé : message clair et solution de repli (2.2s)
+  ✓  13 [mobile] › e2e/mobile.spec.ts:4:5 › mobile : pas de défilement horizontal et parcours narrateur utilisable (5.2s)
+  ✓  14 [html] › e2e/demo.spec.ts:7:5 › parcours de démonstration complet : les 19 étapes de validation (18.9s)
+  ✓  15 [html] › e2e/en-flow.spec.ts:8:5 › English: the 19-step demo works end to end and nothing is left untranslated (16.6s)
+  ✓  16 [html] › e2e/en.spec.ts:13:5 › anglais : toutes les pages sont traduites (5.6s)
+  ✓  17 [html] › e2e/en.spec.ts:52:5 › anglais : la démo réinitialisée en anglais crée ses données en anglais (2.5s)
+  ✓  18 [html] › e2e/rules.spec.ts:5:7 › confidentialité et autorisations › l'acheteuse ne lit que ce qui est partagé avec la famille (2.0s)
+  ✓  19 [html] › e2e/rules.spec.ts:16:7 › confidentialité et autorisations › l'éditeur familial perd l'accès dès qu'il est révoqué (2.7s)
+  ✓  20 [html] › e2e/rules.spec.ts:32:7 › confidentialité et autorisations › les Opérations ne lisent un manuscrit qu'avec une autorisation temporaire (2.5s)
+  ✓  21 [html] › e2e/rules.spec.ts:48:7 › confidentialité et autorisations › un visiteur ne peut pas ouvrir l'espace narrateur (1.4s)
+  ✓  22 [html] › e2e/rules.spec.ts:56:7 › confidentialité et autorisations › invitation expirée puis renvoyée (5.1s)
+  ✓  23 [html] › e2e/rules.spec.ts:75:7 › confidentialité et autorisations › la transcription simulée en échec conserve l'enregistrement (5.5s)
+  ✓  24 [html] › e2e/rules.spec.ts:90:5 › toutes les routes s'affichent sans erreur, pour le bon rôle (4.0s)
+  ✓  25 [html-mobile] › e2e/mobile.spec.ts:4:5 › mobile : pas de défilement horizontal et parcours narrateur utilisable (6.7s)
+
+  25 passed (2.8m)
+
+To open last HTML report run:
+
+  pnpm exec playwright show-report
+
+### exit=0
