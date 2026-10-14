@@ -1,5 +1,7 @@
 # Verification record — 13 October 2026
 
+Latest follow-up: [14 October local test results](../audit/local-test-results-2026-10-14.md), with 135 passing cases and separate coverage/production limitations. The dated results below are retained as historical evidence.
+
 This record covers local engineering checks. It is not a public launch or compliance certificate.
 
 ## Local website follow-up

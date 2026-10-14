@@ -47,3 +47,12 @@ Remaining: complete per-file review, full requirement matrix and API tests, fron
 - FILE-LIFE-001: both deletion regressions reproduced before repair, then verified against the isolated test database. Unrelated project jobs survive deletion; cancellation after the grace deadline cannot restore partially erased media.
 - Optimized application, standalone HTML and worker bundles built successfully. Live browser tests: 10 passed; demo/HTML browser tests: 25 passed. Fresh migrations, repeated migrations, local SMTP login delivery, worker heartbeat and encrypted backup restoration passed. See `local-test-results-2026-10-14.md`.
 - Evidence: `local-*.log` in `artifacts/production/audit-2026-10-14/`; these generated logs are intentionally ignored by Git.
+
+## Completed local audio/PDF follow-up
+
+- FILE-PDF-001: independently reproduced an approved-version PDF pointer overwrite when composition rules change at the same revision. Commit `6862ba3` preserves original approved bytes and updates draft provenance consistently. Three PostgreSQL/storage/PDF regressions pass.
+- FILE-AUDIO-FLOW-001 and FILE-BOOK-QR-001: blank private voice drafts, approved transcript publication, personal-book QR eligibility, narrator-only management tokens and live listening links are repaired. Desktop/mobile tests cover recording through code-protected listening.
+- Final domain suite: **100 passed** across six files. Final live browser suite: **10 passed**. Final demo/HTML suite: **25 passed**. Total: **135 cases**, without counting duplicate focused runs.
+- TypeScript, ESLint, both demo/live optimized builds, standalone HTML and worker builds passed. Final measured coverage is 79.32% lines, 76.77% statements, 64.84% branches and 80.40% functions. The 90% requirement is still unmet.
+- Local working website health returned `ok` and login HTTP 200 at port 3100. Existing working data was preserved. Evidence and operational checks are summarized in `local-test-results-2026-10-14.md`; logs use the `final-` prefix.
+- This completes the requested local test pass. The larger production audit remains in progress, including remaining source review, workflow gaps, provider acceptance, coverage and reports 05–15. No production launch is approved.

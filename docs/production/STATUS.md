@@ -6,7 +6,7 @@ Source control is configured for [gftij-project-iit/FILEMOIRE](https://github.co
 
 **Local website:** the user selected local operation first. `node scripts/local/start.mjs` now starts the real website, database, SMTP inbox and worker. New accounts can create private personal manuscripts without purchasing a gift; stories, photos, recordings, family permissions, PDF approval and exports use real storage. Personal manuscripts do not create payment records or printed-copy entitlements. Automatic transcription is replaced by an honest manual-entry state when no provider is configured. See [LOCAL-WEBSITE.md](LOCAL-WEBSITE.md).
 
-Working scope: one-time Essentiel/Héritage/Voix purchases; Bilingue/Accompagné quote-only; French account workspace; private narrator accounts and invited family editors/contributors. Package entitlements and final commercial terms still need owner confirmation. The earlier NestJS backend mentioned in historical documentation was not present; its location was requested. The new implementation uses Next.js API routes, PostgreSQL and a separate worker. It must be reconciled with any separate existing backend before production data is connected.
+Working scope: one-time Essentiel/Héritage/Voix purchases; Bilingue/Accompagné quote-only; French account workspace; private narrator accounts and invited family editors/contributors. Package entitlements and final commercial terms still need owner confirmation. A separate NestJS/Drizzle application was found at `/Users/zainsubhani/Downloads/filemoire`. The current repository remains the canonical application for this audit and uses Next.js API routes, PostgreSQL and a separate worker. The alternate application is a read-only reference; production data must not be connected until ownership and any intended reconciliation are confirmed.
 
 | # | Step | Implemented and locally checked | Still needed before declaring the step complete |
 | --- | --- | --- | --- |
@@ -34,7 +34,7 @@ Checkout defaults closed. Printing defaults closed and additionally requires sup
 
 ## Remaining external inputs
 
-- The separate backend repository/path, if it exists, and confirmation of the commercial/editorial scope.
+- Confirmation of whether the discovered alternate backend has any production role, and approval of the commercial/editorial scope.
 - Hosting/domain/database, private object storage, Stripe, SMTP, transcription and printing provider selections and securely configured credentials. Do not paste secret keys into chat.
 - Named legal/security/support owners and reviewed customer documents, retention and recovery decisions.
 - Consenting pilot participants, physical print orders and acceptance evidence.
