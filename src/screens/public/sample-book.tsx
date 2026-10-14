@@ -1,4 +1,6 @@
 "use client";
+import { localizeData } from "@/i18n/core";
+import { useLang } from "@/i18n/lang";
 
 import { BookViewer } from "@/components/book/viewer";
 import { Alert } from "@/components/ui/alert";
@@ -8,7 +10,8 @@ import { Link } from "@/lib/nav";
 import { sampleProject } from "@/lib/sample";
 
 export function SampleBookScreen() {
-  const p = sampleProject();
+  useLang((s) => s.lang);
+  const p = localizeData(sampleProject());
   return (
     <div className="container-page py-12">
       <PageHeader

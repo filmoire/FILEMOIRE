@@ -1,4 +1,5 @@
 "use client";
+import { useLang } from "@/i18n/lang";
 
 import { Check } from "lucide-react";
 import { PageHeader } from "@/components/ui/misc";
@@ -26,6 +27,7 @@ const PREMIUM = [
 ];
 
 export function OffersScreen() {
+  useLang((s) => s.lang);
   const devis = useQueryParam("devis") as PackageCode | null;
   return (
     <div className="container-page py-12">

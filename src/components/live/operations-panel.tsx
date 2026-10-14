@@ -1,4 +1,5 @@
 "use client";
+import { tr } from "@/i18n/core";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
@@ -131,7 +132,9 @@ export function OperationsPanel() {
                 onClick={() => {
                   if (
                     window.confirm(
-                      `Rembourser intégralement la commande ${o.id.slice(0, 8)} ?`,
+                      tr(
+                        `Rembourser intégralement la commande ${o.id.slice(0, 8)} ?`,
+                      ),
                     )
                   )
                     void run(() =>
@@ -154,9 +157,14 @@ export function OperationsPanel() {
             className="my-4 space-y-3 rounded border border-line p-4"
           >
             <p>
-              {t.name} · {t.email} · {t.topic} · {t.status}
+              <span translate="no">
+                {t.name} · {t.email}
+              </span>{" "}
+              · {t.topic} · {t.status}
             </p>
-            <p className="whitespace-pre-wrap">{t.message}</p>
+            <p translate="no" className="whitespace-pre-wrap">
+              {t.message}
+            </p>
             {t.status === "open" && (
               <form
                 className="space-y-3"

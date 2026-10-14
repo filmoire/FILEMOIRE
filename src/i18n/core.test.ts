@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { localizeData, MISSING, resetTranslationCache, setLangCore, tr } from "./core";
+import { localizeData, MISSING, resetTranslationCache, setLangCore, tr, translateProps } from "./core";
 
 afterEach(() => {
   setLangCore("fr");
@@ -7,6 +7,19 @@ afterEach(() => {
 });
 
 describe("traduction FR → EN", () => {
+  it("preserves React child positions so language changes do not remount stateful controls", () => {
+    setLangCore("en");
+    const control = { type: "recording-control" };
+    const result = translateProps({ children: [false, "Chapitre ", 2, null, control] });
+    expect(result?.children).toEqual([false, "Chapter 2", "", null, control]);
+    expect((result?.children as unknown[])[4]).toBe(control);
+  });
+  it("protects manuscript text and custom component data while translating interface children", () => {
+    setLangCore("en");
+    const manuscript = { translate: "no", children: "Bonjour", title: "Souvenirs" };
+    expect(translateProps(manuscript)).toBe(manuscript);
+    expect(translateProps({ title: "Souvenirs", children: "Mes livres", value: "Bonjour" }, true)).toEqual({ title: "Souvenirs", children: "My books", value: "Bonjour" });
+  });
   it("le français est la langue source (identité)", () => {
     expect(tr("Offrir Filémoire")).toBe("Offrir Filémoire");
   });

@@ -2,8 +2,11 @@
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Logo } from "@/components/shell/logo";
+import { LangSwitch } from "@/components/shell/lang-switch";
+import { useLang } from "@/i18n/lang";
 import { api, confirmNavigation } from "./client";
 export function LiveShell({ children }: { children: ReactNode }) {
+  useLang((s) => s.lang);
   const [error, setError] = useState("");
   return (
     <div className="live-workspace min-h-screen bg-creme text-ink">
@@ -11,7 +14,7 @@ export function LiveShell({ children }: { children: ReactNode }) {
         Aller au contenu
       </a>
       <header className="border-b border-line bg-white">
-        <div className="container-page flex min-h-20 flex-wrap items-center gap-6 py-4">
+        <div className="container-page flex min-h-20 flex-wrap items-center gap-4 py-4">
           <span
             onClick={(e) => {
               if (!confirmNavigation()) e.preventDefault();
@@ -19,6 +22,7 @@ export function LiveShell({ children }: { children: ReactNode }) {
           >
             <Logo />
           </span>
+          <LangSwitch className="ml-auto" />
           <nav
             onClick={(e) => {
               if (
@@ -28,7 +32,7 @@ export function LiveShell({ children }: { children: ReactNode }) {
                 e.preventDefault();
             }}
             aria-label="Navigation du compte"
-            className="ml-auto flex flex-wrap gap-5"
+            className="flex w-full flex-wrap items-center gap-x-5 gap-y-3 sm:w-auto"
           >
             <Link href="/espace">Mes livres</Link>
             <Link href="/offrir">Offrir</Link>
@@ -57,6 +61,14 @@ export function LiveShell({ children }: { children: ReactNode }) {
         Filémoire · Vos souvenirs, sous votre contrôle.
       </footer>
     </div>
+  );
+}
+export function LivePublicHeader() {
+  return (
+    <header className="flex flex-wrap items-center justify-between gap-4">
+      <Logo />
+      <LangSwitch />
+    </header>
   );
 }
 export const Message = ({

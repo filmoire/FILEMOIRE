@@ -1,4 +1,5 @@
 "use client";
+import { useLang } from "@/i18n/lang";
 
 import { BellRing, CalendarDays, Mic, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Link } from "@/lib/nav";
 import { RolesRow, Timeline } from "./sections";
 
 export function HowScreen() {
+  useLang((s) => s.lang);
   return (
     <div className="container-page py-12">
       <PageHeader eyebrow="Comment ça marche" title="De la première question au livre imprimé" intro="Le parcours implique la personne qui offre, le narrateur et parfois un éditeur familial. Les autorisations et responsabilités de chacun sont explicites." />

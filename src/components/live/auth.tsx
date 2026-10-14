@@ -1,12 +1,13 @@
 "use client";
+import { useLang } from "@/i18n/lang";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Logo } from "@/components/shell/logo";
 import { api } from "./client";
-import { Message } from "./shell";
+import { LivePublicHeader, Message } from "./shell";
 export function AccessScreen({ localInbox = false }: { localInbox?: boolean }) {
+  useLang((s) => s.lang);
   const [email, setEmail] = useState(""),
     [token, setToken] = useState(""),
     [error, setError] = useState(""),
@@ -30,7 +31,7 @@ export function AccessScreen({ localInbox = false }: { localInbox?: boolean }) {
   }, []);
   return (
     <main className="container-page max-w-lg py-16">
-      <Logo />
+      <LivePublicHeader />
       <div className="card mt-10 p-8">
         <h1>Votre espace Filémoire</h1>
         <p className="mt-4">
@@ -131,6 +132,7 @@ export function AccessScreen({ localInbox = false }: { localInbox?: boolean }) {
   );
 }
 export function JoinScreen() {
+  useLang((s) => s.lang);
   const [token, setToken] = useState(""),
     [error, setError] = useState(""),
     [ready, setReady] = useState(false);
@@ -142,7 +144,7 @@ export function JoinScreen() {
   }, []);
   return (
     <main className="container-page max-w-lg py-16">
-      <Logo />
+      <LivePublicHeader />
       <h1 className="mt-10">Un livre vous attend</h1>
       <p className="mt-4">
         Acceptez cette invitation pour participer au livre. Utilisez l’adresse
@@ -180,6 +182,7 @@ export function JoinScreen() {
   );
 }
 export function AudioAccessScreen() {
+  useLang((s) => s.lang);
   const [token, setToken] = useState(""),
     [code, setCode] = useState(""),
     [url, setUrl] = useState(""),
@@ -198,7 +201,7 @@ export function AudioAccessScreen() {
   );
   return (
     <main className="container-page max-w-lg py-16">
-      <Logo />
+      <LivePublicHeader />
       <h1 className="mt-10">Écouter un souvenir</h1>
       <p className="mt-4">
         Saisissez le code d’écoute transmis par le narrateur.

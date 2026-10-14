@@ -13,11 +13,12 @@ export function LangSwitch({ className }: { className?: string }) {
         <button
           key={l}
           type="button"
+          translate="no"
           lang={l}
           aria-pressed={lang === l}
           aria-label={l === "fr" ? "Français" : "English"}
           onClick={() => setLang(l)}
-          className={cn("min-w-11 px-2.5 py-1.5 font-semibold uppercase transition-colors", lang === l ? "bg-prune text-creme" : "text-ink-muted hover:bg-creme-200")}
+          className={cn("min-h-11 min-w-11 px-2.5 py-1.5 font-semibold uppercase transition-colors", lang === l ? "bg-prune text-creme" : "text-ink-muted hover:bg-creme-200")}
         >
           {l}
         </button>

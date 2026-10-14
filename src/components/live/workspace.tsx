@@ -1,4 +1,6 @@
 "use client";
+import { tr, locale } from "@/i18n/core";
+import { useLang } from "@/i18n/lang";
 import {
   useCallback,
   useEffect,
@@ -10,7 +12,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { BookViewer } from "@/components/book/viewer";
-import { VISIBILITY_LABEL } from "@/lib/rules";
+import { BOOK_LABEL, VISIBILITY_LABEL } from "@/lib/rules";
 import type { Project, Visibility } from "@/lib/types";
 import type { Account } from "@/server/auth";
 import type { Command, projectView } from "@/server/projects";
@@ -27,6 +29,7 @@ import { CreateBook } from "./create-book";
 type View = ReturnType<typeof projectView>;
 type Mutate = (command: Command) => Promise<View>;
 export function Workspace() {
+  useLang((s) => s.lang);
   const [account, setAccount] = useState<Account | null>(null),
     [projects, setProjects] = useState<View[]>([]),
     [selected, setSelected] = useState(""),
@@ -70,9 +73,13 @@ export function Workspace() {
         <div>
           <p className="eyebrow">Votre espace privé</p>
           <h1 className="mt-2">
-            {account?.name
-              ? `Bonjour ${account.name}`
-              : "Vos livres de famille"}
+            {account?.name ? (
+              <>
+                Bonjour <span translate="no">{account.name}</span>
+              </>
+            ) : (
+              "Vos livres de famille"
+            )}
           </h1>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -133,17 +140,17 @@ export function Workspace() {
                   }}
                 >
                   {projects.map((v) => (
-                    <option key={v.id} value={v.id}>
+                    <option key={v.id} value={v.id} translate="no">
                       {v.project.book.cover.title} ·{" "}
-                      {
+                      {tr(
                         {
                           buyer: "acheteur",
                           narrator: "narrateur",
                           editor: "éditeur",
                           contributor: "contributeur",
                           support: "support",
-                        }[v.role]
-                      }
+                        }[v.role],
+                      )}
                     </option>
                   ))}
                 </select>
@@ -244,7 +251,7 @@ function ProjectWorkspace({
       {view.deletionAt && (
         <p className="rounded bg-warning-bg p-4">
           Suppression programmée le{" "}
-          {new Date(view.deletionAt).toLocaleDateString("fr-FR")}.{" "}
+          {new Date(view.deletionAt).toLocaleDateString(locale())}.{" "}
           <button
             className="underline"
             onClick={() => void run(() => mutate({ type: "cancel-deletion" }))}
@@ -315,7 +322,7 @@ function ProjectWorkspace({
           </nav>
           {locked && (
             <p className="mt-4 rounded bg-creme-200 p-4">
-              Statut du livre : {p.book.status}.{" "}
+              Statut du livre : {BOOK_LABEL[p.book.status]}.{" "}
               {narrator && p.book.status === "approuve" && (
                 <button
                   className="underline"
@@ -347,7 +354,10 @@ function ProjectWorkspace({
                       {m.inBook ? "Dans le livre" : "Masqué du livre"}
                     </span>
                   </div>
-                  <p className="mt-4 whitespace-pre-wrap font-serif text-xl">
+                  <p
+                    translate="no"
+                    className="mt-4 whitespace-pre-wrap font-serif text-xl"
+                  >
                     {m.text || m.draft}
                   </p>
                   {narrator && (
@@ -408,7 +418,9 @@ function ProjectWorkspace({
                         onClick={() => {
                           if (
                             window.confirm(
-                              "Supprimer ce souvenir et ses enregistrements ? Les photos seront retirées du livre.",
+                              tr(
+                                "Supprimer ce souvenir et ses enregistrements ? Les photos seront retirées du livre.",
+                              ),
                             )
                           )
                             void run(() =>
@@ -426,10 +438,13 @@ function ProjectWorkspace({
                       <figure key={ph.id} className="mt-6 max-w-md">
                         <img
                           src={ph.src}
+                          translate="no"
                           alt={ph.caption}
                           className="max-h-80 rounded-md object-contain"
                         />
-                        <figcaption className="mt-2">{ph.caption}</figcaption>
+                        <figcaption translate="no" className="mt-2">
+                          {ph.caption}
+                        </figcaption>
                         {narrator && !locked && (
                           <PhotoEdit photo={ph} mutate={mutate} />
                         )}
@@ -456,7 +471,10 @@ function ProjectWorkspace({
                           />
                         ) : (
                           audio.transcript.status === "validee" && (
-                            <p className="mt-3 whitespace-pre-wrap">
+                            <p
+                              translate="no"
+                              className="mt-3 whitespace-pre-wrap"
+                            >
                               {audio.transcript.text}
                             </p>
                           )
@@ -525,9 +543,15 @@ function ProjectWorkspace({
                   .filter((s) => s.status === "en_attente")
                   .map((s) => (
                     <article className="card p-6" key={s.id}>
-                      <h3>Proposition de {s.author}</h3>
-                      <p className="mt-3 whitespace-pre-wrap">{s.after}</p>
-                      <p className="mt-3 text-sm">{s.note}</p>
+                      <h3>
+                        Proposition de <span translate="no">{s.author}</span>
+                      </h3>
+                      <p translate="no" className="mt-3 whitespace-pre-wrap">
+                        {s.after}
+                      </p>
+                      <p translate="no" className="mt-3 text-sm">
+                        {s.note}
+                      </p>
                       <div className="mt-4 flex gap-3">
                         <Button
                           disabled={busy || locked}
@@ -1602,7 +1626,7 @@ function FamilySettings({
             className="mt-4 flex flex-wrap justify-between gap-3 border-t border-line pt-4"
           >
             <p>
-              {m.name || m.email} · {m.role}
+              <span translate="no">{m.name || m.email}</span> · {m.role}
               {m.revoked_at ? " · accès retiré" : ""}
             </p>
             {m.role !== "narrator" && !m.revoked_at && (
@@ -1725,7 +1749,9 @@ function PrivacySettings({ p, mutate }: { p: Project; mutate: Mutate }) {
           onClick={async () => {
             if (
               !window.confirm(
-                "Programmer la suppression de ce livre et de ses médias ? Vous pourrez annuler avant la date indiquée.",
+                tr(
+                  "Programmer la suppression de ce livre et de ses médias ? Vous pourrez annuler avant la date indiquée.",
+                ),
               )
             )
               return;
@@ -1800,7 +1826,7 @@ function Orders() {
           <li key={o.id} className="flex flex-wrap justify-between gap-3 py-4">
             <span>
               {o.id.slice(0, 8).toUpperCase()} ·{" "}
-              {new Date(o.created_at).toLocaleDateString("fr-FR")}
+              {new Date(o.created_at).toLocaleDateString(locale())}
             </span>
             <span>
               {(o.total / 100).toFixed(2)} € · {o.status}

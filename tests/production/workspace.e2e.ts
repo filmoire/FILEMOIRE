@@ -315,6 +315,11 @@ test("starts with voice, finishes a personal story and renders its private QR", 
   await expect(
     page.getByRole("button", { name: "Arrêter et sauvegarder", exact: true }),
   ).toBeVisible();
+  await page.getByRole("button", { name: "English", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Stop and save", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Français", exact: true }).click();
   // Capture more than one MediaRecorder timeslice; this exercises WebM with no container duration.
   await page.waitForTimeout(1300);
   await page
@@ -406,4 +411,192 @@ test("starts with voice, finishes a personal story and renders its private QR", 
       )
     ).rows[0].mime,
   ).toBe("audio/webm");
+});
+
+test("English and French persist across public pages, reloads and sign-in", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const missing = new Set<string>();
+  const collect = async () => {
+    for (const text of await page.evaluate(() => [
+      ...((window as unknown as { __I18N_MISSING__?: Set<string> })
+        .__I18N_MISSING__ ?? []),
+    ]))
+      missing.add(text);
+  };
+  await page.goto("/");
+  await page.locator('button[aria-label="English"]:visible').click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(
+    page.getByRole("link", { name: "Start my story", exact: true }),
+  ).toBeVisible();
+  await collect();
+  for (const path of [
+    "/comment-ca-marche",
+    "/offres",
+    "/livre-exemple",
+    "/legal",
+    "/rejoindre",
+    "/ecoute",
+    "/acces",
+  ]) {
+    await page.goto(path);
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await expect(
+      page.locator('button[aria-label="English"]:visible'),
+    ).toHaveAttribute("aria-pressed", "true");
+    await collect();
+  }
+  const email = `english-${randomUUID()}@example.test`;
+  await page.getByLabel("E-mail address", { exact: true }).fill(email);
+  await page.getByRole("button", { name: "Français", exact: true }).click();
+  await expect(page.getByLabel("Adresse e-mail", { exact: true })).toHaveValue(
+    email,
+  );
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "Votre espace Filémoire", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "English", exact: true }).click();
+  await page.goto(`/acces#token=${"invalid-local-token-".repeat(3)}`);
+  await page
+    .getByRole("button", { name: "Confirm sign-in", exact: true })
+    .click();
+  await expect(
+    page
+      .getByRole("alert")
+      .filter({ hasText: "This link has expired or has already been used." }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Request a new link", exact: true })
+    .click();
+  await page.getByLabel("E-mail address", { exact: true }).fill(email);
+  await page
+    .getByRole("button", { name: "Send me a sign-in link", exact: true })
+    .click();
+  await expect(page.getByRole("status")).toHaveText(
+    "Check your email to open your sign-in link.",
+  );
+  await page.goto(`/acces#token=${await newestEmailToken(email)}`);
+  await page
+    .getByRole("button", { name: "Confirm sign-in", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/espace$/);
+  await expect(
+    page.getByRole("button", { name: "Create my private book", exact: true }),
+  ).toBeVisible();
+  await collect();
+  await page.getByRole("link", { name: "Give", exact: true }).click();
+  await expect(
+    page.getByText("Orders are not open yet.", { exact: true }),
+  ).toBeVisible();
+  await collect();
+  await page.getByLabel("First name", { exact: true }).fill("Camille");
+  await page.getByRole("button", { name: "Français", exact: true }).click();
+  await expect(page.getByLabel("Prénom", { exact: true })).toHaveValue(
+    "Camille",
+  );
+  await page.getByRole("button", { name: "English", exact: true }).click();
+  expect([...missing].sort()).toEqual([]);
+});
+
+test("changing language preserves unsaved story and cover text without translating manuscript content", async ({
+  page,
+}, info) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const b = await book();
+  await login(page, b.narrator.email);
+  // A dictionary key is deliberate: personal text must not become 'Hello'.
+  await page.getByLabel("Votre souvenir", { exact: true }).fill("Bonjour");
+  await page.getByRole("button", { name: "English", exact: true }).click();
+  await expect(page.getByLabel("Your memory", { exact: true })).toHaveValue(
+    "Bonjour",
+  );
+  await page
+    .getByRole("button", { name: "Save my answer", exact: true })
+    .click();
+  await expect(page.getByText("Answer saved", { exact: true })).toBeVisible();
+  await expect(page.locator("article p[translate=no]").first()).toHaveText(
+    "Bonjour",
+  );
+  await page.getByRole("button", { name: "Book", exact: true }).click();
+  await page.getByLabel("Title", { exact: true }).fill("Souvenirs");
+  await page.getByRole("button", { name: "Français", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "La couverture", exact: true }),
+  ).toBeVisible();
+  await expect(page.getByLabel("Titre", { exact: true })).toHaveValue(
+    "Souvenirs",
+  );
+  await page.getByRole("button", { name: "English", exact: true }).click();
+  await page.getByRole("button", { name: "Save cover", exact: true }).click();
+  await expect(page.getByText("Cover saved.", { exact: true })).toBeVisible();
+  await expect(page.getByText("Souvenirs", { exact: true })).toBeVisible();
+  const snapshot = await (
+    await page.request.get(`/api/v1/projects/${b.projectId}`)
+  ).json();
+  expect(snapshot.project.memories[0].text).toBe("Bonjour");
+  expect(snapshot.project.book.cover.title).toBe("Souvenirs");
+  await page
+    .getByRole("combobox", { name: "Go to", exact: true })
+    .selectOption({ label: "Chapter 1 — Origines" });
+  await expect(
+    page
+      .locator(".paper p")
+      .filter({ hasText: /^Origines$/ })
+      .first(),
+  ).toBeVisible();
+  const viewport = page.viewportSize()!;
+  const switchedWidth = viewport.width < 600 ? 1280 : 390;
+  await page.setViewportSize({ width: switchedWidth, height: 844 });
+  await expect(page.locator(".paper")).toHaveCount(
+    switchedWidth >= 1024 ? 2 : 1,
+  );
+  await expect(
+    page
+      .locator(".paper p")
+      .filter({ hasText: /^Origines$/ })
+      .first(),
+  ).toBeVisible();
+  await page.setViewportSize(viewport);
+  await expect(page.locator(".paper")).toHaveCount(
+    viewport.width >= 1024 ? 2 : 1,
+  );
+  await expect(
+    page
+      .locator(".paper p")
+      .filter({ hasText: /^Origines$/ })
+      .first(),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Family", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Invite a family member", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Privacy", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Your pace and choices", exact: true }),
+  ).toBeVisible();
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: `artifacts/production/language-2026-10-14/${info.project.name}-english.png`,
+    fullPage: true,
+  });
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("article p[translate=no]").first()).toHaveText(
+    "Bonjour",
+  );
 });

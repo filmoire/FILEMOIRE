@@ -1,3 +1,4 @@
+import { tr } from "@/i18n/core";
 export async function api<T = Record<string, unknown>>(
   path: string,
   body?: unknown,
@@ -105,7 +106,9 @@ export function confirmNavigation() {
   return (
     (!unsavedDraft && activeRecordings.size === 0) ||
     window.confirm(
-      "Du texte ou un enregistrement n’est pas encore sauvegardé. Quitter cet écran et perdre les modifications ?",
+      tr(
+        "Du texte ou un enregistrement n’est pas encore sauvegardé. Quitter cet écran et perdre les modifications ?",
+      ),
     )
   );
 }

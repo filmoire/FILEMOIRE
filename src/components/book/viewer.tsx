@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { PhotoImg, QrImage } from "@/components/media";
 import { absoluteUrl } from "@/lib/nav";
+import { tr } from "@/i18n/core";
 import { isLive } from "@/lib/mode";
 import { composeBook, isLowRes, paginate, type Page, type PageBlock, type Viewer } from "@/lib/rules";
 import type { Project } from "@/lib/types";
@@ -49,14 +50,19 @@ export function BookViewer({ project, viewer, watermark, showWarnings }: BookVie
     for (let i = 1; i < pages.length; i += 2) out.push(i + 1 < pages.length ? [i, i + 1] : [i]);
     return out;
   }, [pages, wide]);
-  const [s, setS] = useState(0);
-  const cur = Math.min(s, spreads.length - 1);
-  const go = (d: number) => setS(Math.max(0, Math.min(spreads.length - 1, cur + d)));
-  const jump = (pageIdx: number) => setS(Math.max(0, spreads.findIndex((sp) => sp.includes(pageIdx))));
+  // Keep a page anchor, not a spread number: responsive layout changes must not
+  // move the reader to another chapter or hide the QR they just selected.
+  const [pageIndex, setPageIndex] = useState(0);
+  const cur = Math.max(0, spreads.findIndex((sp) => sp.includes(Math.min(pageIndex, pages.length - 1))));
+  const go = (d: number) => setPageIndex(spreads[Math.max(0, Math.min(spreads.length - 1, cur + d))][0]);
+  const jump = (pageIdx: number) => setPageIndex(Math.max(0, Math.min(pages.length - 1, pageIdx)));
   const tocTargets = pages
     .map((p, i) => ({ p, i }))
     .filter(({ p }) => p.kind === "cover" || p.kind === "toc" || p.kind === "chapter" || p.kind === "closing");
-  const label = (p: Page) => (p.kind === "cover" ? "Couverture" : p.kind === "toc" ? "Sommaire" : p.kind === "chapter" ? `Chapitre ${p.index} — ${p.title}` : p.kind === "closing" ? "Dernière page" : "");
+  const label = (p: Page) => {
+    if (p.kind === "chapter") return isLive ? `${tr(`Chapitre ${p.index}`)} — ${p.title}` : `Chapitre ${p.index} — ${p.title}`;
+    return tr(p.kind === "cover" ? "Couverture" : p.kind === "toc" ? "Sommaire" : p.kind === "closing" ? "Dernière page" : "");
+  };
   const first = spreads[cur][0];
   const last = spreads[cur].at(-1)!;
 
@@ -87,7 +93,7 @@ export function BookViewer({ project, viewer, watermark, showWarnings }: BookVie
               …
             </option>
             {tocTargets.map(({ p, i }) => (
-              <option key={i} value={i}>
+              <option key={i} value={i} translate={isLive ? "no" : undefined}>
                 {label(p)}
               </option>
             ))}
@@ -145,16 +151,16 @@ export function BookPage({
       <div className="flex h-full flex-col px-[11cqi] py-[10cqi] font-serif text-ink">
         {page.kind === "title" && (
           <div className="flex h-full flex-col items-center justify-center text-center">
-            <p className="text-[8cqi] font-semibold leading-tight text-prune">{project.book.cover.title || "Sans titre"}</p>
-            {project.book.cover.subtitle && <p className="mt-[2cqi] text-[4cqi] italic text-terre-700">{project.book.cover.subtitle}</p>}
+            <p translate={isLive ? "no" : undefined} className="text-[8cqi] font-semibold leading-tight text-prune">{project.book.cover.title || "Sans titre"}</p>
+            {project.book.cover.subtitle && <p translate={isLive ? "no" : undefined} className="mt-[2cqi] text-[4cqi] italic text-terre-700">{project.book.cover.subtitle}</p>}
             <div className="my-[6cqi] h-px w-[16cqi] bg-or" />
-            <p className="text-[3.6cqi]">Les souvenirs de {author}</p>
+            <p translate={isLive ? "no" : undefined} className="text-[3.6cqi]">Les souvenirs de {author}</p>
             <p className="mt-auto font-sans text-[2.4cqi] uppercase tracking-[0.25em] text-ink-muted">Recueillis avec Filémoire</p>
           </div>
         )}
         {page.kind === "dedication" && (
           <div className="flex h-full items-center justify-center text-center">
-            <p className="max-w-[80%] text-[4.6cqi] italic text-prune">{project.book.dedication}</p>
+            <p translate={isLive ? "no" : undefined} className="max-w-[80%] text-[4.6cqi] italic text-prune">{project.book.dedication}</p>
           </div>
         )}
         {page.kind === "toc" && (
@@ -165,11 +171,11 @@ export function BookPage({
               {page.entries.map((e, i) => (
                 <li key={i} className="flex items-baseline gap-2">
                   {onToc && pages ? (
-                    <button className="text-left hover:text-terre hover:underline" onClick={() => onToc(pages.findIndex((p) => "n" in p && p.n === e.page))}>
+                    <button translate={isLive ? "no" : undefined} className="text-left hover:text-terre hover:underline" onClick={() => onToc(pages.findIndex((p) => "n" in p && p.n === e.page))}>
                       {e.title}
                     </button>
                   ) : (
-                    <span>{e.title}</span>
+                    <span translate={isLive ? "no" : undefined}>{e.title}</span>
                   )}
                   <span aria-hidden className="flex-1 border-b border-dotted border-ink-soft/60" />
                   <span>{e.page}</span>
@@ -182,13 +188,13 @@ export function BookPage({
         {page.kind === "chapter" && (
           <div className="flex h-full flex-col justify-center">
             <p className="font-sans text-[2.6cqi] font-semibold uppercase tracking-[0.3em] text-terre">Chapitre {page.index}</p>
-            <p className="mt-[3cqi] text-[9cqi] font-semibold leading-none text-prune">{page.title}</p>
+            <p translate={isLive ? "no" : undefined} className="mt-[3cqi] text-[9cqi] font-semibold leading-none text-prune">{page.title}</p>
             <div className="mt-[6cqi] h-px w-[20cqi] bg-or" />
           </div>
         )}
         {page.kind === "content" && (
           <>
-            <p className="mb-[4cqi] text-center font-sans text-[2.2cqi] uppercase tracking-[0.25em] text-ink-muted">{page.chapter}</p>
+            <p translate={isLive ? "no" : undefined} className="mb-[4cqi] text-center font-sans text-[2.2cqi] uppercase tracking-[0.25em] text-ink-muted">{page.chapter}</p>
             <div className="flex-1 space-y-[2.6cqi] overflow-hidden">
               {page.blocks.map((b, i) => (
                 <Block key={i} b={b} project={project} showWarnings={showWarnings} />
@@ -216,8 +222,8 @@ export function BookPage({
 }
 
 function Block({ b, project, showWarnings }: { b: PageBlock; project: Project; showWarnings?: boolean }): ReactNode {
-  if (b.t === "question") return <p className="pt-[1cqi] text-[3.3cqi] italic leading-snug text-terre-700">{b.text}</p>;
-  if (b.t === "para") return <p className="text-justify text-[3.45cqi] leading-[1.55] [hyphens:auto]">{b.text}</p>;
+  if (b.t === "question") return <p translate={isLive ? "no" : undefined} className="pt-[1cqi] text-[3.3cqi] italic leading-snug text-terre-700">{b.text}</p>;
+  if (b.t === "para") return <p translate={isLive ? "no" : undefined} className="text-justify text-[3.45cqi] leading-[1.55] [hyphens:auto]">{b.text}</p>;
   if (b.t === "photo") {
     const portrait = b.photo.height > b.photo.width;
     return (
@@ -228,7 +234,7 @@ function Block({ b, project, showWarnings }: { b: PageBlock; project: Project; s
             <span className="absolute left-1 top-1 rounded bg-warning-bg px-1.5 py-0.5 font-sans text-[2.2cqi] font-semibold text-warning">Résolution faible</span>
           )}
         </div>
-        <figcaption className="mt-[1.2cqi] text-center text-[2.7cqi] italic text-ink-muted">
+        <figcaption translate={isLive ? "no" : undefined} className="mt-[1.2cqi] text-center text-[2.7cqi] italic text-ink-muted">
           {b.photo.caption}
           {b.photo.illustration && <span className="not-italic"> · illustration de démonstration</span>}
         </figcaption>

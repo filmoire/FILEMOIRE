@@ -11,7 +11,41 @@ import { useDemo } from "@/lib/store";
 import { GuidePanel } from "./guide-panel";
 
 export function Providers({ children }: { children: ReactNode }) {
-  return isLive ? <>{children}<Toaster /></> : <DemoProviders>{children}</DemoProviders>;
+  return isLive ? <LiveProviders>{children}</LiveProviders> : <DemoProviders>{children}</DemoProviders>;
+}
+
+const LIVE_TITLES: Record<string, string> = {
+  "/acces": "Votre espace Filémoire",
+  "/espace": "Mes livres",
+  "/offrir": "Offrir Filémoire",
+  "/rejoindre": "Un livre vous attend",
+  "/ecoute": "Écouter un souvenir",
+  "/legal": "Confidentialité et conditions",
+  "/comment-ca-marche": "Comment ça marche",
+  "/offres": "Offres et tarifs",
+  "/livre-exemple": "Livre exemple",
+};
+
+function LiveProviders({ children }: { children: ReactNode }) {
+  const lang = useLang((s) => s.lang);
+  const { pathname } = useNav();
+  useEffect(() => { void useLang.persist.rehydrate(); }, []);
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    const source = LIVE_TITLES[pathname] ?? "Une question à la fois, une vie à transmettre.";
+    const fix = () => {
+      const title = `${tr(source)} · Filémoire`;
+      if (document.title !== title) document.title = title;
+    };
+    fix();
+    const observer = new MutationObserver(fix);
+    const title = document.querySelector("title");
+    if (title) observer.observe(title, { childList: true, characterData: true, subtree: true });
+    return () => observer.disconnect();
+  }, [lang, pathname]);
+  // Live page roots subscribe to language changes without remounting their forms
+  // or interrupting an active recorder. The demo keeps its separate lifecycle.
+  return <>{children}<Toaster /></>;
 }
 
 function DemoProviders({ children }: { children: ReactNode }) {

@@ -122,31 +122,36 @@ function translateChildren(children: unknown): unknown {
   if (typeof children === "string") return tr(children);
   if (!Array.isArray(children)) return children;
   // Les fragments de texte voisins (« 4 », « questions racontées sur », « 52 ») sont réunis puis traduits ensemble.
-  const out: unknown[] = [];
+  // Preserve every child slot, including null/false placeholders. Removing them
+  // moves unkeyed components during a language switch and destroys form/recorder state.
+  const out: unknown[] = children.slice();
   let buf: (string | number)[] = [];
+  let start = 0;
   const flush = () => {
     if (!buf.length) return;
     const joined = buf.join("");
-    out.push(buf.length === 1 && typeof buf[0] === "number" ? buf[0] : tr(joined));
+    out[start] = buf.length === 1 && typeof buf[0] === "number" ? buf[0] : tr(joined);
+    for (let i = 1; i < buf.length; i++) out[start + i] = "";
     buf = [];
   };
-  for (const c of children) {
-    if (typeof c === "string" || typeof c === "number") buf.push(c);
-    else if (c === null || c === undefined || c === false || c === true) continue;
-    else {
+  for (let i = 0; i < children.length; i++) {
+    const c = children[i];
+    if (typeof c === "string" || typeof c === "number") {
+      if (!buf.length) start = i;
+      buf.push(c);
+    } else {
       flush();
-      out.push(c);
     }
   }
   flush();
-  return out.length === 1 ? out[0] : out;
+  return out;
 }
 
-export function translateProps(props: AnyProps | null | undefined): AnyProps | null | undefined {
+export function translateProps(props: AnyProps | null | undefined, childrenOnly = false): AnyProps | null | undefined {
   // translate="no" : contenu à ne jamais traduire (texte saisi, différences mot à mot…)
   if (current === "fr" || !props || props.translate === "no") return props;
   let next: AnyProps | null = null;
-  for (const k of TEXT_PROPS) {
+  for (const k of childrenOnly ? [] : TEXT_PROPS) {
     const v = props[k];
     if (typeof v === "string") {
       const t = tr(v);

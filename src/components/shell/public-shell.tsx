@@ -1,4 +1,5 @@
 "use client";
+import { useLang } from "@/i18n/lang";
 import { isLive } from "@/lib/mode";
 
 import { Menu, X } from "lucide-react";
@@ -19,6 +20,7 @@ const LINKS = [
 ];
 
 export function PublicShell({ children }: { children: ReactNode }) {
+  useLang((s) => s.lang);
   const { pathname, push } = useNav();
   const persona = useDemo((s) => s.persona);
   const hydrated = useDemo((s) => s.hydrated);
@@ -79,9 +81,9 @@ export function PublicShell({ children }: { children: ReactNode }) {
             <Button onClick={offer} className="ml-2">
               Offrir Filémoire
             </Button>
-            {!isLive && <LangSwitch className="ml-2" />}
+            <LangSwitch className="ml-2" />
           </nav>
-          {!isLive && <LangSwitch className="ml-auto md:hidden" />}
+          <LangSwitch className="ml-auto md:hidden" />
           <button
             className="ml-auto rounded-md p-2 md:hidden"
             onClick={() => setOpen(!open)}

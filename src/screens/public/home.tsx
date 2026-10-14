@@ -1,4 +1,5 @@
 "use client";
+import { useLang } from "@/i18n/lang";
 import { isLive } from "@/lib/mode";
 
 import { ArrowRight, Check, Lock, Quote } from "lucide-react";
@@ -44,6 +45,7 @@ const OCCASIONS = [
 ];
 
 export function HomeScreen() {
+  useLang((s) => s.lang);
   const nav = useNav();
   const offer = () => {
     if (isLive) {
@@ -111,7 +113,7 @@ export function HomeScreen() {
               </figcaption>
             </figure>
             <div className="relative -mt-24 w-[46%] -rotate-[4deg]">
-              <BookCoverArt
+              <BookCoverArt preserveText={false}
                 template="prune"
                 title="Au fil de Rose"
                 subtitle="Une vie racontée"
@@ -173,7 +175,7 @@ export function HomeScreen() {
       >
         <div className="container-page grid items-center gap-10 lg:grid-cols-[320px_1fr]">
           <div className="mx-auto w-56 lg:w-full">
-            <BookCoverArt
+            <BookCoverArt preserveText={false}
               template="creme"
               title="Au fil de Rose"
               subtitle="D'Agen à Toulouse"

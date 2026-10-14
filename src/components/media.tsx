@@ -1,5 +1,6 @@
 "use client";
 
+import { isLive } from "@/lib/mode";
 import { ImageOff } from "lucide-react";
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
@@ -18,7 +19,7 @@ export function PhotoImg({ photo, className, alt }: { photo: Pick<Photo, "src" |
       </div>
     );
   if (!url) return <div className={cn("animate-pulse bg-creme-200", className)} />;
-  return <img src={url.startsWith("/") ? asset(url) : url} alt={alt ?? photo.caption ?? ""} className={cn("object-cover", className)} loading="lazy" />;
+  return <img translate={isLive ? "no" : undefined} src={url.startsWith("/") ? asset(url) : url} alt={alt ?? photo.caption ?? ""} className={cn("object-cover", className)} loading="lazy" />;
 }
 
 export function AudioPlayer({ audio, label }: { audio: Pick<AudioRec, "src" | "blobKey">; label: string }) {

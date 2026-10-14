@@ -1,4 +1,6 @@
 "use client";
+import { locale } from "@/i18n/core";
+import { useLang } from "@/i18n/lang";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
@@ -11,6 +13,7 @@ import {
 import { api } from "./client";
 import { LiveShell, Message } from "./shell";
 export function LiveGift() {
+  useLang((s) => s.lang);
   const [packageCode, setPackage] = useState("heritage"),
     [giftBox, setGiftBox] = useState(false),
     [extraCopies, setCopies] = useState(0),
@@ -59,7 +62,7 @@ export function LiveGift() {
         {catalog?.cutoff && (
           <p>
             Date limite de commande :{" "}
-            {new Date(catalog.cutoff).toLocaleString("fr-FR")}
+            {new Date(catalog.cutoff).toLocaleString(locale())}
           </p>
         )}
         <form
@@ -186,7 +189,7 @@ export function LiveGift() {
           </label>
           <p className="font-serif text-3xl">
             Total :{" "}
-            {(total / 100).toLocaleString("fr-FR", {
+            {(total / 100).toLocaleString(locale(), {
               style: "currency",
               currency: "EUR",
             })}
