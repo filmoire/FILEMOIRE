@@ -44,6 +44,15 @@ export async function resetTests() {
     "TRUNCATE accounts,orders,projects,jobs,login_tokens,webhook_events,rate_limits,service_heartbeats,support_requests,question_library CASCADE",
   );
 }
+/** Playwright can run both spec files in one worker; release the cached pool too. */
+export async function closeTestDatabase() {
+  const connection = pool();
+  await connection.end();
+  const scope = globalThis as typeof globalThis & {
+    filemoirePool?: typeof connection;
+  };
+  if (scope.filemoirePool === connection) delete scope.filemoirePool;
+}
 export async function account(
   email = `person-${id()}@example.test`,
 ): Promise<Account> {

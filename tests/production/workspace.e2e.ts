@@ -2,6 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import {
   configureTests,
   resetTests,
+  closeTestDatabase,
   book,
   account,
   answer,
@@ -21,9 +22,7 @@ test.beforeAll(() => configureTests());
 test.beforeEach(async () => {
   await resetTests();
 });
-test.afterAll(async () => {
-  await pool().end();
-});
+test.afterAll(closeTestDatabase);
 async function login(page: Page, email: string) {
   await requestLogin(email);
   await page.goto(`/acces#token=${await newestEmailToken(email)}`);
@@ -488,7 +487,7 @@ test("English and French persist across public pages, reloads and sign-in", asyn
     page.getByRole("button", { name: "Create my private book", exact: true }),
   ).toBeVisible();
   await collect();
-  await page.getByRole("link", { name: "Give", exact: true }).click();
+  await page.getByRole("link", { name: "Give a gift", exact: true }).click();
   await expect(
     page.getByText("Orders are not open yet.", { exact: true }),
   ).toBeVisible();
@@ -533,7 +532,13 @@ test("changing language preserves unsaved story and cover text without translati
   await page.getByRole("button", { name: "English", exact: true }).click();
   await page.getByRole("button", { name: "Save cover", exact: true }).click();
   await expect(page.getByText("Cover saved.", { exact: true })).toBeVisible();
-  await expect(page.getByText("Souvenirs", { exact: true })).toBeVisible();
+  await expect(
+    page
+      .getByLabel("Book preview, use the arrow keys to turn the pages", {
+        exact: true,
+      })
+      .getByText("Souvenirs", { exact: true }),
+  ).toBeVisible();
   const snapshot = await (
     await page.request.get(`/api/v1/projects/${b.projectId}`)
   ).json();

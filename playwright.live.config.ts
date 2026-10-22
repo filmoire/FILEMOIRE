@@ -35,6 +35,7 @@ export default defineConfig({
     reuseExistingServer: false,
     timeout: 120000,
     env: {
+      ADMIN_EMAILS: "design-ops@example.test",
       APP_MODE: "live",
       PERSONAL_DRAFTS_ENABLED: "true",
       NEXT_PUBLIC_APP_MODE: "live",

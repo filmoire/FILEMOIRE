@@ -236,6 +236,7 @@ Contrôle final : le test `e2e/en.spec.ts` parcourt toutes les pages en anglais 
 
 ## 6. Documentation
 
+- [docs/production/DASHBOARD-DESIGN.md](docs/production/DASHBOARD-DESIGN.md) — nouveaux tableaux de bord acheteur, éditeur et opérations, d’après les maquettes fournies.
 - [docs/PLAN.md](docs/PLAN.md) — vue produit, rôles, inventaire des écrans, exigences documentées / proposées / futures, hypothèses.
 - [docs/CHECKLIST.md](docs/CHECKLIST.md) — liste des fonctionnalités et des 19 critères de réussite, avec leur statut.
 - [docs/LIMITES.md](docs/LIMITES.md) — ce qui est simulé et les limites connues.
