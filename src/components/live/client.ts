@@ -1,4 +1,4 @@
-import { tr } from "@/i18n/core";
+import { confirmAction } from "./confirmation";
 export async function api<T = Record<string, unknown>>(
   path: string,
   body?: unknown,
@@ -102,13 +102,14 @@ export function markRecording(value: boolean, key: string) {
 export function markUnsaved(value: boolean) {
   unsavedDraft = value;
 }
-export function confirmNavigation() {
+export const hasUnsavedChanges = () =>
+  unsavedDraft || activeRecordings.size > 0;
+export async function confirmNavigation() {
   return (
-    (!unsavedDraft && activeRecordings.size === 0) ||
-    window.confirm(
-      tr(
-        "Du texte ou un enregistrement n’est pas encore sauvegardé. Quitter cet écran et perdre les modifications ?",
-      ),
+    !hasUnsavedChanges() ||
+    confirmAction(
+      "Du texte ou un enregistrement n’est pas encore sauvegardé. Quitter cet écran et perdre les modifications ?",
+      "Quitter sans enregistrer",
     )
   );
 }

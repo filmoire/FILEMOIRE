@@ -1,4 +1,7 @@
 "use client";
+import { Form } from "./form";
+import { PageIntro, money } from "./dashboard-ui";
+import type { Account } from "@/server/auth";
 import { locale } from "@/i18n/core";
 import { useLang } from "@/i18n/lang";
 import { useEffect, useState } from "react";
@@ -20,6 +23,7 @@ export function LiveGift() {
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [ready, setReady] = useState(false);
+  const [account, setAccount] = useState<Account | null>(null);
   const [requestKey, setRequestKey] = useState("");
   const [catalog, setCatalog] = useState<{
     ordersOpen: boolean;
@@ -33,10 +37,13 @@ export function LiveGift() {
     api<{ ordersOpen: boolean; cutoff: string | null }>("catalog")
       .then(setCatalog)
       .catch((e) => setError(e.message));
-    api<{ account: unknown }>("me")
+    api<{ account: Account | null }>("me")
       .then((r) => {
         if (!r.account) location.href = "/acces?retour=/offrir";
-        else setReady(true);
+        else {
+          setReady(true);
+          setAccount(r.account);
+        }
       })
       .catch((e) => setError(e.message));
   }, []);
@@ -45,14 +52,12 @@ export function LiveGift() {
     (giftBox ? GIFT_BOX_PRICE : 0) +
     extraCopies * EXTRA_COPY_PRICE;
   return (
-    <LiveShell>
-      <div className="mx-auto max-w-2xl">
-        <p className="eyebrow">Un cadeau à transmettre</p>
-        <h1 className="mt-3">Offrir Filémoire</h1>
-        <p className="mt-4">
-          Choisissez le parcours et la personne qui racontera. Le paiement se
-          fait sur la page sécurisée du prestataire.
-        </p>
+    <LiveShell account={account} view="offrir">
+      <div>
+        <PageIntro title="Préparez son cadeau">
+          Tout commence par une formule. Votre proche garde la liberté de
+          raconter à son rythme.
+        </PageIntro>
         <Message error={error} />
         {catalog && !catalog.ordersOpen && (
           <p role="status" className="my-4 rounded bg-creme-200 p-4">
@@ -65,152 +70,175 @@ export function LiveGift() {
             {new Date(catalog.cutoff).toLocaleString(locale())}
           </p>
         )}
-        <form
-          className="card mt-8 space-y-6 p-6"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            if (!ready) return;
-            setBusy(true);
-            setError("");
-            const f = new FormData(e.currentTarget);
-            try {
-              const r = await api<{ url: string }>("checkout", {
-                requestKey,
-                packageCode,
-                theme: f.get("theme"),
-                recipient: {
-                  firstName: f.get("firstName"),
-                  lastName: f.get("lastName"),
-                  email: f.get("email"),
-                  relation: f.get("relation"),
-                },
-                message: f.get("message"),
-                deliveryDate: f.get("date"),
-                giftBox,
-                extraCopies,
-                termsVersion: "2026-10-13",
-                accepted: true,
-              });
-              location.assign(r.url);
-            } catch (e) {
-              setError((e as Error).message);
-              setBusy(false);
-            }
-          }}
-          onChange={() => setRequestKey(crypto.randomUUID())}
-        >
-          <fieldset>
-            <legend className="font-semibold">Formule</legend>
-            <div className="mt-3 grid gap-3 sm:grid-cols-3">
-              {PACKAGES.filter((p) => p.price).map((p) => (
-                <label
-                  key={p.code}
-                  className="rounded-md border border-line p-4"
-                >
-                  <input
-                    type="radio"
-                    name="package"
-                    value={p.code}
-                    checked={packageCode === p.code}
-                    onChange={() => setPackage(p.code)}
+        <div className="dash-columns">
+          <Form
+            className="dash-gift-form space-y-6"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!ready || busy) return;
+              setBusy(true);
+              setError("");
+              const f = new FormData(e.currentTarget);
+              try {
+                const r = await api<{ url: string }>("checkout", {
+                  requestKey,
+                  packageCode,
+                  theme: f.get("theme"),
+                  recipient: {
+                    firstName: f.get("firstName"),
+                    lastName: f.get("lastName"),
+                    email: f.get("email"),
+                    relation: f.get("relation"),
+                  },
+                  message: f.get("message"),
+                  deliveryDate: f.get("date"),
+                  giftBox,
+                  extraCopies,
+                  termsVersion: "2026-10-13",
+                  accepted: true,
+                });
+                location.assign(r.url);
+              } catch (e) {
+                setError((e as Error).message);
+                setBusy(false);
+              }
+            }}
+            onChange={() => setRequestKey(crypto.randomUUID())}
+          >
+            <fieldset>
+              <legend className="mb-5 font-normal text-2xl dash-sans">
+                Quelle formule lui offrir ?
+              </legend>
+              <div className="dash-rows">
+                {PACKAGES.filter((p) => p.price).map((p) => (
+                  <label key={p.code} className="dash-offer">
+                    <span className="dash-price">{money(p.price!)}</span>
+                    <input
+                      type="radio"
+                      name="package"
+                      value={p.code}
+                      checked={packageCode === p.code}
+                      onChange={() => setPackage(p.code)}
+                    />
+                    <strong>{p.name}</strong>
+                    <p className="text-sm">{p.short}</p>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <label className="block">
+              Parcours
+              <select
+                name="theme"
+                className="mt-2 block w-full rounded border border-line p-3"
+              >
+                {THEMES.map((t) => (
+                  <option key={t.code} value={t.code}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {[
+                ["firstName", "Prénom", "text"],
+                ["lastName", "Nom", "text"],
+                ["email", "E-mail du destinataire", "email"],
+                ["relation", "Votre lien avec cette personne", "text"],
+              ].map(([name, label, type]) => (
+                <label key={name}>
+                  {label}
+                  <Input
+                    className="mt-2"
+                    name={name}
+                    type={type}
+                    required
+                    maxLength={name === "email" ? 254 : 100}
                   />
-                  <span className="ml-2">{p.name}</span>
-                  <p className="mt-2 font-serif text-2xl">{p.priceLabel}</p>
-                  <p className="text-sm">{p.short}</p>
                 </label>
               ))}
             </div>
-          </fieldset>
-          <label className="block">
-            Parcours
-            <select
-              name="theme"
-              className="mt-2 block w-full rounded border border-line p-3"
+            <label className="block">
+              Votre message
+              <Textarea name="message" className="mt-2" maxLength={2000} />
+            </label>
+            <label className="block">
+              Date d’envoi de l’invitation
+              <Input
+                name="date"
+                type="date"
+                className="mt-2"
+                required
+                min={new Date().toISOString().slice(0, 10)}
+                defaultValue={new Date().toISOString().slice(0, 10)}
+              />
+            </label>
+            <label className="flex gap-3">
+              <input
+                type="checkbox"
+                checked={giftBox}
+                onChange={(e) => setGiftBox(e.target.checked)}
+              />
+              Coffret cadeau (+29 €)
+            </label>
+            <label className="block">
+              Exemplaires supplémentaires (49 € chacun)
+              <Input
+                className="mt-2"
+                type="number"
+                min={0}
+                max={10}
+                value={extraCopies}
+                onChange={(e) => setCopies(Number(e.target.value))}
+              />
+            </label>
+            <p className="font-serif text-3xl">
+              Total :{" "}
+              {(total / 100).toLocaleString(locale(), {
+                style: "currency",
+                currency: "EUR",
+              })}
+            </p>
+            <label className="flex items-start gap-3">
+              <input type="checkbox" required className="mt-1" />
+              <span>
+                J’accepte les{" "}
+                <a className="underline" href="/legal" target="_blank">
+                  conditions de commande
+                </a>{" "}
+                et comprends que le narrateur contrôle ses souvenirs.
+              </span>
+            </label>
+            <Button
+              type="submit"
+              disabled={!ready || busy || !catalog?.ordersOpen}
             >
-              {THEMES.map((t) => (
-                <option key={t.code} value={t.code}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {[
-              ["firstName", "Prénom", "text"],
-              ["lastName", "Nom", "text"],
-              ["email", "E-mail du destinataire", "email"],
-              ["relation", "Votre lien avec cette personne", "text"],
-            ].map(([name, label, type]) => (
-              <label key={name}>
-                {label}
-                <Input
-                  className="mt-2"
-                  name={name}
-                  type={type}
-                  required
-                  maxLength={name === "email" ? 254 : 100}
-                />
-              </label>
-            ))}
-          </div>
-          <label className="block">
-            Votre message
-            <Textarea name="message" className="mt-2" maxLength={2000} />
-          </label>
-          <label className="block">
-            Date d’envoi de l’invitation
-            <Input
-              name="date"
-              type="date"
-              className="mt-2"
-              required
-              min={new Date().toISOString().slice(0, 10)}
-              defaultValue={new Date().toISOString().slice(0, 10)}
-            />
-          </label>
-          <label className="flex gap-3">
-            <input
-              type="checkbox"
-              checked={giftBox}
-              onChange={(e) => setGiftBox(e.target.checked)}
-            />
-            Coffret cadeau (+29 €)
-          </label>
-          <label className="block">
-            Exemplaires supplémentaires (49 € chacun)
-            <Input
-              className="mt-2"
-              type="number"
-              min={0}
-              max={10}
-              value={extraCopies}
-              onChange={(e) => setCopies(Number(e.target.value))}
-            />
-          </label>
-          <p className="font-serif text-3xl">
-            Total :{" "}
-            {(total / 100).toLocaleString(locale(), {
-              style: "currency",
-              currency: "EUR",
-            })}
-          </p>
-          <label className="flex items-start gap-3">
-            <input type="checkbox" required className="mt-1" />
-            <span>
-              J’accepte les{" "}
-              <a className="underline" href="/legal" target="_blank">
-                conditions de commande
-              </a>{" "}
-              et comprends que le narrateur contrôle ses souvenirs.
-            </span>
-          </label>
-          <Button
-            type="submit"
-            disabled={!ready || busy || !catalog?.ordersOpen}
-          >
-            {busy ? "Préparation du paiement…" : "Continuer vers le paiement"}
-          </Button>
-        </form>
+              {busy ? "Préparation du paiement…" : "Continuer vers le paiement"}
+            </Button>
+          </Form>
+          <aside>
+            <section className="dash-summary">
+              <h2>Votre cadeau</h2>
+              <img
+                className="dash-gift-preview"
+                src="/dashboard/livre.webp"
+                width={150}
+                height={190}
+                alt="Exemple de couverture d’un livre Filémoire"
+              />
+              <p>{PACKAGES.find((p) => p.code === packageCode)?.name}</p>
+              <div className="flex flex-wrap justify-between gap-3 border-t border-line pt-5 mt-5">
+                <span>Total TTC</span>
+                <strong>{money(total)}</strong>
+              </div>
+            </section>
+            <p className="dash-note">
+              <a href="/espace" className="underline">
+                Revenir à mon espace
+              </a>
+            </p>
+          </aside>
+        </div>
       </div>
     </LiveShell>
   );

@@ -1,64 +1,146 @@
 "use client";
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Logo } from "@/components/shell/logo";
 import { LangSwitch } from "@/components/shell/lang-switch";
 import { useLang } from "@/i18n/lang";
-import { api, confirmNavigation } from "./client";
-export function LiveShell({ children }: { children: ReactNode }) {
+import { Button } from "@/components/ui/button";
+import type { Account } from "@/server/auth";
+import { api, confirmNavigation, hasUnsavedChanges } from "./client";
+import {
+  DASH_NAV,
+  ROLE_LABEL,
+  dashboardHref,
+  type DashboardRole,
+} from "./dashboard-ui";
+export function LiveShell({
+  children,
+  account,
+  role = "buyer",
+  view = "",
+  roleSwitcher,
+}: {
+  children: ReactNode;
+  account?: Account | null;
+  role?: DashboardRole;
+  view?: string;
+  roleSwitcher?: ReactNode;
+}) {
   useLang((s) => s.lang);
+  const router = useRouter();
   const [error, setError] = useState("");
+  const [signingOut, setSigningOut] = useState(false);
+  const initials = (account?.name || account?.email || "")
+    .split(/[\s@]+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
   return (
-    <div className="live-workspace min-h-screen bg-creme text-ink">
+    <div
+      className="live-workspace dashboard"
+      onClickCapture={async (event) => {
+        const anchor = (event.target as HTMLElement).closest("a");
+        if (
+          !anchor ||
+          anchor.target === "_blank" ||
+          anchor.hasAttribute("download") ||
+          anchor.pathname.startsWith("/api/") ||
+          anchor.hash ||
+          event.metaKey ||
+          event.ctrlKey ||
+          event.shiftKey ||
+          !hasUnsavedChanges()
+        )
+          return;
+        event.preventDefault();
+        event.stopPropagation();
+        if (await confirmNavigation()) router.push(anchor.href);
+      }}
+    >
       <a href="#live-main" className="sr-only-focusable">
         Aller au contenu
       </a>
-      <header className="border-b border-line bg-white">
-        <div className="container-page flex min-h-20 flex-wrap items-center gap-4 py-4">
-          <span
-            onClick={(e) => {
-              if (!confirmNavigation()) e.preventDefault();
-            }}
+      <header className="dash-header">
+        <div className="dash-container dash-top">
+          <Link
+            href={dashboardHref(role)}
+            className="dash-logo"
+            aria-label="Filémoire — accueil"
           >
-            <Logo />
-          </span>
-          <LangSwitch className="ml-auto" />
-          <nav
-            onClick={(e) => {
-              if (
-                (e.target as HTMLElement).closest("a") &&
-                !confirmNavigation()
-              )
-                e.preventDefault();
-            }}
-            aria-label="Navigation du compte"
-            className="flex w-full flex-wrap items-center gap-x-5 gap-y-3 sm:w-auto"
-          >
-            <Link href="/espace">Mes livres</Link>
-            <Link href="/offrir">Offrir</Link>
-            <Link href="/legal">Confidentialité</Link>
-            <button
-              onClick={async () => {
-                if (!confirmNavigation()) return;
-                try {
-                  await api("auth/logout", {});
-                  location.href = "/acces";
-                } catch (e) {
-                  setError((e as Error).message);
-                }
-              }}
-            >
-              Déconnexion
-            </button>
-          </nav>
+            filémoire
+          </Link>
+          <div className="dash-identity">
+            {account && (
+              <>
+                <span className="dash-avatar" aria-hidden="true" translate="no">
+                  {initials}
+                </span>
+                <span className="dash-identity-name" translate="no">
+                  {account.name || account.email}
+                </span>
+              </>
+            )}
+            {roleSwitcher || (
+              <span className="dash-badge">{ROLE_LABEL[role]}</span>
+            )}
+            <LangSwitch />
+          </div>
         </div>
+        <nav
+          className="dash-container dash-nav"
+          aria-label="Navigation du compte"
+        >
+          {DASH_NAV[role].map(([key, label]) => (
+            <Link
+              key={key}
+              href={dashboardHref(role, key)}
+              aria-current={view === key ? "page" : undefined}
+            >
+              {label}
+            </Link>
+          ))}
+          {role === "buyer" && (
+            <Link
+              href="/offrir"
+              aria-current={view === "offrir" ? "page" : undefined}
+            >
+              Offrir
+            </Link>
+          )}
+        </nav>
       </header>
-      <main id="live-main" className="container-page py-10">
+      <main id="live-main" className="dash-container dash-main" tabIndex={-1}>
         <Message error={error} />
         {children}
       </main>
-      <footer className="container-page border-t border-line py-8 text-sm text-ink-muted">
-        Filémoire · Vos souvenirs, sous votre contrôle.
+      <footer className="dash-container dash-footer">
+        <Link href={dashboardHref(role)} className="dash-logo">
+          filémoire
+        </Link>
+        <p>Vos souvenirs restent à vous.</p>
+        <div className="dash-footer-actions">
+          <Button asChild variant="outline" size="sm">
+            <Link href="/legal">Confidentialité</Link>
+          </Button>
+          <button
+            disabled={signingOut}
+            onClick={async () => {
+              if (!(await confirmNavigation())) return;
+              setSigningOut(true);
+              try {
+                await api("auth/logout", {});
+                location.href = "/acces";
+              } catch (e) {
+                setError((e as Error).message);
+                setSigningOut(false);
+              }
+            }}
+          >
+            Déconnexion
+          </button>
+        </div>
       </footer>
     </div>
   );

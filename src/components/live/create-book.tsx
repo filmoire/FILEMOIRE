@@ -1,4 +1,5 @@
 "use client";
+import { Form } from "./form";
 import { useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -48,7 +49,7 @@ export function CreateBook({
     }
   }
   return (
-    <form
+    <Form
       onSubmit={submit}
       className="card mt-8 max-w-2xl space-y-5 p-6 sm:p-8"
     >
@@ -130,6 +131,6 @@ export function CreateBook({
           {busy ? "Création en cours…" : "Créer mon livre privé"}
         </Button>
       </fieldset>
-    </form>
+    </Form>
   );
 }

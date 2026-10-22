@@ -1,6 +1,5 @@
 "use client";
 import { tr, locale } from "@/i18n/core";
-import { useLang } from "@/i18n/lang";
 import {
   useCallback,
   useEffect,
@@ -8,13 +7,11 @@ import {
   useState,
   type FormEvent,
 } from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { BookViewer } from "@/components/book/viewer";
 import { BOOK_LABEL, VISIBILITY_LABEL } from "@/lib/rules";
 import type { Project, Visibility } from "@/lib/types";
-import type { Account } from "@/server/auth";
 import type { Command, projectView } from "@/server/projects";
 import {
   api,
@@ -23,156 +20,13 @@ import {
   markRecording,
   confirmNavigation,
 } from "./client";
-import { OperationsPanel } from "./operations-panel";
-import { LiveShell, Message } from "./shell";
-import { CreateBook } from "./create-book";
+import { Message } from "./shell";
+import { confirmAction } from "./confirmation";
+import { Form } from "./form";
 type View = ReturnType<typeof projectView>;
 type Mutate = (command: Command) => Promise<View>;
-export function Workspace() {
-  useLang((s) => s.lang);
-  const [account, setAccount] = useState<Account | null>(null),
-    [projects, setProjects] = useState<View[]>([]),
-    [selected, setSelected] = useState(""),
-    [error, setError] = useState(""),
-    [personalDrafts, setPersonalDrafts] = useState(false),
-    [creating, setCreating] = useState(false),
-    [loading, setLoading] = useState(true);
-  const refresh = useCallback(async () => {
-    try {
-      const me = await api<{
-        account: Account | null;
-        personalDraftsEnabled: boolean;
-      }>("me");
-      if (!me.account) {
-        location.href = "/acces";
-        return;
-      }
-      setAccount(me.account);
-      setPersonalDrafts(me.personalDraftsEnabled);
-      const r = await api<{ projects: View[] }>("projects");
-      setProjects(r.projects);
-      setSelected((v) =>
-        r.projects.some((p) => p.id === v) ? v : r.projects[0]?.id || "",
-      );
-      setError("");
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
-  const current = projects.find((p) => p.id === selected);
-  const update = (v: View) =>
-    setProjects((all) => all.map((p) => (p.id === v.id ? v : p)));
-  return (
-    <LiveShell>
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="eyebrow">Votre espace privé</p>
-          <h1 className="mt-2">
-            {account?.name ? (
-              <>
-                Bonjour <span translate="no">{account.name}</span>
-              </>
-            ) : (
-              "Vos livres de famille"
-            )}
-          </h1>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          {personalDrafts && (
-            <Button
-              onClick={() => {
-                if (confirmNavigation()) setCreating((v) => !v);
-              }}
-            >
-              {creating ? "Revenir à mes livres" : "Nouveau livre"}
-            </Button>
-          )}
-          <Button asChild variant="outline">
-            <Link href="/offrir">Offrir un parcours</Link>
-          </Button>
-        </div>
-      </div>
-      <Message error={error} />
-      {loading ? (
-        <p role="status" className="mt-8">
-          Chargement de vos livres…
-        </p>
-      ) : (
-        <>
-          {personalDrafts && (creating || projects.length === 0) ? (
-            <CreateBook
-              onCreated={(v) => {
-                setProjects((all) => [v, ...all.filter((p) => p.id !== v.id)]);
-                setSelected(v.id);
-                setCreating(false);
-                void refresh();
-              }}
-            />
-          ) : projects.length === 0 ? (
-            <div className="card mt-8 p-8">
-              <h2>Votre premier livre commence ici</h2>
-              <p className="mt-3">
-                Offrez un parcours ou acceptez l’invitation reçue dans votre
-                messagerie. Une commande payée apparaît après sa confirmation.
-              </p>
-              <Button
-                variant="outline"
-                className="mt-5"
-                onClick={() => void refresh()}
-              >
-                Actualiser mes livres
-              </Button>
-            </div>
-          ) : (
-            <>
-              <label className="mt-8 block max-w-lg">
-                Livre
-                <select
-                  className="mt-2 block w-full rounded-md border border-line bg-white p-3"
-                  value={selected}
-                  onChange={(e) => {
-                    if (confirmNavigation()) setSelected(e.target.value);
-                  }}
-                >
-                  {projects.map((v) => (
-                    <option key={v.id} value={v.id} translate="no">
-                      {v.project.book.cover.title} ·{" "}
-                      {tr(
-                        {
-                          buyer: "acheteur",
-                          narrator: "narrateur",
-                          editor: "éditeur",
-                          contributor: "contributeur",
-                          support: "support",
-                        }[v.role],
-                      )}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              {current && (
-                <ProjectWorkspace
-                  key={current.id}
-                  view={current}
-                  update={update}
-                  refresh={refresh}
-                />
-              )}
-            </>
-          )}
-          <Orders />
-          {account?.admin && <Operations account={account} refresh={refresh} />}
-        </>
-      )}
-    </LiveShell>
-  );
-}
-function ProjectWorkspace({
+export { Dashboard as Workspace } from "./dashboard";
+export function ProjectWorkspace({
   view,
   update,
   refresh,
@@ -269,7 +123,7 @@ function ProjectWorkspace({
             pouvez passer une question ou demander la suppression de votre
             livre.
           </p>
-          <form
+          <Form
             className="mt-6 space-y-4"
             onSubmit={(e) => {
               e.preventDefault();
@@ -295,7 +149,7 @@ function ProjectWorkspace({
             <Button disabled={busy} type="submit">
               Commencer mon livre
             </Button>
-          </form>
+          </Form>
         </div>
       ) : (
         <>
@@ -310,8 +164,8 @@ function ProjectWorkspace({
               <Button
                 key={t}
                 variant={tab === t ? "primary" : "outline"}
-                onClick={() => {
-                  if (!confirmNavigation()) return;
+                onClick={async () => {
+                  if (!(await confirmNavigation())) return;
                   setTab(t);
                   setError("");
                 }}
@@ -415,9 +269,9 @@ function ProjectWorkspace({
                       <Button
                         variant="danger-outline"
                         disabled={busy}
-                        onClick={() => {
+                        onClick={async () => {
                           if (
-                            window.confirm(
+                            await confirmAction(
                               tr(
                                 "Supprimer ce souvenir et ses enregistrements ? Les photos seront retirées du livre.",
                               ),
@@ -494,7 +348,7 @@ function ProjectWorkspace({
                   {(view.role === "editor" || view.role === "contributor") &&
                     view.canSuggest &&
                     !locked && (
-                      <form
+                      <Form
                         className="mt-6 space-y-3"
                         onSubmit={(e) => {
                           e.preventDefault();
@@ -527,7 +381,7 @@ function ProjectWorkspace({
                         <Button disabled={busy} type="submit">
                           Proposer une correction
                         </Button>
-                      </form>
+                      </Form>
                     )}
                 </article>
               ))}
@@ -624,8 +478,9 @@ function QuestionComposer({ p, mutate }: { p: Project; mutate: Mutate }) {
             <select
               className="mt-2 w-full rounded border border-line bg-white p-3"
               value={qid}
-              onChange={(e) => {
-                if (confirmNavigation()) setQid(e.target.value);
+              onChange={async (e) => {
+                const value = e.target.value;
+                if (await confirmNavigation()) setQid(value);
               }}
             >
               {available.map((q) => (
@@ -805,7 +660,7 @@ function AnswerForm({
           variant="outline"
           onClick={async () => {
             try {
-              if (!confirmNavigation()) return;
+              if (!(await confirmNavigation())) return;
               await mutate({
                 type: "question",
                 questionId: qid,
@@ -824,7 +679,7 @@ function AnswerForm({
           variant="ghost"
           onClick={async () => {
             try {
-              if (!confirmNavigation()) return;
+              if (!(await confirmNavigation())) return;
               await mutate({
                 type: "question",
                 questionId: qid,
@@ -1031,7 +886,7 @@ function PhotoEdit({
 }) {
   const [error, setError] = useState("");
   return (
-    <form
+    <Form
       className="mt-3 space-y-2"
       onSubmit={async (e) => {
         e.preventDefault();
@@ -1082,7 +937,7 @@ function PhotoEdit({
       <Button size="sm" variant="outline" type="submit">
         Enregistrer la photo
       </Button>
-    </form>
+    </Form>
   );
 }
 function Transcript({
@@ -1196,7 +1051,7 @@ function Transcript({
       )}
       {(p.kind === "personal" || p.packageCode === "voix") &&
         audio.transcript.status === "validee" && (
-          <form
+          <Form
             className="space-y-3 border-t border-line pt-3"
             onSubmit={async (e) => {
               e.preventDefault();
@@ -1241,7 +1096,7 @@ function Transcript({
             <Button variant="outline" type="submit">
               Enregistrer l’accès audio
             </Button>
-          </form>
+          </Form>
         )}
     </div>
   );
@@ -1289,7 +1144,7 @@ function BookSettings({
   return (
     <div className="mt-6 space-y-8">
       <Message error={error} success={message} />
-      <form className="card space-y-4 p-6" onSubmit={submit}>
+      <Form className="card space-y-4 p-6" onSubmit={submit}>
         <h2>La couverture</h2>
         <fieldset disabled={locked} className="space-y-4">
           <label className="block">
@@ -1331,7 +1186,7 @@ function BookSettings({
           </label>
           <Button type="submit">Enregistrer la couverture</Button>
         </fieldset>
-      </form>
+      </Form>
       <div className="card p-6">
         <h2>Chapitres et ordre</h2>
         <ol className="mt-4 space-y-3">
@@ -1416,7 +1271,7 @@ function BookSettings({
         </div>
       </section>
       {!locked && (
-        <form
+        <Form
           className="card space-y-4 p-6"
           onSubmit={async (e) => {
             e.preventDefault();
@@ -1476,7 +1331,7 @@ function BookSettings({
           <Button disabled={!previewHash} type="submit">
             Valider mon livre
           </Button>
-        </form>
+        </Form>
       )}
       {p.kind !== "personal" && p.book.status === "approuve" && (
         <Button
@@ -1544,7 +1399,7 @@ function FamilySettings({
   return (
     <div className="mt-6 space-y-6">
       <Message error={error} success={message} />
-      <form
+      <Form
         className="card space-y-4 p-6"
         onSubmit={async (e) => {
           e.preventDefault();
@@ -1587,7 +1442,7 @@ function FamilySettings({
           l’éditeur familial restent accessibles uniquement à cet éditeur.
         </p>
         <Button type="submit">Envoyer l’invitation</Button>
-      </form>
+      </Form>
       <div className="card p-6">
         <h2>Accès au livre</h2>
         {invitations
@@ -1659,7 +1514,7 @@ function PrivacySettings({ p, mutate }: { p: Project; mutate: Mutate }) {
   return (
     <div className="mt-6 space-y-6">
       <Message error={error} success={message} />
-      <form
+      <Form
         className="card space-y-4 p-6"
         onSubmit={async (e) => {
           e.preventDefault();
@@ -1731,7 +1586,7 @@ function PrivacySettings({ p, mutate }: { p: Project; mutate: Mutate }) {
           </select>
         </label>
         <Button type="submit">Enregistrer mes préférences</Button>
-      </form>
+      </Form>
       <div className="card space-y-4 p-6">
         <h2>Vos données</h2>
         <p>
@@ -1748,11 +1603,11 @@ function PrivacySettings({ p, mutate }: { p: Project; mutate: Mutate }) {
           variant="danger-outline"
           onClick={async () => {
             if (
-              !window.confirm(
+              !(await confirmAction(
                 tr(
                   "Programmer la suppression de ce livre et de ses médias ? Vous pourrez annuler avant la date indiquée.",
                 ),
-              )
+              ))
             )
               return;
             try {
@@ -1766,7 +1621,7 @@ function PrivacySettings({ p, mutate }: { p: Project; mutate: Mutate }) {
           Demander la suppression
         </Button>
       </div>
-      <form
+      <Form
         className="card space-y-4 p-6"
         onSubmit={async (e) => {
           e.preventDefault();
@@ -1804,145 +1659,7 @@ function PrivacySettings({ p, mutate }: { p: Project; mutate: Mutate }) {
         <Button variant="outline" type="submit">
           Mettre à jour l’accès
         </Button>
-      </form>
+      </Form>
     </div>
-  );
-}
-function Orders() {
-  const [orders, setOrders] = useState<
-    { id: string; total: number; status: string; created_at: string }[]
-  >([]);
-  useEffect(() => {
-    api<{ orders: typeof orders }>("orders")
-      .then((r) => setOrders(r.orders))
-      .catch(() => {});
-  }, []);
-  if (!orders.length) return null;
-  return (
-    <section className="mt-12">
-      <h2>Vos commandes</h2>
-      <ul className="mt-4 divide-y divide-line">
-        {orders.map((o) => (
-          <li key={o.id} className="flex flex-wrap justify-between gap-3 py-4">
-            <span>
-              {o.id.slice(0, 8).toUpperCase()} ·{" "}
-              {new Date(o.created_at).toLocaleDateString(locale())}
-            </span>
-            <span>
-              {(o.total / 100).toFixed(2)} € · {o.status}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-function Operations({
-  account,
-  refresh,
-}: {
-  account: Account;
-  refresh: () => Promise<void>;
-}) {
-  const [error, setError] = useState(""),
-    [uri, setUri] = useState(""),
-    [data, setData] = useState<{
-      jobs: { id: string; kind: string; state: string; attempts: number }[];
-      prints: { id: string; status: string; tracking: string | null }[];
-    } | null>(null);
-  useEffect(() => {
-    if (account.mfa)
-      api<NonNullable<typeof data>>("admin/operations")
-        .then(setData)
-        .catch((e) => setError(e.message));
-  }, [account.mfa]);
-  return (
-    <section className="card mt-12 space-y-4 p-6">
-      <h2>Opérations</h2>
-      <Message error={error} />
-      {!account.mfa ? (
-        <>
-          <p>
-            Confirmez votre code d’authentification pour accéder aux opérations.
-          </p>
-          <Button
-            variant="outline"
-            onClick={async () => {
-              try {
-                const r = await api<{ uri: string }>("auth/mfa/setup", {});
-                setUri(r.uri);
-              } catch (e) {
-                setError((e as Error).message);
-              }
-            }}
-          >
-            Configurer un authentificateur
-          </Button>
-          {uri && (
-            <p className="break-all text-sm">
-              Ajoutez ce lien à votre authentificateur : <a href={uri}>{uri}</a>
-            </p>
-          )}
-          <form
-            className="flex gap-3"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const f = new FormData(e.currentTarget);
-              try {
-                await api("auth/mfa/verify", { code: f.get("code") });
-                await refresh();
-              } catch (e) {
-                setError((e as Error).message);
-              }
-            }}
-          >
-            <Input
-              aria-label="Code de l’authentificateur"
-              name="code"
-              inputMode="numeric"
-              pattern="[0-9]{6}"
-              required
-            />
-            <Button type="submit">Vérifier</Button>
-          </form>
-        </>
-      ) : (
-        <>
-          <h3>Traitements en attente ou en échec</h3>
-          {data?.jobs.map((j) => (
-            <div
-              key={j.id}
-              className="flex flex-wrap items-center justify-between gap-3"
-            >
-              <p>
-                {j.kind} · {j.state} · {j.attempts} tentative(s)
-              </p>
-              {j.state === "failed" && (
-                <Button
-                  variant="outline"
-                  onClick={async () => {
-                    try {
-                      await api(`admin/retry-job/${j.id}`, {});
-                      setData(await api("admin/operations"));
-                    } catch (e) {
-                      setError((e as Error).message);
-                    }
-                  }}
-                >
-                  Réessayer
-                </Button>
-              )}
-            </div>
-          ))}
-          <OperationsPanel />
-          <h3>Commandes d’impression</h3>
-          {data?.prints.map((p) => (
-            <p key={p.id}>
-              {p.id.slice(0, 8)} · {p.status} · {p.tracking}
-            </p>
-          ))}
-        </>
-      )}
-    </section>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+import { Form } from "./form";
 import { useLang } from "@/i18n/lang";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -89,7 +90,7 @@ export function AccessScreen({ localInbox = false }: { localInbox?: boolean }) {
             </Button>
           </div>
         ) : (
-          <form
+          <Form
             className="mt-6 space-y-4"
             onSubmit={async (e) => {
               e.preventDefault();
@@ -122,7 +123,7 @@ export function AccessScreen({ localInbox = false }: { localInbox?: boolean }) {
             <Button type="submit" disabled={!ready || busy}>
               {busy ? "Envoi en cours…" : "Recevoir mon lien"}
             </Button>
-          </form>
+          </Form>
         )}
       </div>
       <Link href="/" className="mt-6 inline-block">
@@ -210,7 +211,7 @@ export function AudioAccessScreen() {
       {url ? (
         <audio className="mt-6 w-full" src={url} controls />
       ) : (
-        <form
+        <Form
           className="mt-6 space-y-4"
           onSubmit={async (e) => {
             e.preventDefault();
@@ -244,7 +245,7 @@ export function AudioAccessScreen() {
           <Button type="submit" disabled={busy}>
             Écouter
           </Button>
-        </form>
+        </Form>
       )}
     </main>
   );

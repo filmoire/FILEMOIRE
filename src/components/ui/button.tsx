@@ -10,11 +10,14 @@ export const buttonVariants = cva(
       variant: {
         primary: "bg-prune text-creme hover:bg-prune-700 shadow-soft",
         accent: "bg-terre text-white hover:bg-terre-700 shadow-soft",
-        secondary: "border border-prune/70 bg-white text-prune hover:bg-prune-50",
-        outline: "border border-line bg-white text-ink hover:border-or hover:bg-creme-200",
+        secondary:
+          "border border-prune/70 bg-white text-prune hover:bg-prune-50",
+        outline:
+          "border border-line bg-white text-ink hover:border-or hover:bg-creme-200",
         ghost: "text-prune hover:bg-prune-50",
         danger: "bg-danger text-white hover:bg-[#8a3125]",
-        "danger-outline": "border border-danger/60 bg-white text-danger hover:bg-danger-bg",
+        "danger-outline":
+          "border border-danger/60 bg-white text-danger hover:bg-danger-bg",
         link: "h-auto px-0 text-prune underline underline-offset-4 hover:text-terre",
       },
       size: {
@@ -29,12 +32,25 @@ export const buttonVariants = cva(
   },
 );
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+export interface ButtonProps
+  extends ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ className, variant, size, asChild, type, ...props }, ref) => {
-  const Comp = asChild ? Slot : "button";
-  return <Comp ref={ref} type={asChild ? undefined : (type ?? "button")} className={cn(buttonVariants({ variant, size }), className)} {...props} />;
-});
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild, type, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button";
+    return (
+      <Comp
+        data-ui="button"
+        data-variant={variant ?? "primary"}
+        ref={ref}
+        type={asChild ? undefined : (type ?? "button")}
+        className={cn(buttonVariants({ variant, size }), className)}
+        {...props}
+      />
+    );
+  },
+);
 Button.displayName = "Button";
