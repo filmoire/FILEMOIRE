@@ -1,3 +1,5 @@
+import { editorialLibrary, saveEditorialQuestion } from "./question-library";
+import { dashboardOverview, dashboardRecords, ownProposals } from "./dashboard";
 import { z, ZodError } from "zod";
 import type { Project } from "@/lib/types";
 import {
@@ -22,6 +24,7 @@ import {
   updateProject,
   saveProject,
   resendNarratorInvite,
+  cancelNarratorInvite,
   createPersonalProject,
 } from "./projects";
 import {
@@ -213,6 +216,8 @@ export async function handleApi(req: Request, path: string[]) {
       );
       return reply({ ok: true });
     }
+    if (key === "proposals" && method === "GET")
+      return reply({ proposals: await ownProposals(a) });
     if (key === "projects" && method === "GET")
       return reply({ projects: await listProjects(a) });
     if (key === "projects" && method === "POST") {
@@ -273,6 +278,10 @@ export async function handleApi(req: Request, path: string[]) {
           .strict()
           .parse(await json(req));
         return reply(await updateProject(a, pid, v.revision, v.command));
+      }
+      if (sub === "narrator-invitation" && method === "DELETE") {
+        await cancelNarratorInvite(a, pid);
+        return reply({ ok: true });
       }
       if (sub === "narrator-invitation" && method === "POST") {
         await rateLimit(`resend:${pid}`, 5, 86400);
@@ -439,6 +448,36 @@ export async function handleApi(req: Request, path: string[]) {
         });
         return reply({ ok: true });
       }
+    }
+    if (key === "admin/questions" && method === "GET") {
+      requireAdmin(a);
+      return reply({ questions: await editorialLibrary() });
+    }
+    if (key === "admin/questions" && method === "POST")
+      return reply(await saveEditorialQuestion(a, await json(req)));
+    if (key === "admin/dashboard" && method === "GET")
+      return reply(await dashboardOverview(a));
+    if (
+      path[0] === "admin" &&
+      path[1] === "records" &&
+      path.length === 3 &&
+      method === "GET"
+    ) {
+      const section = z
+        .enum(["commandes", "projets", "impression", "support"])
+        .parse(path[2]);
+      const search = new URL(req.url).searchParams;
+      const page = z.coerce
+        .number()
+        .int()
+        .min(1)
+        .max(100000)
+        .parse(search.get("page") || 1);
+      const status = z
+        .string()
+        .max(30)
+        .parse(search.get("status") || "");
+      return reply(await dashboardRecords(a, section, page, status));
     }
     if (key === "admin/support" && method === "GET")
       return reply({ tickets: await supportList(a) });

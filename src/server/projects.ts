@@ -8,7 +8,7 @@ import {
 } from "@/lib/rules";
 import { DAY } from "@/lib/utils";
 import { createProject, startJourney } from "@/lib/factory";
-import { buildLibrary } from "@/lib/catalog";
+import { journeyLibrary } from "./question-library";
 import type { Account } from "./auth";
 import { pool, transaction, type DB } from "./db";
 import { assert, audit, hash, id, seal, secret, unseal } from "./security";
@@ -102,7 +102,7 @@ export async function createPersonalProject(a: Account, input: unknown) {
         deliveryDate: new Date(now).toISOString().slice(0, 10),
         extraCopies: 0,
       },
-      buildLibrary(),
+      await journeyLibrary(db),
       now,
     );
     p.id = id();
@@ -640,6 +640,7 @@ export async function updateProject(
         after: cmd.text,
         note: cmd.note,
         author: a.name || a.email,
+        authorId: a.id,
         status: "en_attente",
         createdAt: now,
       });
@@ -962,5 +963,26 @@ export async function resendNarratorInvite(a: Account, projectId: string) {
     };
     await saveProject(db, a, row, p);
     await audit(db, a.id, projectId, "narrator.invitation.resent");
+  });
+}
+
+export async function cancelNarratorInvite(a: Account, projectId: string) {
+  await transaction(async (db) => {
+    // Match acceptInvite's invitation-before-project lock order.
+    await db.query(
+      "SELECT id FROM invitations WHERE project_id=$1 AND role='narrator' ORDER BY id FOR UPDATE",
+      [projectId],
+    );
+    const row = await accessProject(db, a, projectId, true);
+    assert(row.role === "buyer" && !row.deletion_at, 403, "Accès refusé.");
+    const p = unseal<Project>(row.payload);
+    assert(!p.startedAt, 409, "Le narrateur a déjà accepté son invitation.");
+    await db.query(
+      "UPDATE invitations SET revoked_at=now() WHERE project_id=$1 AND role='narrator' AND accepted_at IS NULL",
+      [projectId],
+    );
+    p.invitation.status = "revoquee";
+    await saveProject(db, a, row, p);
+    await audit(db, a.id, projectId, "narrator.invitation.cancelled");
   });
 }

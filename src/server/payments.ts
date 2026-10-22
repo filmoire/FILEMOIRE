@@ -1,11 +1,7 @@
+import { journeyLibrary } from "./question-library";
 import Stripe from "stripe";
 import { z } from "zod";
-import {
-  pkg,
-  EXTRA_COPY_PRICE,
-  GIFT_BOX_PRICE,
-  buildLibrary,
-} from "@/lib/catalog";
+import { pkg, EXTRA_COPY_PRICE, GIFT_BOX_PRICE } from "@/lib/catalog";
 import { projectFromOrder } from "@/lib/factory";
 import type { Order } from "@/lib/types";
 import type { Account } from "./auth";
@@ -198,7 +194,7 @@ async function fulfill(db: DB, session: Stripe.Checkout.Session) {
     payments: [],
     createdAt: now,
   };
-  const p = projectFromOrder(order, buildLibrary(), now);
+  const p = projectFromOrder(order, await journeyLibrary(db), now);
   p.id = id();
   p.invitation.token = "";
   const token = secret();

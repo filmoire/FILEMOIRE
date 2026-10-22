@@ -41,7 +41,7 @@ export function configureTests() {
 }
 export async function resetTests() {
   await pool().query(
-    "TRUNCATE accounts,orders,projects,jobs,login_tokens,webhook_events,rate_limits,service_heartbeats,support_requests CASCADE",
+    "TRUNCATE accounts,orders,projects,jobs,login_tokens,webhook_events,rate_limits,service_heartbeats,support_requests,question_library CASCADE",
   );
 }
 export async function account(

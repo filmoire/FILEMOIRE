@@ -169,6 +169,8 @@ export interface Suggestion {
   after: string;
   note: string;
   author: string;
+  /** Stable live account identity; display names never authorize proposal history. */
+  authorId?: string;
   status: "en_attente" | "acceptee" | "refusee";
   createdAt: number;
   decidedAt?: number;
