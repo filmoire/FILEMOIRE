@@ -47,3 +47,11 @@ Active destination followed by “· Filémoire”, localized, with no personal 
 ## Verification
 
 Existing live story/recording/PDF/locale tests plus role-dashboard tests cover navigation, real data, permission isolation, empty states, failure recovery, keyboard, narrow screens and language switching. Static skill audit evidence is stored under ignored `artifacts/production/design-2026-10-22/`.
+
+## Designer completion — 26 October 2026
+
+Gift preparation follows seven steps using the shared `Form`: package, journey, recipient, message, date/options, review and payment. Required fields validate before advancing. Previous steps and language changes retain controlled values in memory. Nothing is saved in browser storage; leaving the page warns about unsaved entries. Checkout uses `src/server/payments.ts` for authoritative totals, availability and terms. Each edited payload gets a new idempotency key; retries of the same payload reuse it. A closed checkout remains disabled and server enforcement is tested even with stale availability in the browser. Quote and extra-copy enquiries use the existing connected public contact form.
+
+Operations list DTOs in `src/server/dashboard.ts` explicitly allow recipient/buyer names, package/options, invitation state, progress counts and image-quality counts. They exclude story text, captions, manuscript versions, media paths and delivery addresses. This metadata is separate from the fresh, expiring support-grant check used to read a book. Print transitions still use `src/server/printing.ts`; approved books awaiting a narrator request never start production from the operations list.
+
+Support status controls persist open/in-progress/closed through `PATCH admin/support/:id` with fresh MFA and an expected-status check. Replied remains a status produced only by the reply command; changing a status cannot send mail. A previously sent reply cannot be sent twice. Question activation persists with the same optimistic revision checks as editing; inactive questions are excluded only from future journey generation. Existing book questions remain snapshots.

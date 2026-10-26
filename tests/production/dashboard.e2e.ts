@@ -280,6 +280,7 @@ test("operations design requires MFA, uses metadata, recovers from failure and e
     .getByRole("textbox", { name: "Rechercher", exact: true })
     .fill("Quel jardin aimiez-vous visiter");
   await page.getByRole("button", { name: "Rechercher", exact: true }).click();
+  await expect(page).toHaveURL(/q=Quel/);
   await expect(
     page.getByRole("heading", {
       name: "Quel jardin aimiez-vous visiter ?",
@@ -351,10 +352,8 @@ test("new members can use the illustrated empty dashboards, gift form and browse
     page.getByRole("heading", { name: "Préparez son cadeau" }),
   ).toBeVisible();
   await expect(
-    page.getByText("Les commandes ne sont pas encore ouvertes.", {
-      exact: true,
-    }),
-  ).toBeVisible();
+    page.getByRole("button", { name: "Valider cette formule ↗" }),
+  ).toBeDisabled();
   await verify(
     page,
     `artifacts/production/design-2026-10-22/${info.project.name}-gift.png`,

@@ -62,3 +62,7 @@ Static content is flat. Use borders for rows and lilac for summaries. Dialogs al
 - Preserve narrator authority, MFA, scoped support grants, immutable approved PDFs and unsaved recording protection.
 - Translate interface copy, never a person's name, narrative, caption or cover title.
 - Keep safe primary actions separate from refunds, deletion and access revocation.
+
+## Designer completion — 26 October 2026
+
+The seven-step gift flow preserves the supplied first-step composition and extends it with the same typography, controls and lilac summary. Shared books use the illustrated home empty state and a plain empty panel on the books tab. Support uses full-width ruled rows. Question groups follow chapter order with compact metadata tags and canonical activation switches. Orders and projects use operational metadata columns from the reference. The added language, account, refresh and protected operational controls remain available for a working application.

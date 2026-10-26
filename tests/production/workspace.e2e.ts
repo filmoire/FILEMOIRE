@@ -489,9 +489,13 @@ test("English and French persist across public pages, reloads and sign-in", asyn
   await collect();
   await page.getByRole("link", { name: "Give a gift", exact: true }).click();
   await expect(
-    page.getByText("Orders are not open yet.", { exact: true }),
-  ).toBeVisible();
+    page.getByRole("button", { name: "Choose this package ↗" }),
+  ).toBeDisabled();
   await collect();
+  await page.getByRole("radio", { name: /Heritage/ }).check();
+  await page.getByRole("button", { name: "Choose this package ↗" }).click();
+  await collect();
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
   await page.getByLabel("First name", { exact: true }).fill("Camille");
   await page.getByRole("button", { name: "Français", exact: true }).click();
   await expect(page.getByLabel("Prénom", { exact: true })).toHaveValue(
