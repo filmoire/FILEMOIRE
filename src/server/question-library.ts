@@ -31,7 +31,7 @@ export async function editorialLibrary(
   ];
 }
 export async function journeyLibrary(db: DB = pool()) {
-  const all = await editorialLibrary(db);
+  const all = (await editorialLibrary(db)).filter((q) => q.active);
   // New questions are explicitly approved before use. Existing journeys are snapshots.
   return [
     ...all.filter((q) => q.custom && q.status === "validee"),
@@ -68,6 +68,7 @@ const schema = z
       ])
       .optional(),
     status: z.enum(["a_valider", "validee"]),
+    active: z.boolean().optional(),
   })
   .strict();
 export async function saveEditorialQuestion(account: Account, input: unknown) {
@@ -97,7 +98,7 @@ export async function saveEditorialQuestion(account: Account, input: unknown) {
       chapter: value.chapter,
       theme: value.theme === "vie" ? undefined : value.theme,
       status: value.status,
-      active: true,
+      active: value.active ?? existing?.active ?? true,
       short: existing?.short,
       official: existing?.official,
     };

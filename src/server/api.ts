@@ -1,5 +1,10 @@
 import { editorialLibrary, saveEditorialQuestion } from "./question-library";
-import { dashboardOverview, dashboardRecords, ownProposals } from "./dashboard";
+import {
+  dashboardOverview,
+  dashboardRecords,
+  ownProposals,
+  buyerOrders,
+} from "./dashboard";
 import { z, ZodError } from "zod";
 import type { Project } from "@/lib/types";
 import {
@@ -56,7 +61,12 @@ import {
 } from "./config";
 import { PACKAGES, EXTRA_COPY_PRICE, GIFT_BOX_PRICE } from "@/lib/catalog";
 import { exportArchive } from "./export";
-import { contact, supportList, replySupport } from "./support";
+import {
+  contact,
+  supportList,
+  replySupport,
+  updateSupportStatus,
+} from "./support";
 const uuid = (s: string) => z.string().uuid().parse(s);
 async function bodyBytes(req: Request, limit: number) {
   const reader = req.body?.getReader();
@@ -226,13 +236,8 @@ export async function handleApi(req: Request, path: string[]) {
     }
     if (key === "checkout" && method === "POST")
       return reply(await createCheckout(a, await json(req)));
-    if (key === "orders" && method === "GET") {
-      const { rows } = await pool().query(
-        "SELECT id,total,currency,status,created_at FROM orders WHERE buyer_id=$1 ORDER BY created_at DESC",
-        [a.id],
-      );
-      return reply({ orders: rows });
-    }
+    if (key === "orders" && method === "GET")
+      return reply({ orders: await buyerOrders(a) });
     if (key === "invitations/accept" && method === "POST") {
       const v = z
         .object({ token: z.string().min(32).max(100) })
@@ -464,7 +469,7 @@ export async function handleApi(req: Request, path: string[]) {
       method === "GET"
     ) {
       const section = z
-        .enum(["commandes", "projets", "impression", "support"])
+        .enum(["commandes", "projets", "impression", "support", "validation"])
         .parse(path[2]);
       const search = new URL(req.url).searchParams;
       const page = z.coerce
@@ -478,6 +483,15 @@ export async function handleApi(req: Request, path: string[]) {
         .max(30)
         .parse(search.get("status") || "");
       return reply(await dashboardRecords(a, section, page, status));
+    }
+    if (
+      path[0] === "admin" &&
+      path[1] === "support" &&
+      path.length === 3 &&
+      method === "PATCH"
+    ) {
+      await updateSupportStatus(a, uuid(path[2]), await json(req));
+      return reply({ ok: true });
     }
     if (key === "admin/support" && method === "GET")
       return reply({ tickets: await supportList(a) });

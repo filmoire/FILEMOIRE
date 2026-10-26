@@ -27,6 +27,7 @@ export type ProjectRow = {
   deletion_at: Date | null;
   role: "buyer" | "narrator" | "editor" | "contributor" | "support";
   can_suggest: boolean;
+  purchasedByAccount?: boolean;
 };
 
 const personalSchema = z
@@ -166,7 +167,11 @@ export async function accessProject(
         ? "support"
         : undefined);
   assert(role, 404, "Livre introuvable.");
-  return { ...row, role };
+  return {
+    ...row,
+    role,
+    purchasedByAccount: row.kind === "purchased" && row.buyer_id === a.id,
+  };
 }
 export function readable(m: Memory, role: ProjectRow["role"]) {
   return (
@@ -231,6 +236,7 @@ export function projectView(row: ProjectRow) {
     revision: row.revision,
     role,
     canSuggest: row.can_suggest,
+    purchasedByAccount: !!row.purchasedByAccount,
     project: p,
     deletionAt: row.deletion_at,
   };

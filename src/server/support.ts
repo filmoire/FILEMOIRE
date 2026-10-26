@@ -55,7 +55,11 @@ export async function replySupport(
         ticketId,
       ])
     ).rows[0];
-    assert(r && r.status === "open", 409, "Cette demande a déjà été traitée.");
+    assert(
+      r && !r.reply && ["open", "in_progress"].includes(r.status),
+      409,
+      "Cette demande a déjà été traitée.",
+    );
     const request = unseal<z.infer<typeof contactSchema>>(r.payload);
     await enqueue(
       db,
@@ -68,5 +72,34 @@ export async function replySupport(
       [ticketId, seal(v.text)],
     );
     await audit(db, a.id, null, "support.replied");
+  });
+}
+
+/** Compare-and-set prevents a stale operator tab from undoing another operator's work. */
+export async function updateSupportStatus(
+  a: Account,
+  ticketId: string,
+  input: unknown,
+) {
+  requireAdmin(a);
+  const statuses = z.enum(["open", "in_progress", "replied", "closed"]);
+  const value = z
+    .object({
+      expectedStatus: statuses,
+      status: z.enum(["open", "in_progress", "closed"]),
+    })
+    .strict()
+    .parse(input);
+  await transaction(async (db) => {
+    const result = await db.query(
+      "UPDATE support_requests SET status=$3 WHERE id=$1 AND status=$2 RETURNING id",
+      [ticketId, value.expectedStatus, value.status],
+    );
+    assert(
+      result.rowCount === 1,
+      409,
+      "Cette demande a changé. Actualisez la liste avant de réessayer.",
+    );
+    await audit(db, a.id, null, "support.status_updated");
   });
 }
