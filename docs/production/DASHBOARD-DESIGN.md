@@ -32,6 +32,7 @@ The strict premium static audit reports 35 findings: 17 `Form` usages, 8 `Textar
 - TypeScript and ESLint: passed.
 - Combined unit/PostgreSQL audit suite: 113 passed across seven files (31 unit tests and 82 database integration tests), including metadata privacy, ownership, dual roles, support conflicts, question activation and approved-book queues.
 - Live browser coverage: 32 passed in one final desktop/mobile run. It covers the full design matrix, seven-step gift navigation and validation, a stale checkout-availability response with a real server rejection and retry key, persisted support/question/print actions, permissions, French/English persistence and existing narrator workflows.
+- The two empty-dashboard cases passed again after moving the workspace-selector screenshot after Escape. This avoids a native Chromium picker screenshot hang seen in the previous Linux CI run while preserving keyboard opening, closing and focus checks.
 - Optimized live Next.js build and worker bundle: verified for this update.
 - Local startup after migration: `/api/v1/health` returns `{"status":"ok"}` and the buyer workspace returns HTTP 200 at port 3100.
 - Earlier 22 October baseline: demo Next.js build, standalone HTML build and all 25 demo/HTML browser regression cases passed. Those separate demo checks were not rerun for this live-dashboard update.

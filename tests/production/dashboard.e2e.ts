@@ -317,11 +317,12 @@ test("new members can use the illustrated empty dashboards, gift form and browse
   const role = page.getByRole("combobox", { name: "Espace", exact: true });
   await role.focus();
   await role.press("Space");
+  await role.press("Escape");
+  await expect(role).toBeFocused();
+  // Chromium's native picker can block screenshots on Linux; capture after closing it.
   await page.screenshot({
     path: `artifacts/production/design-2026-10-22/${info.project.name}-workspace-select.png`,
   });
-  await role.press("Escape");
-  await expect(role).toBeFocused();
   await role.selectOption("buyer");
   await expect(
     page.getByRole("heading", { name: "La première page reste à offrir." }),
