@@ -27,7 +27,12 @@ async function main() {
     "owner go-live decision": e.goLiveApproved === true,
   };
   try {
-    config();
+    const settings = config();
+    checks["public production configuration"] =
+      settings.DEPLOYMENT_STAGE === "production" &&
+      process.env.NODE_ENV === "production" &&
+      process.env.APP_MODE === "live" &&
+      process.env.LEGAL_APPROVED === "true";
     checks["server configuration"] = true;
     const db = pool();
     await db.query("SELECT 1");

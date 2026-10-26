@@ -61,6 +61,16 @@ function LiveProviders({ children }: { children: ReactNode }) {
   // or interrupting an active recorder. The demo keeps its separate lifecycle.
   return (
     <>
+      {process.env.NEXT_PUBLIC_DEPLOYMENT_STAGE === "staging" && (
+        <div
+          role="note"
+          className="bg-prune-700 px-4 py-3 text-center font-sans text-sm text-white"
+        >
+          {lang === "en"
+            ? "Private staging — use fictional stories and test files only. Payments and printing are disabled."
+            : "Préproduction privée — utilisez uniquement des récits fictifs et des fichiers de test. Paiement et impression désactivés."}
+        </div>
+      )}
       {children}
       <Toaster />
       <LiveConfirmation />

@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { sendEmail } from "./email";
 import type { Project } from "@/lib/types";
 import { refreshQuestions } from "@/lib/rules";
 import { claimJob, enqueue, finishJob, type Job } from "./jobs";
@@ -39,13 +39,11 @@ export async function runJob(job: Job) {
         if (!invitation) return;
       }
     }
-    const smtp = nodemailer.createTransport(configured("SMTP_URL"));
-    await smtp.sendMail({
-      from: configured("EMAIL_FROM"),
+    await sendEmail({
+      id: job.id,
       to: String(job.payload.to),
       subject: String(job.payload.subject),
       text: String(job.payload.text),
-      messageId: `<${job.id}@${new URL(config().APP_ORIGIN).hostname}>`,
     });
     if (job.payload.projectId && job.payload.invitationHash)
       await transaction(async (db) => {

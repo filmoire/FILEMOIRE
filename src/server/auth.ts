@@ -13,6 +13,7 @@ import {
   audit,
 } from "./security";
 import { enqueue } from "./jobs";
+import { stagingEmailAllowed } from "@/lib/deployment";
 export type Account = {
   id: string;
   email: string;
@@ -33,6 +34,7 @@ export async function currentAccount(token?: string): Promise<Account | null> {
   );
   if (!rows[0]) return null;
   const a = rows[0];
+  if (!stagingEmailAllowed(a.email)) return null;
   return {
     id: a.id,
     email: a.email,
@@ -59,6 +61,11 @@ export function requireAdmin(a: Account) {
   );
 }
 export async function requestLogin(email: string) {
+  assert(
+    stagingEmailAllowed(email),
+    403,
+    "Accès à la préproduction réservé aux comptes autorisés.",
+  );
   await rateLimit(`login:${email}`, 5, 900);
   const token = secret();
   await transaction(async (db) => {
@@ -86,6 +93,11 @@ export async function consumeLogin(token: string) {
       [hash(token)],
     );
     assert(rows[0], 400, "Ce lien a expiré ou a déjà été utilisé.");
+    assert(
+      stagingEmailAllowed(rows[0].email),
+      403,
+      "Accès à la préproduction réservé aux comptes autorisés.",
+    );
     const a = await db.query(
       "INSERT INTO accounts(id,email) VALUES($1,$2) ON CONFLICT(email) DO UPDATE SET email=EXCLUDED.email RETURNING id,email,name",
       [id(), rows[0].email],

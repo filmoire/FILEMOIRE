@@ -14,6 +14,7 @@ const client = () =>
     region: config().S3_REGION,
     endpoint: config().S3_ENDPOINT,
     forcePathStyle: !!config().S3_ENDPOINT,
+    requestHandler: { connectionTimeout: 10000, socketTimeout: 60000 },
   });
 function location(key: string) {
   assert(
