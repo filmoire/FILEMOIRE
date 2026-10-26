@@ -132,8 +132,8 @@
   font-weight: bold;
 }
 .dash-main {
-  padding-block: 48px 80px;
-  min-height: 650px;
+  padding-block: 54px 80px;
+  min-height: 632px;
 }
 .dash-footer {
   display: flex;
@@ -159,7 +159,7 @@
   margin-bottom: 56px;
 }
 .dash-intro p {
-  max-width: 72ch;
+  max-width: 620px;
 }
 .dash-intro-action {
   flex-shrink: 0;
@@ -197,7 +197,7 @@
   border-radius: 32px;
   overflow: hidden;
   background: var(--dash-wash);
-  min-height: 310px;
+  min-height: 400px;
 }
 .dash-empty-copy {
   padding: 40px;
@@ -212,16 +212,17 @@
 .dash-empty img {
   width: 100%;
   height: 100%;
-  min-height: 310px;
+  min-height: 400px;
   object-fit: cover;
 }
 .dash-blank {
-  padding: 40px 30px;
+  min-height: 195px;
+  padding: 48px 30px;
   border-radius: 24px;
   background: var(--dash-surface);
 }
 .dash-blank h2 {
-  font-size: 23px;
+  font-size: 27px;
   margin-bottom: 14px;
 }
 .dash-rows {
@@ -384,14 +385,15 @@
   margin-bottom: 22px;
 }
 .dash-tickets {
-  display: grid;
-  gap: 28px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: block;
 }
 .dash-ticket {
-  padding: 30px;
-  background: var(--dash-surface);
-  border-radius: 24px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--dash-line);
+  scroll-margin-top: 24px;
+}
+.dash-ticket h2 {
+  margin-bottom: 10px;
 }
 .dash-question-layout {
   display: grid;
@@ -576,4 +578,134 @@
   .dash-footer {
     align-items: flex-start;
   }
+}
+
+/* Reference-specific layouts shared by all live role screens. */
+.dash-columns .dash-empty,
+.dash-columns .dash-empty img {
+  min-height: 310px;
+}
+.dash-empty-relecture,
+.dash-empty-relecture img {
+  min-height: 340px;
+}
+.dash-empty-copy {
+  padding: 36px;
+}
+.dash-shared-book > div {
+  padding: 40px 70px;
+}
+.dash-filter-bar,
+.dash-question-toolbar {
+  border-radius: 16px;
+  background: var(--dash-wash);
+  padding: 14px 20px;
+}
+.dash-filter-bar label {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.dash-filter-bar select {
+  margin-top: 0;
+}
+.dash-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  margin-bottom: 30px;
+  color: var(--dash-accent);
+  font: 12px/1.6 var(--dash-display);
+}
+.dash-steps [aria-current="step"] {
+  color: var(--dash-ink);
+  font-weight: bold;
+}
+.dash-steps button {
+  min-height: 32px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.dash-steps span {
+  display: inline-block;
+  padding-block: 6px;
+}
+.dash-gift-aside {
+  align-self: start;
+  position: sticky;
+  top: 24px;
+}
+.dash-review > div {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(0, 2fr);
+  gap: 20px;
+  padding-block: 16px;
+  border-bottom: 1px solid var(--dash-line);
+  overflow-wrap: anywhere;
+}
+.dash-review dt {
+  color: var(--dash-accent);
+}
+.dash-question-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding-block: 16px;
+  border-bottom: 1px solid var(--dash-line);
+  font: 14px/1.5 var(--dash-display);
+}
+.dash-question-row h4 {
+  font-weight: 400;
+  margin-bottom: 4px;
+}
+.dash-question-row p {
+  color: var(--dash-accent);
+  font-size: 12px;
+}
+.dash-question-row .dash-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.dash-question-row [data-ui="button"] {
+  font-size: 12px;
+  padding-inline: 14px;
+}
+@media (max-width: 800px) {
+  .dash-empty,
+  .dash-empty img,
+  .dash-columns .dash-empty,
+  .dash-columns .dash-empty img {
+    min-height: 0;
+  }
+  .dash-empty-copy,
+  .dash-shared-book > div {
+    padding: 26px;
+  }
+  .dash-gift-aside {
+    position: static;
+  }
+  .dash-question-row {
+    align-items: start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .dash-question-nav h3 {
+    width: 100%;
+    margin: 8px 10px;
+  }
+  .dash-review > div {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .dash-filter-bar label {
+    flex-wrap: wrap;
+  }
+}
+
+.dash-offer input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
 }

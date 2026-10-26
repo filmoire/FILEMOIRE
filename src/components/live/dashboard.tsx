@@ -5,11 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useLang } from "@/i18n/lang";
 import { tr } from "@/i18n/core";
 import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
 import { Select } from "@/components/ui/input";
 import type { Account } from "@/server/auth";
 import type { projectView } from "@/server/projects";
 import { BOOK_LABEL } from "@/lib/rules";
-import { PACKAGES } from "@/lib/catalog";
+import { PACKAGES, THEMES } from "@/lib/catalog";
 import { api, confirmNavigation } from "./client";
 import { confirmAction } from "./confirmation";
 import { LiveShell, Message } from "./shell";
@@ -94,7 +95,7 @@ export function Dashboard() {
       ? p.role === "narrator"
       : role === "editor"
         ? ["editor", "contributor"].includes(p.role)
-        : p.role === "buyer",
+        : p.purchasedByAccount,
   );
   const selected =
     relevant.find((p) => p.id === params.get("livre")) ?? relevant[0];
@@ -280,63 +281,75 @@ function BuyerDashboard({
     return (
       <>
         <PageIntro title="Le chemin vers le livre">
-          Suivez les grandes étapes, au rythme de votre proche.
+          Suivez les grandes étapes, sans consulter les souvenirs de votre
+          proche.
         </PageIntro>
         {projects.length ? (
-          projects.map(({ project: p }) => (
-            <section key={p.id} className="dash-summary">
-              <StatusBadge>
-                {PACKAGES.find((x) => x.code === p.packageCode)?.name}
-              </StatusBadge>
-              <h2 className="mt-5" translate="no">
-                {p.book.cover.title}
-              </h2>
-              {p.privacy.buyerSeesProgress ? (
-                <>
-                  <p>{BOOK_LABEL[p.book.status]}</p>
-                  <ol className="dash-timeline">
-                    {[
-                      ["Invitation acceptée", !!p.startedAt],
-                      ["Récit en cours", !!p.startedAt],
-                      [
-                        "Validation du livre",
-                        [
-                          "approuve",
-                          "preparation",
-                          "impression",
-                          "expedie",
-                          "livre",
-                        ].includes(p.book.status),
-                      ],
-                      [
-                        "Impression",
-                        ["impression", "expedie", "livre"].includes(
-                          p.book.status,
-                        ),
-                      ],
-                    ].map(([label, done]) => (
-                      <li key={String(label)} data-complete={done}>
-                        <span aria-hidden="true">{done ? "✓ " : "○ "}</span>
-                        {label}
-                      </li>
-                    ))}
-                  </ol>
-                </>
-              ) : (
-                <p>Votre proche a choisi de garder son avancement privé.</p>
-              )}
-              {!p.startedAt && (
-                <p className="mt-6">
-                  <Link
-                    href={dashboardHref("buyer", "cadeaux")}
-                    className="underline"
-                  >
+          projects.map(({ project: p }) =>
+            !p.startedAt ? (
+              <section key={p.id} className="dash-row">
+                <div>
+                  <h3>
+                    <span translate="no">{p.narrator.firstName}</span> n’a pas
+                    encore accepté son invitation
+                  </h3>
+                  <Link href={dashboardHref("buyer", "cadeaux")}>
                     Gérer l’invitation
                   </Link>
-                </p>
-              )}
-            </section>
-          ))
+                </div>
+              </section>
+            ) : (
+              <section key={p.id} className="dash-summary">
+                <StatusBadge>
+                  <span translate="no">{p.narrator.firstName}</span> ·{" "}
+                  {PACKAGES.find((x) => x.code === p.packageCode)?.name}
+                </StatusBadge>
+                <h2 className="mt-5">
+                  {p.privacy.buyerSeesProgress
+                    ? p.book.status === "brouillon"
+                      ? "Son histoire prend forme."
+                      : BOOK_LABEL[p.book.status]
+                    : "Chaque histoire suit son rythme."}
+                </h2>
+                {p.privacy.buyerSeesProgress ? (
+                  <>
+                    <p>
+                      Le parcours est en cours. Les réponses et les photos
+                      restent privées, sauf partage choisi par le narrateur.
+                    </p>
+                    <ol className="dash-timeline">
+                      {[
+                        ["Invitation acceptée", !!p.startedAt],
+                        ["Récit en cours", !!p.startedAt],
+                        [
+                          "Validation du livre",
+                          [
+                            "approuve",
+                            "preparation",
+                            "impression",
+                            "expedie",
+                            "livre",
+                          ].includes(p.book.status),
+                        ],
+                        [
+                          "Impression",
+                          ["impression", "expedie", "livre"].includes(
+                            p.book.status,
+                          ),
+                        ],
+                      ].map(([label, done]) => (
+                        <li key={String(label)} data-complete={done}>
+                          {label}
+                        </li>
+                      ))}
+                    </ol>
+                  </>
+                ) : (
+                  <p>Votre proche a choisi de garder son avancement privé.</p>
+                )}
+              </section>
+            ),
+          )
         ) : (
           <EmptyPanel
             title="Chaque histoire suit son rythme."
@@ -364,8 +377,9 @@ function BuyerDashboard({
       illustration="cadeau"
       action={<GiftLink />}
     >
-      Choisissez une formule, un proche et une date. Nous lui enverrons votre
-      invitation.
+      {view === "cadeaux"
+        ? "Vos cadeaux et le statut de leurs invitations seront réunis ici."
+        : "Choisissez une formule, un proche et une date. Nous lui enverrons votre invitation."}
     </EmptyPanel>
   );
   return (
@@ -375,11 +389,17 @@ function BuyerDashboard({
         action={<GiftLink />}
       >
         {view === "cadeaux"
-          ? "Retrouvez vos invitations et accompagnez les premiers pas de votre proche."
+          ? "Retrouvez vos invitations. Vous pouvez les renvoyer ou les annuler tant qu’elles ne sont pas acceptées."
           : "Un cadeau qui commence avec vous. Une histoire qui appartient à votre proche."}
       </PageIntro>
       {view === "cadeaux" ? (
-        gifts
+        <>
+          <div className="dash-gifts-full">{gifts}</div>
+          <p className="dash-note">
+            Chaque invitation est valable 30 jours. Le narrateur reste libre
+            d’accepter.
+          </p>
+        </>
       ) : (
         <div className="dash-columns">
           <section>
@@ -393,7 +413,14 @@ function BuyerDashboard({
           <aside>
             <section className="dash-aside">
               <h2>Au fil des nouvelles</h2>
-              <p>Les étapes de vos cadeaux sont réunies dans votre suivi.</p>
+              <p>
+                {projects.some(
+                  (p) =>
+                    p.project.startedAt && p.project.privacy.buyerSeesProgress,
+                )
+                  ? "Un de vos proches a commencé son parcours. Vous pouvez suivre les grandes étapes de son livre."
+                  : "Les prochaines étapes de vos cadeaux apparaîtront ici."}
+              </p>
               <Link
                 href={dashboardHref("buyer", "suivi")}
                 className="underline"
@@ -404,7 +431,8 @@ function BuyerDashboard({
             <section className="dash-aside">
               <h3>Un livre à partager</h3>
               <p>
-                Retrouvez les formules offertes et les exemplaires commandés.
+                Des exemplaires supplémentaires pour les enfants et
+                petits-enfants.
               </p>
               <Link
                 href={dashboardHref("buyer", "commandes")}
@@ -477,17 +505,32 @@ function GiftRows({
             <div>
               <StatusBadge>
                 {p.startedAt
-                  ? "Invitation acceptée"
+                  ? "En cours"
                   : p.invitation.status === "revoquee"
                     ? "Invitation annulée"
                     : "Invitation à accepter"}
               </StatusBadge>
               <h3 translate="no">{p.book.cover.title}</h3>
-              <p>{PACKAGES.find((x) => x.code === p.packageCode)?.name}</p>
+              <p>
+                {PACKAGES.find((x) => x.code === p.packageCode)?.name} ·{" "}
+                {p.startedAt
+                  ? "Invitation acceptée"
+                  : p.invitation.status === "programmee"
+                    ? "Invitation programmée"
+                    : p.invitation.status === "revoquee"
+                      ? "Invitation annulée"
+                      : "Invitation envoyée"}
+                {!p.startedAt && p.invitation.status !== "revoquee" && (
+                  <>
+                    {" "}
+                    · {dateLabel(p.invitation.sentAt ?? p.invitation.sendAt)}
+                  </>
+                )}
+              </p>
               {!p.startedAt && p.invitation.status !== "revoquee" && (
                 <p>
                   Valable jusqu’au{" "}
-                  <span>{dateLabel(p.invitation.expiresAt)}</span>
+                  <span>{dateLabel(p.invitation.expiresAt)}</span> · 30 jours
                 </p>
               )}
             </div>
@@ -555,7 +598,7 @@ function EditorDashboard({
     <>
       <PageIntro title={view === "livres" ? "Livres confiés" : greeting}>
         {view === "livres"
-          ? "Chaque livre partagé est une histoire à accompagner."
+          ? null
           : "Vous aidez à relire et organiser des livres de famille. Vous ne voyez que ce que chaque narrateur choisit de vous partager, et vos modifications sont des propositions."}
       </PageIntro>
       {selected ? (
@@ -622,11 +665,14 @@ function EditorDashboard({
         ))
       ) : (
         <EmptyPanel
-          title="Aucun livre ne vous est confié"
-          illustration="relecture"
+          title={
+            view === "livres" ? "Aucun livre" : "Aucun livre ne vous est confié"
+          }
+          illustration={view === "livres" ? undefined : "relecture"}
         >
-          Un narrateur peut vous inviter depuis sa page « Famille ».
-          L’invitation arrive par e-mail.
+          {view === "livres"
+            ? "Vous n’avez été invité sur aucun livre pour l’instant."
+            : "Un narrateur peut vous inviter depuis sa page « Famille ». L’invitation arrive par e-mail."}
         </EmptyPanel>
       )}
     </>
@@ -634,7 +680,15 @@ function EditorDashboard({
 }
 function ProposalList() {
   const [rows, setRows] = useState<
-      { id: string; title: string; createdAt: number; status: string }[] | null
+      | {
+          id: string;
+          title: string;
+          kind: string;
+          projectId: string;
+          createdAt: number;
+          status: string;
+        }[]
+      | null
     >(null),
     [error, setError] = useState("");
   const load = useCallback(
@@ -675,7 +729,21 @@ function ProposalList() {
                 <tr key={r.id}>
                   <td translate="no">{r.title}</td>
                   <td>
-                    Correction proposée<small>{dateLabel(r.createdAt)}</small>
+                    <Link
+                      href={dashboardHref("editor", "livres", {
+                        livre: r.projectId,
+                      })}
+                    >
+                      {(
+                        {
+                          texte: "Correction proposée · texte",
+                          titre_chapitre: "Titre de chapitre",
+                          ordre_chapitres: "Ordre des chapitres",
+                          legende_photo: "Légende de photo",
+                        } as Record<string, string>
+                      )[r.kind] ?? "Correction proposée"}
+                    </Link>
+                    <small>{dateLabel(r.createdAt)}</small>
                   </td>
                   <td>
                     <StatusBadge>
@@ -701,8 +769,21 @@ function ProposalList() {
   );
 }
 export function BuyerOrders() {
+  const [selected, setSelected] = useState<string | null>(null);
   const [rows, setRows] = useState<
-      { id: string; total: number; status: string; created_at: string }[] | null
+      | {
+          id: string;
+          total: number;
+          status: string;
+          created_at: string;
+          packageCode: string;
+          recipient: string;
+          theme: string;
+          deliveryDate: string;
+          giftBox: boolean;
+          extraCopies: number;
+        }[]
+      | null
     >(null),
     [error, setError] = useState("");
   const load = useCallback(
@@ -735,16 +816,19 @@ export function BuyerOrders() {
                 <p className="dash-sans" translate="no">
                   {o.id.slice(0, 8).toUpperCase()} · {dateLabel(o.created_at)}
                 </p>
-                <h3>{PAYMENT_LABEL[o.status] ?? o.status}</h3>
-                <details>
-                  <summary className="cursor-pointer underline">
-                    Voir le détail
-                  </summary>
-                  <p translate="no">{o.id}</p>
-                  <p>Montant de la commande : {money(o.total)}</p>
-                </details>
+                <h3>
+                  <span translate="no">{o.recipient}</span> ·{" "}
+                  {PACKAGES.find((p) => p.code === o.packageCode)?.name.replace(
+                    "Filémoire ",
+                    "",
+                  )}
+                </h3>
+                <p>{PAYMENT_LABEL[o.status] ?? o.status}</p>
               </div>
               <strong className="dash-sans">{money(o.total)}</strong>
+              <Button variant="outline" onClick={() => setSelected(o.id)}>
+                Voir le détail
+              </Button>
             </article>
           ))}
         </div>
@@ -758,6 +842,76 @@ export function BuyerOrders() {
           achat.
         </EmptyPanel>
       )}
+      <section className="dash-aside mt-0">
+        <h3>Envie d’un exemplaire en plus ?</h3>
+        <p>
+          Disponible pour un livre validé. Contactez-nous pour les exemplaires
+          supplémentaires.
+        </p>
+        <Link href="/#contact" className="underline">
+          Nous contacter
+        </Link>
+      </section>
+      <Dialog
+        appearance="dashboard"
+        open={!!selected}
+        onOpenChange={(open) => {
+          if (!open) setSelected(null);
+        }}
+        title={tr("Détail de la commande")}
+        description={tr(
+          "La formule et les options enregistrées lors de votre achat.",
+        )}
+      >
+        {rows
+          ?.filter((row) => row.id === selected)
+          .map((o) => (
+            <dl key={o.id} className="dash-review">
+              <div>
+                <dt>Référence</dt>
+                <dd translate="no">{o.id}</dd>
+              </div>
+              <div>
+                <dt>Destinataire</dt>
+                <dd translate="no">{o.recipient}</dd>
+              </div>
+              <div>
+                <dt>Formule</dt>
+                <dd>{PACKAGES.find((p) => p.code === o.packageCode)?.name}</dd>
+              </div>
+              <div>
+                <dt>Parcours</dt>
+                <dd>{THEMES.find((t) => t.code === o.theme)?.name}</dd>
+              </div>
+              <div>
+                <dt>Date d’envoi de l’invitation</dt>
+                <dd>{dateLabel(o.deliveryDate + "T12:00:00Z")}</dd>
+              </div>
+              <div>
+                <dt>Options</dt>
+                <dd>
+                  {o.giftBox ? "Coffret cadeau" : "Sans coffret"} ·{" "}
+                  {o.extraCopies} exemplaire(s) supplémentaire(s)
+                </dd>
+              </div>
+              <div>
+                <dt>Total TTC</dt>
+                <dd>{money(o.total)}</dd>
+              </div>
+              <div>
+                <dt>Paiement</dt>
+                <dd>{PAYMENT_LABEL[o.status] ?? o.status}</dd>
+              </div>
+            </dl>
+          ))}
+        <Button
+          variant="outline"
+          className="mt-5"
+          onClick={() => setSelected(null)}
+        >
+          Fermer
+        </Button>
+      </Dialog>
     </>
   );
 }

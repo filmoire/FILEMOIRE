@@ -25,6 +25,7 @@ import {
   dateLabel,
 } from "./dashboard-ui";
 import { tr } from "@/i18n/core";
+import { PACKAGES } from "@/lib/catalog";
 import { BOOK_LABEL } from "@/lib/rules";
 
 type Overview = Awaited<ReturnType<typeof dashboardOverview>>;
@@ -43,8 +44,26 @@ type RecordRow = {
   email: string;
   message: string;
   topic: string;
+  buyer: string;
+  narrator: string;
+  packageCode: string;
+  invitation: string | null;
+  giftBox: boolean;
+  extraCopies: number;
+  answered: number;
+  questions: number;
+  orderId: string | null;
+  lowResolution: number;
+  photoCount: number;
+  book_status: string;
+  can_reply: boolean;
 };
-type Records = { rows: RecordRow[]; total: number; page: number };
+type Records = {
+  rows: RecordRow[];
+  total: number;
+  allTotal: number;
+  page: number;
+};
 const titles: Record<string, string> = {
   accueil: "Vue d’ensemble",
   commandes: "Commandes",
@@ -61,6 +80,7 @@ const statusLabel = (status: string) =>
       requested: "Demandée",
       incident: "Incident",
       open: "Ouverte",
+      in_progress: "En cours",
       replied: "Répondue",
       closed: "Fermée",
       ...BOOK_LABEL,
@@ -87,7 +107,9 @@ export function OperationsDashboard({
               ? "Préparation, impression, expédition et incidents."
               : view === "support"
                 ? "Résoudre un problème technique sans banaliser la sensibilité du contenu."
-                : "Retrouvez les statuts et les informations nécessaires au suivi."}
+                : view === "projets"
+                  ? "Avancement et statuts. La lecture exige une autorisation active du narrateur."
+                  : null}
       </PageIntro>
       <PrivacyNotice />
       {!account.mfa ? (
@@ -205,7 +227,9 @@ function OverviewPanel() {
                 data.projects
                   ? `${Math.round((data.accepted / data.projects) * 100)} %`
                   : "—",
-                `${data.accepted} / ${data.projects}`,
+                data.projects
+                  ? `${data.accepted} invitation(s) acceptée(s) sur ${data.projects} envoyée(s)`
+                  : "Aucune invitation",
                 "projets",
               ],
               [
@@ -233,13 +257,24 @@ function OverviewPanel() {
             ))}
           </div>
           <h2>À traiter</h2>
-          {data.openSupport ? (
-            <Link
-              className="dash-work-link"
-              href={dashboardHref("operations", "support", { status: "open" })}
-            >
-              Demandes de support ouvertes <span aria-hidden="true">→</span>
-            </Link>
+          {data.pendingSupport.length ? (
+            data.pendingSupport.map((ticket) => (
+              <Link
+                key={ticket.id}
+                className="dash-work-link"
+                href={`${dashboardHref("operations", "support")}#ticket-${ticket.id}`}
+              >
+                <span>
+                  <span className="dash-quiet">
+                    {ticket.topic === "devis" ? "Demande de devis" : "Question"}{" "}
+                    · {ticket.id.slice(0, 8).toUpperCase()}
+                  </span>
+                  <br />
+                  <span translate="no">{ticket.excerpt}</span>
+                </span>
+                <span aria-hidden="true">→</span>
+              </Link>
+            ))
           ) : (
             <p>Aucune demande de support à traiter.</p>
           )}
@@ -284,6 +319,113 @@ function OverviewPanel() {
         !error && <p role="status">Chargement des opérations…</p>
       )}
     </>
+  );
+}
+const packageName = (code: string) =>
+  PACKAGES.find((p) => p.code === code)?.name.replace("Filémoire ", "") ?? "—";
+const invitationLabel = (status: string | null) =>
+  (
+    ({
+      programmee: "Programmée",
+      envoyee: "Envoyée, en attente",
+      acceptee: "Acceptée",
+      expiree: "Expirée",
+      revoquee: "Annulée",
+    }) as Record<string, string>
+  )[status ?? ""] ?? "—";
+function OrderOptions({
+  row,
+}: {
+  row: Pick<RecordRow, "giftBox" | "extraCopies">;
+}) {
+  return (
+    <>
+      {row.giftBox && <>Coffret · </>}
+      {row.extraCopies ? `+${row.extraCopies} ex.` : "—"}
+    </>
+  );
+}
+function PhotoQuality({
+  row,
+}: {
+  row: Pick<RecordRow, "lowResolution" | "photoCount">;
+}) {
+  return (
+    <>
+      {row.lowResolution
+        ? `${row.lowResolution} basse résolution`
+        : row.photoCount
+          ? "OK"
+          : "Aucune photo"}
+    </>
+  );
+}
+function ApprovedBooks() {
+  const [data, setData] = useState<Records | null>(null),
+    [error, setError] = useState("");
+  const params = useSearchParams();
+  const page = Math.max(1, Number(params.get("validationPage")) || 1);
+  const [reload, setReload] = useState(0);
+  useEffect(() => {
+    let active = true;
+    setData(null);
+    setError("");
+    api<Records>(`admin/records/validation?page=${page}`)
+      .then((data) => {
+        if (active) setData(data);
+      })
+      .catch((e) => {
+        if (active) setError(e.message);
+      });
+    return () => {
+      active = false;
+    };
+  }, [page, reload]);
+  return (
+    <section className="mb-8">
+      <h2>Livres validés par leur narrateur</h2>
+      <Message error={error} />
+      {error ? (
+        <Button variant="outline" onClick={() => setReload((v) => v + 1)}>
+          Réessayer
+        </Button>
+      ) : !data ? (
+        <p role="status">Chargement…</p>
+      ) : data.rows.length ? (
+        <>
+          <div className="dash-rows">
+            {data.rows.map((row) => (
+              <div className="dash-row" key={row.id}>
+                <div>
+                  <h3 translate="no">{row.narrator}</h3>
+                  <p>
+                    {packageName(row.packageCode)} · <PhotoQuality row={row} />
+                  </p>
+                </div>
+                <StatusBadge>En attente de la demande d’impression</StatusBadge>
+              </div>
+            ))}
+          </div>
+          {data.total > 25 && (
+            <Pagination
+              total={data.total}
+              page={data.page}
+              href={(p) =>
+                dashboardHref("operations", "impression", {
+                  validationPage: String(p),
+                })
+              }
+            />
+          )}
+        </>
+      ) : (
+        <p>Aucun livre n’attend de demande d’impression.</p>
+      )}
+      <p className="dash-note">
+        Le narrateur valide son livre et son adresse, puis demande l’impression.
+      </p>
+      <h2 className="mt-8">Commandes d’impression</h2>
+    </section>
   );
 }
 function RecordsPanel({ view }: { view: string }) {
@@ -344,7 +486,7 @@ function RecordsPanel({ view }: { view: string }) {
       "livre",
       "incident",
     ],
-    support: ["open", "replied", "closed"],
+    support: ["open", "in_progress", "replied", "closed"],
   };
   const openAction = (kind: "refund" | "print" | "reply", row: RecordRow) => {
     setActionError("");
@@ -353,7 +495,9 @@ function RecordsPanel({ view }: { view: string }) {
   const selectedId = view === "projets" ? params.get("livre") : null;
   return (
     <>
-      <div className="dash-toolbar">
+      <div
+        className={`dash-toolbar ${view === "commandes" ? "dash-filter-bar" : ""}`}
+      >
         {options[view].length > 0 && (
           <label>
             Statut
@@ -362,7 +506,7 @@ function RecordsPanel({ view }: { view: string }) {
               value={status}
               onChange={(e) => router.push(href(1, e.target.value))}
             >
-              <option value="">Toutes</option>
+              <option value="">Toutes ({data?.allTotal ?? "…"})</option>
               {options[view].map((value) => (
                 <option key={value} value={value}>
                   {statusLabel(value)}
@@ -385,6 +529,7 @@ function RecordsPanel({ view }: { view: string }) {
           Réessayer
         </Button>
       )}
+      {view === "impression" && <ApprovedBooks />}
       {loading ? (
         <p role="status" className="py-12">
           Chargement…
@@ -411,13 +556,22 @@ function RecordsPanel({ view }: { view: string }) {
         (view === "support" ? (
           <div className="dash-tickets">
             {data.rows.map((row) => (
-              <article className="dash-ticket" key={row.id}>
-                <div className="dash-actions justify-between mb-5">
-                  <StatusBadge>{statusLabel(row.status)}</StatusBadge>
+              <article
+                className="dash-ticket"
+                id={`ticket-${row.id}`}
+                key={row.id}
+              >
+                <div className="dash-actions justify-between mb-3 dash-quiet dash-sans text-sm">
+                  <span>
+                    {row.id.slice(0, 8).toUpperCase()} ·{" "}
+                    {row.topic === "devis" ? "Devis" : "Question"}
+                  </span>
                   <small>{dateLabel(row.created_at)}</small>
                 </div>
                 <h2>
-                  {row.topic === "devis" ? "Demande de devis" : "Question"}
+                  {row.topic === "devis"
+                    ? "Demande de devis"
+                    : "Demande de support"}
                 </h2>
                 <p translate="no" className="dash-quiet text-sm mb-4">
                   {row.name} · {row.email}
@@ -425,14 +579,61 @@ function RecordsPanel({ view }: { view: string }) {
                 <p translate="no" className="whitespace-pre-wrap mb-5">
                   {row.message}
                 </p>
-                {row.status === "open" && (
-                  <Button
-                    variant="outline"
-                    onClick={() => openAction("reply", row)}
-                  >
-                    Répondre
-                  </Button>
-                )}
+                <div className="dash-actions">
+                  <label className="dash-actions">
+                    Statut
+                    <Select
+                      aria-label={`${tr("Statut de la demande")} ${row.id.slice(0, 8)}`}
+                      disabled={busy}
+                      value={row.status}
+                      onChange={async (e) => {
+                        setBusy(true);
+                        setError("");
+                        setSuccess("");
+                        try {
+                          await api(
+                            `admin/support/${row.id}`,
+                            {
+                              expectedStatus: row.status,
+                              status: e.target.value,
+                            },
+                            "PATCH",
+                          );
+                          setSuccess("Statut enregistré.");
+                          setReload((v) => v + 1);
+                        } catch (e) {
+                          setError((e as Error).message);
+                        } finally {
+                          setBusy(false);
+                        }
+                      }}
+                    >
+                      {[
+                        "open",
+                        "in_progress",
+                        ...(row.status === "replied" ? ["replied"] : []),
+                        "closed",
+                      ].map((value) => (
+                        <option
+                          key={value}
+                          value={value}
+                          disabled={value === "replied"}
+                        >
+                          {statusLabel(value)}
+                        </option>
+                      ))}
+                    </Select>
+                  </label>
+                  {row.can_reply &&
+                    ["open", "in_progress"].includes(row.status) && (
+                      <Button
+                        variant="outline"
+                        onClick={() => openAction("reply", row)}
+                      >
+                        Répondre
+                      </Button>
+                    )}
+                </div>
               </article>
             ))}
           </div>
@@ -448,16 +649,34 @@ function RecordsPanel({ view }: { view: string }) {
               <thead>
                 <tr>
                   {(view === "commandes"
-                    ? ["Référence", "Date", "Total TTC", "Paiement", "Action"]
+                    ? [
+                        "Référence",
+                        "Date",
+                        "Acheteur",
+                        "Formule",
+                        "Options",
+                        "Total TTC",
+                        "Paiement",
+                        "Invitation",
+                        "Action",
+                      ]
                     : view === "projets"
                       ? [
-                          "Référence",
-                          "Type de livre",
+                          "Narrateur / famille",
+                          "Formule",
                           "Invitation",
+                          "Parcours",
                           "Livre",
                           "Accès support",
                         ]
-                      : ["Commande", "Livre", "Statut", "Suivi", "Action"]
+                      : [
+                          "Commande",
+                          "Famille",
+                          "Formule",
+                          "Statut",
+                          "Photos",
+                          "Action",
+                        ]
                   ).map((label) => (
                     <th key={label} scope="col">
                       {label}
@@ -468,13 +687,25 @@ function RecordsPanel({ view }: { view: string }) {
               <tbody>
                 {data.rows.map((row) => (
                   <tr key={row.id}>
-                    <td translate="no">{row.id.slice(0, 8).toUpperCase()}</td>
                     {view === "commandes" ? (
                       <>
+                        <td translate="no">
+                          {row.id.slice(0, 8).toUpperCase()}
+                        </td>
                         <td>{dateLabel(row.created_at)}</td>
+                        <td translate="no">{row.buyer || "—"}</td>
+                        <td>{packageName(row.packageCode)}</td>
+                        <td>
+                          <OrderOptions row={row} />
+                        </td>
                         <td>{money(row.total)}</td>
                         <td>
                           <StatusBadge>{statusLabel(row.status)}</StatusBadge>
+                        </td>
+                        <td>
+                          <StatusBadge>
+                            {invitationLabel(row.invitation)}
+                          </StatusBadge>
                         </td>
                         <td>
                           {row.status === "paid" && (
@@ -490,15 +721,28 @@ function RecordsPanel({ view }: { view: string }) {
                       </>
                     ) : view === "projets" ? (
                       <>
+                        <td translate="no">
+                          {row.narrator || "—"}
+                          <small>
+                            {(row.orderId ?? row.id).slice(0, 8).toUpperCase()}
+                          </small>
+                        </td>
                         <td>
                           {row.kind === "personal"
                             ? "Manuscrit personnel"
-                            : "Cadeau"}
+                            : packageName(row.packageCode)}
                         </td>
-                        <td>{row.activated ? "Acceptée" : "En attente"}</td>
                         <td>
-                          <StatusBadge>{statusLabel(row.status)}</StatusBadge>
+                          <StatusBadge>
+                            {row.kind === "personal"
+                              ? "—"
+                              : invitationLabel(row.invitation)}
+                          </StatusBadge>
                         </td>
+                        <td>
+                          {row.answered}/{row.questions}
+                        </td>
+                        <td>{statusLabel(row.status)}</td>
                         <td>
                           {row.support_access ? (
                             <Button asChild variant="outline" size="sm">
@@ -517,23 +761,34 @@ function RecordsPanel({ view }: { view: string }) {
                       </>
                     ) : (
                       <>
-                        <td translate="no">{row.project_id.slice(0, 8)}</td>
+                        <td translate="no">
+                          {(row.orderId ?? row.id).slice(0, 8).toUpperCase()}
+                        </td>
+                        <td translate="no">{row.narrator}</td>
+                        <td>{packageName(row.packageCode)}</td>
                         <td>
                           <StatusBadge>{statusLabel(row.status)}</StatusBadge>
-                        </td>
-                        <td translate="no">
-                          {row.tracking || "—"}
-                          {row.incident && <small>{row.incident}</small>}
+                          <small translate="no">{row.tracking}</small>
+                          {row.incident && (
+                            <small translate="no">{row.incident}</small>
+                          )}
                         </td>
                         <td>
-                          {row.status !== "livre" && (
+                          <PhotoQuality row={row} />
+                        </td>
+                        <td>
+                          {row.status !== "livre" ? (
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => openAction("print", row)}
                             >
-                              Mettre à jour
+                              {row.status === "incident"
+                                ? "Mettre à jour"
+                                : "Étape suivante"}
                             </Button>
+                          ) : (
+                            "Terminé"
                           )}
                         </td>
                       </>
@@ -545,7 +800,9 @@ function RecordsPanel({ view }: { view: string }) {
           </div>
         ))
       )}
-      {data && <Pagination total={data.total} page={data.page} href={href} />}
+      {data && data.total > 25 && (
+        <Pagination total={data.total} page={data.page} href={href} />
+      )}
       {selectedId && <AuthorizedBook key={selectedId} id={selectedId} />}
       <Dialog
         appearance="dashboard"
@@ -625,13 +882,22 @@ function RecordsPanel({ view }: { view: string }) {
                 <label className="block">
                   Nouveau statut
                   <Select name="status" className="mt-2">
-                    {["impression", "expedie", "livre", "incident"].map(
-                      (value) => (
+                    {[
+                      (
+                        {
+                          preparation: "impression",
+                          impression: "expedie",
+                          expedie: "livre",
+                        } as Record<string, string>
+                      )[action.row.book_status],
+                      "incident",
+                    ]
+                      .filter(Boolean)
+                      .map((value) => (
                         <option key={value} value={value}>
                           {statusLabel(value)}
                         </option>
-                      ),
-                    )}
+                      ))}
                   </Select>
                 </label>
                 <label className="block">

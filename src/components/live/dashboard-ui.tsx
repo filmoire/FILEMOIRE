@@ -87,7 +87,7 @@ export function EmptyPanel({
   action?: ReactNode;
 }) {
   return illustration ? (
-    <section className="dash-empty">
+    <section className={`dash-empty dash-empty-${illustration}`}>
       <div className="dash-empty-copy">
         <h2>{title}</h2>
         <p>{children}</p>

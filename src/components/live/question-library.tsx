@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input, Select, Textarea } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Dialog } from "@/components/ui/dialog";
 import { CHAPTERS, THEMES } from "@/lib/catalog";
 import type { EditorialQuestion } from "@/server/question-library";
@@ -22,7 +23,7 @@ export function QuestionLibrary() {
     router = useRouter();
   const query = params.get("q") ?? "",
     chapter = params.get("chapitre") ?? "",
-    theme = params.get("parcours") ?? "",
+    theme = params.get("parcours") ?? "base",
     page = Math.max(1, Number(params.get("page")) || 1);
   const [questions, setQuestions] = useState<EditorialQuestion[] | null>(null),
     [error, setError] = useState(""),
@@ -65,7 +66,7 @@ export function QuestionLibrary() {
           .toLocaleLowerCase()
           .includes(query.toLocaleLowerCase())),
   );
-  const currentPage = Math.min(page, Math.ceil(filtered.length / 25) || 1);
+  const currentPage = Math.min(page, Math.ceil(filtered.length / 100) || 1);
   const edit = (q: EditorialQuestion | "new") => {
     setDialogError("");
     setEditing(q);
@@ -73,7 +74,7 @@ export function QuestionLibrary() {
   return (
     <>
       <Message error={error} success={success} />
-      <div className="dash-summary mb-6">
+      <div className="dash-question-toolbar mb-6">
         <Form
           className="flex flex-wrap items-end gap-5"
           onSubmit={(event) => {
@@ -111,6 +112,7 @@ export function QuestionLibrary() {
             <Input
               ref={search}
               name="search"
+              placeholder="Un mot, un souvenir…"
               value={searchDraft}
               onChange={(event) => setSearchDraft(event.target.value)}
               className="mt-2"
@@ -154,6 +156,7 @@ export function QuestionLibrary() {
               className="dash-question-nav"
               aria-label="Thèmes des questions"
             >
+              <h3>Les thèmes</h3>
               <Link
                 href={href({ chapitre: "", page: "1" })}
                 aria-current={!chapter ? "page" : undefined}
@@ -172,42 +175,117 @@ export function QuestionLibrary() {
             </nav>
             <section>
               {filtered.length ? (
-                <div className="dash-rows">
-                  {filtered
-                    .slice((currentPage - 1) * 25, currentPage * 25)
-                    .map((q) => (
-                      <article className="dash-row" key={q.id}>
-                        <div>
-                          <StatusBadge>
-                            {q.status === "validee" ? "Validée" : "À valider"}
-                          </StatusBadge>
-                          <h3 translate={q.custom ? "no" : undefined}>
-                            {q.text}
-                          </h3>
-                          <p translate={q.custom ? "no" : undefined}>
-                            {q.help}
-                          </p>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => edit(q)}
-                        >
-                          Modifier
-                        </Button>
-                      </article>
-                    ))}
+                <div className="dash-question-groups">
+                  <p className="dash-quiet text-sm mb-6">
+                    {filtered.length} question(s)
+                  </p>
+                  {CHAPTERS.map((chapter) => {
+                    const group = filtered
+                      .slice((currentPage - 1) * 100, currentPage * 100)
+                      .filter((q) => q.chapter === chapter.key);
+                    return group.length ? (
+                      <section key={chapter.key} className="mb-8">
+                        <h3>{chapter.title}</h3>
+                        {group.map((q) => (
+                          <article className="dash-question-row" key={q.id}>
+                            <div>
+                              <h4 translate={q.custom ? "no" : undefined}>
+                                {q.text}
+                              </h4>
+                              <p translate={q.custom ? "no" : undefined}>
+                                {q.help}
+                              </p>
+                              <div className="dash-actions mt-1">
+                                {q.official && (
+                                  <StatusBadge>Exemple du dossier</StatusBadge>
+                                )}
+                                {q.short && (
+                                  <StatusBadge>Parcours 26</StatusBadge>
+                                )}
+                                <StatusBadge>
+                                  {q.status === "validee"
+                                    ? "Validée"
+                                    : "À valider"}
+                                </StatusBadge>
+                              </div>
+                            </div>
+                            <div className="dash-actions flex-nowrap">
+                              <Switch
+                                id={`question-${q.id}`}
+                                label={
+                                  <span className="sr-only">
+                                    {tr("Activer la question")} :{" "}
+                                    {q.custom ? q.text : tr(q.text)}
+                                  </span>
+                                }
+                                checked={q.active}
+                                disabled={busy}
+                                onCheckedChange={async (active) => {
+                                  setBusy(true);
+                                  setError("");
+                                  setSuccess("");
+                                  try {
+                                    const saved = await api<EditorialQuestion>(
+                                      "admin/questions",
+                                      {
+                                        id: q.id,
+                                        revision: q.revision,
+                                        text: q.text,
+                                        help: q.help,
+                                        chapter: q.chapter,
+                                        theme: q.theme,
+                                        status: q.status,
+                                        active,
+                                      },
+                                    );
+                                    setQuestions(
+                                      (all) =>
+                                        all?.map((item) =>
+                                          item.id === q.id
+                                            ? { ...saved, custom: q.custom }
+                                            : item,
+                                        ) ?? null,
+                                    );
+                                    setSuccess(
+                                      active
+                                        ? "Question activée pour les nouveaux parcours."
+                                        : "Question désactivée pour les nouveaux parcours.",
+                                    );
+                                  } catch (e) {
+                                    setError((e as Error).message);
+                                  } finally {
+                                    setBusy(false);
+                                  }
+                                }}
+                              />
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={busy}
+                                onClick={() => edit(q)}
+                              >
+                                Modifier
+                              </Button>
+                            </div>
+                          </article>
+                        ))}
+                      </section>
+                    ) : null;
+                  })}
                 </div>
               ) : (
                 <EmptyPanel title="Aucune question trouvée">
                   Essayez un autre mot ou un autre thème.
                 </EmptyPanel>
               )}
-              <Pagination
-                total={filtered.length}
-                page={currentPage}
-                href={(p) => href({ page: String(p) })}
-              />
+              {filtered.length > 100 && (
+                <Pagination
+                  size={100}
+                  total={filtered.length}
+                  page={currentPage}
+                  href={(p) => href({ page: String(p) })}
+                />
+              )}
             </section>
           </div>
         </>
