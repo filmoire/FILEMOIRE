@@ -94,6 +94,14 @@ test("a new account creates a real private manuscript, saves across reloads and 
   const download = page.waitForEvent("download");
   await page.getByRole("link", { name: "Télécharger l’épreuve PDF" }).click();
   expect((await download).suggestedFilename()).toBe("filemoire-epreuve.pdf");
+  await page.getByRole("button", { name: "Retirer ma validation" }).click();
+  await expect(
+    page.getByText("Votre version est validée et verrouillée."),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Valider mon livre", exact: true }),
+  ).toBeDisabled();
+  await expect(page.getByLabel("Titre", { exact: true })).toBeEditable();
   expect(
     (
       await new AxeBuilder({ page })
@@ -415,6 +423,8 @@ test("starts with voice, finishes a personal story and renders its private QR", 
 test("English and French persist across public pages, reloads and sign-in", async ({
   page,
 }) => {
+  const browserErrors: string[] = [];
+  page.on("pageerror", (error) => browserErrors.push(error.message));
   await page.emulateMedia({ reducedMotion: "reduce" });
   const missing = new Set<string>();
   const collect = async () => {
@@ -486,6 +496,11 @@ test("English and French persist across public pages, reloads and sign-in", asyn
   await expect(
     page.getByRole("button", { name: "Create my private book", exact: true }),
   ).toBeVisible();
+  // A persisted English locale must also hydrate the workspace on a full load.
+  await page.reload();
+  await expect(
+    page.getByRole("button", { name: "Create my private book", exact: true }),
+  ).toBeVisible();
   await collect();
   await page.getByRole("link", { name: "Give a gift", exact: true }).click();
   await expect(
@@ -503,6 +518,7 @@ test("English and French persist across public pages, reloads and sign-in", asyn
   );
   await page.getByRole("button", { name: "English", exact: true }).click();
   expect([...missing].sort()).toEqual([]);
+  expect(browserErrors).toEqual([]);
 });
 
 test("changing language preserves unsaved story and cover text without translating manuscript content", async ({

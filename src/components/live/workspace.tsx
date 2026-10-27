@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { BookViewer } from "@/components/book/viewer";
 import { BOOK_LABEL, VISIBILITY_LABEL } from "@/lib/rules";
-import type { Project, Visibility } from "@/lib/types";
+import type { Project, TranscriptStatus, Visibility } from "@/lib/types";
 import type { Command, projectView } from "@/server/projects";
 import {
   api,
@@ -25,6 +25,12 @@ import { confirmAction } from "./confirmation";
 import { Form } from "./form";
 type View = ReturnType<typeof projectView>;
 type Mutate = (command: Command) => Promise<View>;
+const TRANSCRIPT_LABEL: Record<TranscriptStatus, string> = {
+  en_cours: "En cours",
+  a_relire: "À relire",
+  validee: "Validée",
+  echec: "Échec",
+};
 export { Dashboard as Workspace } from "./dashboard";
 export function ProjectWorkspace({
   view,
@@ -313,7 +319,8 @@ export function ProjectWorkspace({
                       >
                         <audio controls className="w-full" src={audio.src} />
                         <p className="mt-3 text-sm">
-                          Transcription : {audio.transcript.status}
+                          Transcription :{" "}
+                          {TRANSCRIPT_LABEL[audio.transcript.status]}
                         </p>
                         {narrator ? (
                           <Transcript
@@ -1121,6 +1128,14 @@ function BookSettings({
   const [error, setError] = useState(""),
     [message, setMessage] = useState(""),
     [previewHash, setPreviewHash] = useState("");
+  useEffect(() => {
+    if (!locked) {
+      // Reopening starts a fresh review, not the previous approval cycle.
+      setPreviewHash("");
+      setMessage("");
+      setError("");
+    }
+  }, [locked]);
   const [chapters, setChapters] = useState(
     p.chapters.slice().sort((a, b) => a.order - b.order),
   );
@@ -1481,7 +1496,14 @@ function FamilySettings({
             className="mt-4 flex flex-wrap justify-between gap-3 border-t border-line pt-4"
           >
             <p>
-              <span translate="no">{m.name || m.email}</span> · {m.role}
+              <span translate="no">{m.name || m.email}</span> ·{" "}
+              {(
+                {
+                  narrator: "Narrateur",
+                  editor: "Éditeur familial",
+                  contributor: "Contributeur",
+                } as Record<string, string>
+              )[m.role] ?? m.role}
               {m.revoked_at ? " · accès retiré" : ""}
             </p>
             {m.role !== "narrator" && !m.revoked_at && (

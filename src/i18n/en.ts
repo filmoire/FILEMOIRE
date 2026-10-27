@@ -2094,6 +2094,8 @@ export const EN: Record<string, string> = {
   "Traitez les propositions en attente.": "Review the pending suggestions.",
   "Transcription": "Transcription",
   "Transcription : {0}": "Transcription: {0}",
+  "À relire": "Awaiting review",
+  "Échec": "Failed",
   "Transcription à relire": "Transcription to review",
   "Transcription ajoutée au souvenir.": "Transcript added to the memory.",
   "Transcription validée": "Transcription approved",

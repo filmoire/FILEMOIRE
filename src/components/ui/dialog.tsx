@@ -4,6 +4,7 @@ import * as D from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import type { ReactNode, RefObject } from "react";
 import { cn } from "@/lib/utils";
+import { tr } from "@/i18n/core";
 
 export function Dialog({
   open,
@@ -51,7 +52,7 @@ export function Dialog({
             </D.Title>
             <D.Close
               className="-mr-2 -mt-1 rounded-md p-2 text-ink-muted hover:bg-creme-200"
-              aria-label="Fermer"
+              aria-label={tr("Fermer")}
             >
               <X className="size-5" />
             </D.Close>

@@ -259,6 +259,7 @@ test("operations design requires MFA, uses metadata, recovers from failure and e
   await expect(
     page.getByRole("heading", { name: "Aucun résultat pour ce filtre" }),
   ).toBeVisible();
+  await expect(page).toHaveTitle("Commandes · Filémoire");
   await page.getByRole("link", { name: "Questions", exact: true }).click();
   await page
     .getByRole("button", { name: "Ajouter une question", exact: true })
@@ -281,6 +282,7 @@ test("operations design requires MFA, uses metadata, recovers from failure and e
     .fill("Quel jardin aimiez-vous visiter");
   await page.getByRole("button", { name: "Rechercher", exact: true }).click();
   await expect(page).toHaveURL(/q=Quel/);
+  await expect(page).toHaveTitle("Questions · Filémoire");
   await expect(
     page.getByRole("heading", {
       name: "Quel jardin aimiez-vous visiter ?",

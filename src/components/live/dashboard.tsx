@@ -33,6 +33,21 @@ import {
 export type ProjectView = ReturnType<typeof projectView>;
 
 export function Dashboard() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  // The language store can restore English before this Suspense boundary
+  // hydrates. Keep the server and first client render language-independent;
+  // mount the authenticated workspace once, preserving drafts on language changes.
+  return mounted ? (
+    <DashboardContent />
+  ) : (
+    <p className="container-page py-12" role="status" translate="no">
+      Filémoire…
+    </p>
+  );
+}
+
+function DashboardContent() {
   const lang = useLang((s) => s.lang);
   const params = useSearchParams();
   const router = useRouter();
@@ -113,7 +128,19 @@ export function Dashboard() {
     </>
   );
   useEffect(() => {
-    document.title = `${tr(DASH_NAV[role].find(([key]) => key === view)?.[1] ?? "Mes livres")} · Filémoire`;
+    const title = `${tr(DASH_NAV[role].find(([key]) => key === view)?.[1] ?? "Mes livres")} · Filémoire`;
+    const restoreTitle = () => {
+      if (document.title !== title) document.title = title;
+    };
+    restoreTitle();
+    // Next also updates metadata when only a filter/search parameter changes.
+    const observer = new MutationObserver(restoreTitle);
+    observer.observe(document.head, {
+      childList: true,
+      characterData: true,
+      subtree: true,
+    });
+    return () => observer.disconnect();
   }, [role, view, lang]);
   return (
     <LiveShell
