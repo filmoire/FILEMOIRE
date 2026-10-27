@@ -5,7 +5,8 @@ export function pool() {
   return (scope.filemoirePool ??= new Pool({
     connectionString: config().DATABASE_URL,
     max: 10,
-    connectionTimeoutMillis: 5000,
+    // Allow cloud connection/TLS startup while keeping unavailable hosts bounded.
+    connectionTimeoutMillis: 15000,
     idleTimeoutMillis: 30000,
     ssl:
       process.env.DATABASE_SSL === "true"

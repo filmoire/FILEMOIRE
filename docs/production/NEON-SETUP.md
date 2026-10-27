@@ -44,6 +44,8 @@ Pulled 7 Neon variables into .env.local
 
 The application uses the pooled `DATABASE_URL`. Migrations prefer `MIGRATION_DATABASE_URL`, then Neon's direct `DATABASE_URL_UNPOOLED`, then `DATABASE_URL`. All nine repository migrations have been applied. The new target currently uses the owner credentials supplied by Neon; create a restricted runtime role and reserve owner credentials for migration tooling before public hosting.
 
+The PostgreSQL pool allows up to 15 seconds to establish a connection. A live verification attempt exceeded the previous five-second limit during cloud connection setup; the application and worker now use the longer bounded timeout without disabling certificate verification.
+
 The storage adapter accepts `AWS_ENDPOINT_URL_S3` and `AWS_REGION` as aliases for the existing `S3_ENDPOINT` and `S3_REGION` settings. Explicit `S3_*` values take precedence, so remove stale overrides when switching storage providers. AWS credentials remain server-side. Path-style requests, application encryption and authenticated file retrieval remain enabled. Anonymous bucket access was denied during the live test.
 
 ## Private local settings
@@ -107,12 +109,12 @@ If pnpm reports `ERR_PNPM_UNEXPECTED_STORE`, use the store already associated wi
 `npm run build` exited 0:
 
 ```text
-Next.js 15.5.27
-Compiled successfully in 6.6s
+Next.js 15.5.28
+Compiled successfully in 6.9s
 Generating static pages (40/40)
 ```
 
-The build reported the existing Next.js ESLint-plugin configuration warning; compilation and checks succeeded. `npm test` passed 78 tests across six files. `npm run lint` passed.
+The build reported the existing Next.js ESLint-plugin configuration warning; compilation and checks succeeded. `npm test` passed 78 tests across six files. All 85 isolated local database integration tests, TypeScript and lint also passed after the dependency security updates.
 
 `npm run test:neon` exited 0:
 
@@ -126,11 +128,13 @@ PASS saved story and photo survive a fresh sign-in
 PASS 22 live HTTP checks; Neon database and private storage verified end to end
 ```
 
-The test additionally reads its own encrypted database row and stored object, verifies downloaded bytes by hash, and checks the saved PDF remains identical across requests. It only permits a loopback app, Neon database, local SMTP inbox, and disabled payments/printing. It never resets a database or deletes existing user data. Each run retains a fictional test account and manuscript and prints the manuscript ID. Two fixtures were created during initial verification: one during a failed attempt and one during the passing rerun.
+The test additionally reads its own encrypted database row and stored object, verifies downloaded bytes by hash, and checks the saved PDF remains identical across requests. It only permits a loopback app, Neon database, local SMTP inbox, and disabled payments/printing. It never resets a database or deletes existing user data. Each run retains a fictional test account and manuscript and prints the manuscript ID. Failed runs may also retain partial verification data.
 
 The initial test selected an already-consumed login email during its second sign-in and received the correct HTTP 400. The test now waits for an unused message; the rerun passed. A sandboxed invocation could not reach the local server; the network-enabled invocation passed. These failures did not require weakening authentication or storage permissions.
 
-The first GitHub run also passed the build, 78 unit tests and 85 database integration tests, then failed installing Chromium: `Playwright does not support chromium on ubuntu26.04-x64`. The workflow now pins the [supported GitHub runner](https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job) `ubuntu-24.04`, which is present in Playwright 1.56.0's installed dependency matrix. Browser tests and the dependency audit must pass in the rerun before cloud CI can be considered green.
+The first GitHub run passed the build, 78 unit tests and 85 database integration tests, then failed installing Chromium: `Playwright does not support chromium on ubuntu26.04-x64`. The workflow now pins the [supported GitHub runner](https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job) `ubuntu-24.04`, which is present in Playwright 1.56.0's installed dependency matrix. The following run passed all 25 demo browser tests and 34 live workspace browser tests, then identified dependency advisories during its final audit.
+
+Security updates then raised Next.js to 15.5.28, Zod to 4.6.6 and Nodemailer to 10.1.4. The gift form uses Zod's current error customization API while preserving its messages; the SMTP adapter and unit mock use Nodemailer's named export. References: [Next.js image processing](https://github.com/advisories/GHSA-2464-fhr4-w9xw), [Next.js Server Actions](https://github.com/advisories/GHSA-p3m5-59mp-jv5r), [Zod validation](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5), [Nodemailer address parsing](https://github.com/advisories/GHSA-8c8m-p3m8-cjg8). The updated local production audit reports `No known vulnerabilities found`. CI now audits immediately after dependency installation so a failing audit is reported before the longer browser suites. Verify the final release commit's workflow result before public deployment.
 
 ## Still separate from public launch
 
