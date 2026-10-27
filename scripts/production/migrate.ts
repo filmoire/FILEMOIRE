@@ -3,7 +3,9 @@ import { Pool } from "pg";
 async function main() {
   const p = new Pool({
     connectionString:
-      process.env.MIGRATION_DATABASE_URL || process.env.DATABASE_URL,
+      process.env.MIGRATION_DATABASE_URL ||
+      process.env.DATABASE_URL_UNPOOLED ||
+      process.env.DATABASE_URL,
     ssl:
       process.env.DATABASE_SSL === "true"
         ? { rejectUnauthorized: true }

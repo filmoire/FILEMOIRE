@@ -35,9 +35,10 @@
     ".next-build-verified/types/**/*.ts",
     ".next-live-test/types/**/*.ts",
     ".next-local/types/**/*.ts",
+    ".next-staging/types/**/*.ts",
     ".next/types/**/*.ts",
     "next-env.d.ts",
-    ".next-staging/types/**/*.ts"
+    ".next-neon-local/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

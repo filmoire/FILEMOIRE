@@ -25,6 +25,8 @@ Voir le [guide local](docs/production/LOCAL-WEBSITE.md), le [runbook](docs/produ
 
 La [check-list de déploiement public du 27 octobre](docs/production/PUBLIC-LAUNCH.md) distingue les services gratuits déjà préparés, les vérifications restantes et les limites de l’hébergement gratuit. Les [résultats des tests locaux par rôle](docs/production/LOCAL-QA-2026-10-27.md) sont également disponibles.
 
+Le [guide Neon](docs/production/NEON-SETUP.md) décrit le projet cloud `filemoire-production`, ses fichiers privés et les commandes de vérification. Cette configuration utilise http://localhost:3200 et reste distincte du site entièrement local sur le port 3100.
+
 ## Démonstration historique
 
 Les instructions suivantes concernent la démo isolée, conservée pour les présentations.

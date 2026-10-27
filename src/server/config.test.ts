@@ -85,4 +85,27 @@ describe("hosted deployment boundaries", () => {
     vi.stubEnv("RESEND_API_KEY", "");
     expect(config().EMAIL_PROVIDER).toBe("smtp");
   });
+  it("accepts Neon storage variables and enforces HTTPS on their endpoint", () => {
+    staging();
+    vi.stubEnv("S3_REGION", "");
+    vi.stubEnv("S3_ENDPOINT", "");
+    vi.stubEnv("AWS_REGION", "eu-central-1");
+    vi.stubEnv("AWS_ENDPOINT_URL_S3", "https://storage.example.test");
+    expect(config()).toMatchObject({
+      S3_REGION: "eu-central-1",
+      S3_ENDPOINT: "https://storage.example.test",
+    });
+    vi.stubEnv("AWS_ENDPOINT_URL_S3", "http://storage.example.test");
+    expect(config).toThrow(/HTTPS/);
+  });
+  it("preserves explicit app storage settings when AWS defaults also exist", () => {
+    staging();
+    vi.stubEnv("S3_REGION", "eu-west-3");
+    vi.stubEnv("AWS_REGION", "eu-central-1");
+    vi.stubEnv("AWS_ENDPOINT_URL_S3", "https://another.example.test");
+    expect(config()).toMatchObject({
+      S3_REGION: "eu-west-3",
+      S3_ENDPOINT: "https://storage.example.test",
+    });
+  });
 });

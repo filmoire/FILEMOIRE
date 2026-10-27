@@ -27,9 +27,15 @@ const schema = z.object({
   APP_TIMEZONE: z.string().default("Europe/Paris"),
 });
 export function config() {
-  const parsed = schema.safeParse(
-    Object.fromEntries(Object.entries(process.env).filter(([, v]) => v !== "")),
+  const env = Object.fromEntries(
+    Object.entries(process.env).filter(([, v]) => v !== ""),
   );
+  // Neon env pull uses AWS-standard names; explicit app settings still win.
+  const parsed = schema.safeParse({
+    ...env,
+    S3_REGION: env.S3_REGION ?? env.AWS_REGION,
+    S3_ENDPOINT: env.S3_ENDPOINT ?? env.AWS_ENDPOINT_URL_S3,
+  });
   if (!parsed.success) throw new Error("Invalid server configuration");
   const c = parsed.data;
   if (c.DEPLOYMENT_STAGE === "staging") {

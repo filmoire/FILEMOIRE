@@ -1,6 +1,7 @@
 node_modules
 .next*
 .git
+.neon
 .env*
 !.env.example
 .private-media
