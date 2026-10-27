@@ -4,7 +4,8 @@ permissions:
   contents: read
 jobs:
   checks:
-    runs-on: ubuntu-latest
+    # Keep the OS within the supported matrix of the pinned Playwright release.
+    runs-on: ubuntu-24.04
     services:
       postgres:
         image: postgres:17-bookworm

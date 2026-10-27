@@ -130,6 +130,8 @@ The test additionally reads its own encrypted database row and stored object, ve
 
 The initial test selected an already-consumed login email during its second sign-in and received the correct HTTP 400. The test now waits for an unused message; the rerun passed. A sandboxed invocation could not reach the local server; the network-enabled invocation passed. These failures did not require weakening authentication or storage permissions.
 
+The first GitHub run also passed the build, 78 unit tests and 85 database integration tests, then failed installing Chromium: `Playwright does not support chromium on ubuntu26.04-x64`. The workflow now pins the [supported GitHub runner](https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job) `ubuntu-24.04`, which is present in Playwright 1.56.0's installed dependency matrix. Browser tests and the dependency audit must pass in the rerun before cloud CI can be considered green.
+
 ## Still separate from public launch
 
 The verified scope is Postgres and private file storage reached through the locally running application. Website hosting, hosted worker operation, verified Resend delivery, restricted database runtime credentials, legal approval, backup/restore rehearsal and hosted role acceptance remain in [PUBLIC-LAUNCH.md](PUBLIC-LAUNCH.md). Checkout, printing and automatic transcription remain outside this verification. The older staging project's storage test is also separate from this successful test of the new project.
