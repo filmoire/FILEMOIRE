@@ -25,8 +25,8 @@ const today = () => isoDay(useDemo.getState().now());
 
 const schema = z
   .object({
-    packageCode: z.enum(["essentiel", "heritage", "voix"], { errorMap: () => ({ message: "Choisissez une formule." }) }),
-    theme: z.enum(["vie", "migration", "metier", "couple", "parentalite", "recettes", "retraite"], { errorMap: () => ({ message: "Choisissez un parcours." }) }),
+    packageCode: z.enum(["essentiel", "heritage", "voix"], { error: "Choisissez une formule." }),
+    theme: z.enum(["vie", "migration", "metier", "couple", "parentalite", "recettes", "retraite"], { error: "Choisissez un parcours." }),
     firstName: z.string().trim().min(1, "Indiquez le prénom de la personne qui va raconter.").max(40, "40 caractères maximum."),
     lastName: z.string().trim().min(1, "Indiquez son nom.").max(60, "60 caractères maximum."),
     email: z.string().trim().min(1, "Indiquez son adresse e-mail : l'invitation y sera envoyée.").email("Cette adresse e-mail ne semble pas valide (exemple : prenom@domaine.fr)."),
@@ -35,7 +35,7 @@ const schema = z
     sendMode: z.enum(["now", "date"]),
     deliveryDate: z.string(),
     giftBox: z.boolean(),
-    extraCopies: z.number({ invalid_type_error: "Indiquez un nombre (0 si aucun)." }).int("Nombre entier uniquement.").min(0, "Minimum 0.").max(10, "10 exemplaires maximum en ligne."),
+    extraCopies: z.number({ error: "Indiquez un nombre (0 si aucun)." }).int("Nombre entier uniquement.").min(0, "Minimum 0.").max(10, "10 exemplaires maximum en ligne."),
     terms: z.boolean(),
   })
   .superRefine((v, ctx) => {

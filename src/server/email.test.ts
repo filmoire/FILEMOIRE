@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { sendEmail } from "./email";
 const smtpSend = vi.hoisted(() => vi.fn().mockResolvedValue({}));
 vi.mock("nodemailer", () => ({
-  default: { createTransport: vi.fn(() => ({ sendMail: smtpSend })) },
+  createTransport: vi.fn(() => ({ sendMail: smtpSend })),
 }));
 beforeEach(() => {
   for (const [key, value] of Object.entries({

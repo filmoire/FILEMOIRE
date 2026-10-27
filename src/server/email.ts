@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { createTransport } from "nodemailer";
 import { stagingEmailAllowed } from "@/lib/deployment";
 import { config, configured } from "./config";
 
@@ -36,7 +36,7 @@ export async function sendEmail(message: {
       throw new Error("Email provider did not confirm delivery");
     return;
   }
-  const smtp = nodemailer.createTransport(configured("SMTP_URL"));
+  const smtp = createTransport(configured("SMTP_URL"));
   await smtp.sendMail({
     ...body,
     messageId: `<${message.id}@${new URL(c.APP_ORIGIN).hostname}>`,

@@ -28,6 +28,7 @@ jobs:
           node-version: 22
       - run: corepack enable && corepack prepare pnpm@10.28.0 --activate
       - run: pnpm install --frozen-lockfile
+      - run: pnpm audit:production
       - run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - run: pnpm db:migrate
       - run: pnpm verify
@@ -36,7 +37,6 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
       - run: pnpm test:live
-      - run: pnpm audit:production
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
