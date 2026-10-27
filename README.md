@@ -23,6 +23,8 @@ Pour les démarrages suivants, exécutez `node scripts/local/start.mjs` depuis l
 
 Voir le [guide local](docs/production/LOCAL-WEBSITE.md), le [runbook](docs/production/RUNBOOK.md) et [les étapes restant avant un lancement public](docs/production/STATUS.md).
 
+La [check-list de déploiement public du 27 octobre](docs/production/PUBLIC-LAUNCH.md) distingue les services gratuits déjà préparés, les vérifications restantes et les limites de l’hébergement gratuit. Les [résultats des tests locaux par rôle](docs/production/LOCAL-QA-2026-10-27.md) sont également disponibles.
+
 ## Démonstration historique
 
 Les instructions suivantes concernent la démo isolée, conservée pour les présentations.

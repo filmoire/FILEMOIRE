@@ -1,6 +1,8 @@
 # Production implementation status
 
-Updated 14 October 2026. **The application is not approved for public production, and all 15 steps are not complete.** A substantial server-backed implementation and local verification are now in place. The remaining gates require provider access, business/legal decisions, independent testing and real people/physical books.
+Updated 27 October 2026. **The application is not approved for public production, and all 15 steps are not complete.** A substantial server-backed implementation and local verification are now in place. The remaining gates require provider access, business/legal decisions, independent testing and real people/physical books.
+
+Latest status: a separate Neon staging database/runtime role/private bucket and a protected Render Blueprint are prepared. Render provisioning, Resend domain verification and real delivery, cloud storage round-trip tests and the hosted container build remain pending. Local role QA passed 76 unit tests, 85 integration tests and 80 live HTTP checks; see [the QA record](LOCAL-QA-2026-10-27.md). Follow [PUBLIC-LAUNCH.md](PUBLIC-LAUNCH.md) for the current ordered checklist. The table below retains the full commercial launch scope; its earlier implementation inventory is not a current provider or dependency audit.
 
 Source control is configured for [gftij-project-iit/FILEMOIRE](https://github.com/gftij-project-iit/FILEMOIRE). The Verify workflow runs on pushes and pull requests; check [GitHub Actions](https://github.com/gftij-project-iit/FILEMOIRE/actions/workflows/verify.yml) for the result on the exact revision being released. Repository publication does not deploy the website.
 
