@@ -2,6 +2,7 @@ node_modules
 .next*
 .git
 .neon
+.vercel
 .env*
 !.env.example
 .private-media

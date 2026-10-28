@@ -33,12 +33,16 @@
     "**/*.ts",
     "**/*.tsx",
     ".next-build-verified/types/**/*.ts",
+    ".next-frontend-check/types/**/*.ts",
     ".next-live-test/types/**/*.ts",
     ".next-local/types/**/*.ts",
+    ".next-neon-local/types/**/*.ts",
+    ".next-split-backend/types/**/*.ts",
+    ".next-split-frontend/types/**/*.ts",
     ".next-staging/types/**/*.ts",
     ".next/types/**/*.ts",
     "next-env.d.ts",
-    ".next-neon-local/types/**/*.ts"
+    ".next-backend-check/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

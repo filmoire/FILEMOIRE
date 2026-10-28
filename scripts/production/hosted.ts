@@ -7,7 +7,10 @@ export async function startHosted(
   stage: "staging" | "production",
   validate?: () => void,
 ) {
-  // Render supplies the HTTPS origin after the service has been created.
+  // Split deployments must link emails and enforce CSRF against the frontend.
+  if (process.env.FILEMOIRE_SERVICE === "backend" && !process.env.APP_ORIGIN)
+    throw new Error("Backend deployments require the frontend APP_ORIGIN");
+  // Render supplies the HTTPS origin for the original single-service deployment.
   process.env.APP_ORIGIN ||= process.env.RENDER_EXTERNAL_URL;
   if (
     config().DEPLOYMENT_STAGE !== stage ||

@@ -23,6 +23,12 @@ export async function middleware(request: NextRequest) {
     }
     return response;
   };
+  if (
+    process.env.FILEMOIRE_SERVICE === "backend" &&
+    !request.nextUrl.pathname.startsWith("/api/v1/")
+  ) {
+    return respond(new NextResponse("Not found", { status: 404 }));
+  }
   if (isStaging()) {
     // Health returns only a status, never application or account data.
     const health =

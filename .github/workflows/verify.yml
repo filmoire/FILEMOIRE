@@ -37,6 +37,16 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
       - run: pnpm test:live
+      - name: Verify Vercel frontend artifact
+        run: pnpm build:frontend
+        env:
+          APP_MODE: live
+          NEXT_PUBLIC_APP_MODE: live
+          NEXT_PUBLIC_DEPLOYMENT_STAGE: production
+          BACKEND_ORIGIN: http://127.0.0.1:3301
+          NEXT_BUILD_DIR: .next-frontend-check
+      - name: Test Vercel frontend and Render backend topology
+        run: pnpm test:split
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

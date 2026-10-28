@@ -1,0 +1,79 @@
+# Render API + worker for the Vercel frontend, private staging first.
+# The worker stops when Render's free web service sleeps.
+# Apply migrations separately with the owner role before a manual deployment.
+services:
+  - type: web
+    name: filemoire-backend
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerCommand: node dist-worker/staging.cjs
+    healthCheckPath: /api/v1/health
+    autoDeployTrigger: off
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FILEMOIRE_SERVICE
+        value: backend
+      - key: APP_ORIGIN
+        sync: false
+      - key: APP_MODE
+        value: live
+      - key: NEXT_PUBLIC_APP_MODE
+        value: live
+      - key: DEPLOYMENT_STAGE
+        value: staging
+      - key: NEXT_PUBLIC_DEPLOYMENT_STAGE
+        value: staging
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_SSL
+        value: "true"
+      - key: DATA_ENCRYPTION_KEY
+        sync: false
+      - key: STAGING_ACCESS_USER
+        value: filemoire
+      - key: STAGING_ACCESS_PASSWORD
+        sync: false
+      - key: STAGING_ALLOWED_EMAILS
+        sync: false
+      - key: ADMIN_EMAILS
+        sync: false
+      - key: PERSONAL_DRAFTS_ENABLED
+        value: "true"
+      - key: ACCOUNT_LIMIT
+        value: "30"
+      - key: PROJECT_STORAGE_LIMIT_MB
+        value: "100"
+      - key: TOTAL_MEDIA_LIMIT_MB
+        value: "1024"
+      - key: STORAGE_DRIVER
+        value: s3
+      - key: S3_REGION
+        value: eu-central-1
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_BUCKET
+        value: filemoire-private
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: EMAIL_PROVIDER
+        value: resend
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: CHECKOUT_ENABLED
+        value: "false"
+      - key: PRINT_ENABLED
+        value: "false"
+      - key: LEGAL_APPROVED
+        value: "false"
+      - key: COMMERCIAL_APPROVED
+        value: "false"
+      - key: PRINT_SPEC_APPROVED
+        value: "false"

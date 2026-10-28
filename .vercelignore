@@ -1,0 +1,15 @@
+.env*
+.neon
+.agents
+.codex
+.git
+.next*
+.private-media
+.production-test
+artifacts
+node_modules
+dist*
+.html-build
+test-results
+playwright-report
+*.tsbuildinfo

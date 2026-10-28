@@ -71,3 +71,19 @@ it("does not add the staging password gate to normal deployments", async () => {
   expect((await middleware(request("/espace"))).status).toBe(200);
   expect((await middleware(request("/demo/private"))).status).toBe(404);
 });
+it("serves only API routes on the Render backend", async () => {
+  vi.stubEnv("FILEMOIRE_SERVICE", "backend");
+  for (const path of [
+    "/",
+    "/acces",
+    "/espace",
+    "/demo/jardin.svg",
+    "/api/v10/me",
+  ])
+    expect((await middleware(request(path, credentials()))).status).toBe(404);
+  expect((await middleware(request("/api/v1/me", credentials()))).status).toBe(
+    200,
+  );
+  expect((await middleware(request("/api/v1/me"))).status).toBe(401);
+  expect((await middleware(request("/api/v1/health"))).status).toBe(200);
+});
