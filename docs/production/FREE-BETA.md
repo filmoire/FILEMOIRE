@@ -1,10 +1,32 @@
 # Free manuscript beta deployment
 
-Prepared and locally verified on 28 October 2026. **Not deployed to Render yet.**
+Prepared and locally verified on 28 October 2026. **The updated backend-connected
+release has not been deployed to Render yet.** An existing Free Docker service,
+`FILEMOIRE` (`srv-dbfi6n0u01pc73bclng0`), is live at
+`https://filemoire.onrender.com` in Oregon on older commit `c37f9d5`. Its dashboard
+showed only `PORT`, with no backend settings, secret files or environment groups.
+The signed-in browser can manage it; the separate Render plugin is not connected.
 This profile is for a small manuscript beta, not gift sales or physical printing.
 The existing `render.yaml` remains private staging. `render.beta.yaml` is a
 separate public profile that must wait for reviewed legal documents, a verified
 email sender, and hosted acceptance testing.
+
+GitHub CI passed for application commit `37abae7`:
+[Verify run](https://github.com/filmoire/FILEMOIRE/actions/runs/40669900447).
+The Render service was set to manual deployment, Docker command
+`node dist-worker/staging.cjs`, and health path `/api/v1/health`. No updated
+deployment was triggered: its saved environment still needs the backend settings.
+The old deployed version returned HTTP 404 for that health endpoint and HTTP 200
+for `/acces`; the login page alone is not evidence of a working backend.
+
+A private, Git-ignored import file is prepared at
+`artifacts/production/render-staging.env`, containing 30 runtime settings and no
+owner database URLs. It deliberately omits the cached Resend key because its
+replacement could not be confirmed in the local file. The owner must import the
+settings, preserve `PORT`, and enter a fresh `RESEND_API_KEY` directly in Render.
+The resulting saved configuration should have 32 keys. The browser extension
+rejected automated file import even after the owner reported enabling file URL
+access; manual import is pending. Do not print the import file or commit it.
 
 ## Enforced scope and limits
 
@@ -56,12 +78,15 @@ opening the beta. No existing cloud records were deleted during this work.
 
 ## Deployment sequence
 
-1. Connect Render and grant repository access to `gftij-project-iit/FILEMOIRE`.
-   Verify CI on the exact commit to deploy.
+1. Use the existing Render service or a deliberate separate private staging
+   service. GitHub confirmed the repository moved to `filmoire/FILEMOIRE`;
+   synchronize Render's source location and verify CI on the exact commit before
+   deployment. Confirm the selected service remains Free.
 2. Deploy private staging using [FREE-STAGING.md](FREE-STAGING.md). Supply a fresh,
    restricted Resend sending key through private secret settings. Do not reuse a
    key pasted into chat. Keep the existing staging allowlist and password.
-3. Complete the actual `filemoire.fr` DNS records supplied by Resend. Verify real
+3. Complete the actual `filemoire.fr` DNS records supplied by Resend; see
+   [RESEND-DNS.md](RESEND-DNS.md) for the records obtained from the dashboard. Verify real
    inbox delivery using an authorized sender. The test sender is restricted to
    the Resend account owner's email and is rejected by the public beta launcher.
 4. Obtain the operator's legal identity, address, privacy/support contact and

@@ -7,7 +7,7 @@ L’application fonctionne avec de vrais comptes, une base PostgreSQL et des fic
 Prérequis : Node.js 22.12 ou ultérieur dans la branche 22, Docker Desktop démarré et FFmpeg.
 
 ```bash
-git clone https://github.com/gftij-project-iit/FILEMOIRE.git
+git clone https://github.com/filmoire/FILEMOIRE.git
 cd FILEMOIRE
 corepack pnpm@10.28.0 install --frozen-lockfile
 node scripts/local/start.mjs
