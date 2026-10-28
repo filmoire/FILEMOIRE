@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { config } from "./config";
 import { validateFreeBeta } from "./free-beta";
+import { startupFailureReason } from "./startup-error";
 
 beforeEach(() => {
   vi.stubEnv("NODE_ENV", "production");
@@ -51,6 +52,17 @@ describe("hosted deployment boundaries", () => {
     expect(config).toThrow(/Legal documents/);
     vi.stubEnv("LEGAL_APPROVED", "true");
     expect(config().EMAIL_PROVIDER).toBe("resend");
+  });
+  it("reports the actual beta approval failure before database startup", () => {
+    let failure: unknown;
+    try {
+      validateFreeBeta();
+    } catch (error) {
+      failure = error;
+    }
+    expect(startupFailureReason(failure)).toContain(
+      "LEGAL_APPROVED is not true",
+    );
   });
   it("permits private staging without asserting legal approval", () => {
     staging();

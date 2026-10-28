@@ -1,8 +1,7 @@
 import { startHosted } from "./hosted";
 import { validateFreeBeta } from "../../src/server/free-beta";
-startHosted("production", validateFreeBeta).catch(() => {
-  console.error(
-    "Beta startup failed. Check launch approvals, capacity limits, sender, runtime database permissions and migrations.",
-  );
+import { startupFailureReason } from "../../src/server/startup-error";
+startHosted("production", validateFreeBeta).catch((error: unknown) => {
+  console.error(`Beta startup failed: ${startupFailureReason(error)}`);
   process.exitCode = 1;
 });

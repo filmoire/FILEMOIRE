@@ -1,11 +1,14 @@
 # Vercel frontend + Render backend
 
 Updated on 28 October 2026. The Vercel frontend is publicly accessible at
-`https://filemoire-omega.vercel.app`. Render has deployed commit `01d09c1`, but
-its environment contains only `PORT`: the API returns `404 Page introuvable.`
-because `APP_MODE=live` is missing. Public page availability is not proof of
-account, database, storage or email connectivity. The owner will decide the
-Vercel plan separately.
+`https://filemoire-omega.vercel.app`. Render now has 30 saved environment
+variables, including the restricted database, storage, encryption and Resend
+settings. The Docker command is `node dist-worker/beta.cjs` and health path is
+`/api/v1/health`. The latest beta startup is blocked by `LEGAL_APPROVED=false`,
+confirmed in Render; the legal page still contains placeholders. Resend domain
+verification is also unfinished. Public page availability and a successful
+container build are not proof of account, database, storage or email
+connectivity. The owner will decide the Vercel plan separately.
 
 ## Architecture
 
@@ -137,6 +140,14 @@ The public frontend currently uses production stage and the Render origin.
 No frontend secret or staging password is needed. The free beta retains the
 30-account, 100 MiB/project and 1 GiB total media limits. Sales, printing and
 paid transcription remain disabled.
+
+The beta launcher validates configuration before opening the database or
+starting either process. With `LEGAL_APPROVED=false`, exit status 1 is expected
+until the published legal/privacy documents are complete and approved. The
+launcher now reports this specific reason. Other fixed configuration errors
+are also safe to log; unexpected driver errors remain redacted because they
+can contain credentials. A failure at this approval check does not establish
+whether the database connection, permissions or migrations will pass later.
 
 Keep `TRUSTED_CLIENT_IP_HEADER` unset until a proxy header is proven to be
 overwritten on every ingress path. Existing shared/email/account rate limits
