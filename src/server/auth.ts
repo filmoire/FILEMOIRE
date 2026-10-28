@@ -70,22 +70,47 @@ export async function requestLogin(email: string) {
   await rateLimit(`login:${email}`, 5, 900);
   await assertSignupCapacity(pool(), email);
   const token = secret();
-  await transaction(async (db) => {
+  return transaction(async (db) => {
     await db.query(
       "INSERT INTO login_tokens(token_hash,email,expires_at) VALUES($1,$2,now()+interval '15 minutes')",
       [hash(token), email],
     );
-    await enqueue(
+    return enqueue(
       db,
       "email",
       {
         to: email,
+        loginTokenHash: hash(token),
         subject: "Votre lien de connexion Filémoire",
         text: `Connectez-vous avec ce lien valable 15 minutes : ${config().APP_ORIGIN}/acces#token=${token}\nIgnorez cet e-mail si vous ne l’avez pas demandé.`,
       },
       `login:${hash(token)}`,
     );
   });
+}
+/** An unguessable queue receipt exposes only delivery state, never identity or a login link. */
+export async function loginDelivery(receipt: string) {
+  const { rows } = await pool().query(
+    `SELECT j.state,t.expires_at,t.used_at FROM jobs j
+     LEFT JOIN login_tokens t ON t.token_hash=substring(j.dedupe_key from 7)
+     WHERE j.id=$1 AND j.kind='email' AND j.dedupe_key LIKE 'login:%'`,
+    [receipt],
+  );
+  const job = rows[0];
+  if (
+    !job?.expires_at ||
+    job.used_at ||
+    new Date(job.expires_at).getTime() <= Date.now()
+  )
+    return { status: "expired" as const };
+  return {
+    status:
+      job.state === "done"
+        ? ("sent" as const)
+        : job.state === "failed"
+          ? ("failed" as const)
+          : ("pending" as const),
+  };
 }
 export async function consumeLogin(token: string) {
   const session = secret();

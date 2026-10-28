@@ -4,11 +4,22 @@ Updated on 28 October 2026. The Vercel frontend is publicly accessible at
 `https://filemoire-omega.vercel.app`. Render now has 30 saved environment
 variables, including the restricted database, storage, encryption and Resend
 settings. The Docker command is `node dist-worker/beta.cjs` and health path is
-`/api/v1/health`. The latest beta startup is blocked by `LEGAL_APPROVED=false`,
-confirmed in Render; the legal page still contains placeholders. Resend domain
-verification is also unfinished. Public page availability and a successful
-container build are not proof of account, database, storage or email
-connectivity. The owner will decide the Vercel plan separately.
+`/api/v1/health`. After the owner's deployment, health returns 200 both directly
+and through Vercel, confirming a database query succeeds. The legal page still
+contains placeholders; deployment is not evidence of document approval. Resend
+logs reject email with 403 (filemoire.fr is unverified). DNS verification remains
+required before live email delivery can pass. The owner will decide the Vercel
+plan separately.
+
+Login requests now return an opaque queue receipt. The browser polls its status
+for at most 40 seconds of queue waiting, with bounded network timeouts. Queuing
+is not shown as a sent message: only provider acceptance produces confirmation.
+Permanent provider rejections (such as an unverified sender's 403) fail the job
+immediately; transient errors retain bounded retries. Worker logs include only
+HTTP status and retryability, never raw provider responses. Expired login tokens
+are skipped. After fixing DNS, request a fresh login link; failed jobs are not
+replayed automatically. Public receipt lookups expose only delivery state, not
+addresses, messages or tokens.
 
 ## Architecture
 

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { sendEmail } from "./email";
+import { EmailProviderError, sendEmail } from "./email";
 const smtpSend = vi.hoisted(() => vi.fn().mockResolvedValue({}));
 vi.mock("nodemailer", () => ({
   createTransport: vi.fn(() => ({ sendMail: smtpSend })),
@@ -85,6 +85,32 @@ it("does not accept an unconfirmed delivery", async () => {
   vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({})));
   await expect(sendEmail(message)).rejects.toThrow(/did not confirm/);
 });
+it.each([
+  [400, false],
+  [401, false],
+  [403, false],
+  [422, false],
+  [429, true],
+  [503, true],
+])(
+  "classifies provider status %s without disclosing its response body",
+  async (status, retryable) => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response("private address and login token", {
+            status: Number(status),
+          }),
+        ),
+    );
+    const error = await sendEmail(message).catch((error: unknown) => error);
+    expect(error).toBeInstanceOf(EmailProviderError);
+    expect(error).toMatchObject({ status, retryable });
+    expect(String(error)).not.toContain("private");
+  },
+);
 it("blocks outside recipients before contacting either email provider", async () => {
   const fetch = vi.fn();
   vi.stubGlobal("fetch", fetch);

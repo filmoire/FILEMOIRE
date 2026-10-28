@@ -1,4 +1,4 @@
-import { sendEmail } from "./email";
+import { EmailProviderError, sendEmail } from "./email";
 import type { Project } from "@/lib/types";
 import { refreshQuestions } from "@/lib/rules";
 import { claimJob, enqueue, finishJob, type Job } from "./jobs";
@@ -10,6 +10,13 @@ import { deleteMedia } from "./media";
 
 export async function runJob(job: Job) {
   if (job.kind === "email") {
+    if (job.payload.loginTokenHash) {
+      const valid = await pool().query(
+        "SELECT 1 FROM login_tokens WHERE token_hash=$1 AND used_at IS NULL AND expires_at>now()",
+        [job.payload.loginTokenHash],
+      );
+      if (!valid.rowCount) return;
+    }
     if (job.payload.projectId) {
       const row = (
         await pool().query(
@@ -250,16 +257,23 @@ export async function processOne() {
   try {
     await runJob(job);
     await finishJob(job);
-  } catch {
+  } catch (error) {
     console.error(
       JSON.stringify({
         event: "job_failed",
         jobId: job.id,
         kind: job.kind,
         attempt: job.attempts,
+        ...(error instanceof EmailProviderError
+          ? { providerStatus: error.status, retryable: error.retryable }
+          : {}),
       }),
     );
-    await finishJob(job, true);
+    await finishJob(
+      job,
+      true,
+      error instanceof EmailProviderError && !error.retryable,
+    );
     if (job.kind === "transcribe" && job.attempts >= 5)
       await transaction(async (db) => {
         const r = await db.query(

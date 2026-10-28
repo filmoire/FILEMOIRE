@@ -12,6 +12,7 @@ import {
   requireAccount,
   consumeLogin,
   requestLogin,
+  loginDelivery,
   setSession,
   logout,
   mfaSetup,
@@ -173,14 +174,25 @@ export async function handleApi(req: Request, path: string[]) {
         })
         .strict()
         .parse(await json(req));
-      await requestLogin(v.email);
+      const receipt = await requestLogin(v.email);
       return reply(
         {
+          receipt,
+          status: "pending",
           message:
             "Un lien de connexion a été demandé. Consultez votre messagerie.",
         },
         202,
       );
+    }
+    if (
+      path[0] === "auth" &&
+      path[1] === "delivery" &&
+      path.length === 3 &&
+      method === "GET"
+    ) {
+      const receipt = z.uuid().parse(path[2]);
+      return reply(await loginDelivery(receipt));
     }
     if (key === "auth/consume" && method === "POST") {
       const v = z

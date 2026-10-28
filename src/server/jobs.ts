@@ -14,10 +14,16 @@ export async function enqueue(
   key: string,
   at = new Date(),
 ) {
-  await db.query(
-    "INSERT INTO jobs(id,kind,payload,dedupe_key,run_at) VALUES($1,$2,$3,$4,$5) ON CONFLICT(dedupe_key) DO NOTHING",
-    [id(), kind, seal(payload), key, at],
+  const jobId = id();
+  const inserted = await db.query(
+    "INSERT INTO jobs(id,kind,payload,dedupe_key,run_at) VALUES($1,$2,$3,$4,$5) ON CONFLICT(dedupe_key) DO NOTHING RETURNING id",
+    [jobId, kind, seal(payload), key, at],
   );
+  if (inserted.rows[0]) return inserted.rows[0].id as string;
+  const existing = await db.query("SELECT id FROM jobs WHERE dedupe_key=$1", [
+    key,
+  ]);
+  return existing.rows[0]?.id as string | undefined;
 }
 export async function claimJob(): Promise<Job | null> {
   await pool().query(
@@ -38,13 +44,13 @@ export async function claimJob(): Promise<Job | null> {
       }
     : null;
 }
-export async function finishJob(job: Job, failed = false) {
+export async function finishJob(job: Job, failed = false, permanent = false) {
   await pool().query(
     `UPDATE jobs SET state=$3,run_at=now()+$4*interval '1 second',locked_at=NULL,lock_token=NULL,last_error=$5 WHERE id=$1 AND lock_token=$2`,
     [
       job.id,
       job.lock,
-      failed ? (job.attempts >= 5 ? "failed" : "pending") : "done",
+      failed ? (permanent || job.attempts >= 5 ? "failed" : "pending") : "done",
       Math.min(3600, 30 * 2 ** job.attempts),
       failed
         ? "Provider operation failed; inspect structured job diagnostics"

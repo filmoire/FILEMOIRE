@@ -2,6 +2,16 @@ import { createTransport } from "nodemailer";
 import { stagingEmailAllowed } from "@/lib/deployment";
 import { config, configured } from "./config";
 
+/** Provider response bodies can contain addresses or credentials; keep diagnostics bounded. */
+export class EmailProviderError extends Error {
+  readonly retryable: boolean;
+  constructor(readonly status: number) {
+    super(`Email provider rejected delivery (${status})`);
+    this.name = "EmailProviderError";
+    this.retryable = status >= 500 || [408, 409, 425, 429].includes(status);
+  }
+}
+
 export async function sendEmail(message: {
   id: string;
   to: string;
@@ -29,8 +39,7 @@ export async function sendEmail(message: {
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(15000),
     });
-    if (!response.ok)
-      throw new Error(`Email provider rejected delivery (${response.status})`);
+    if (!response.ok) throw new EmailProviderError(response.status);
     const result = (await response.json()) as { id?: unknown };
     if (typeof result.id !== "string" || !result.id)
       throw new Error("Email provider did not confirm delivery");

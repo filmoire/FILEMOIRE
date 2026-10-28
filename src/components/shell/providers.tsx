@@ -5,7 +5,7 @@ import { isLive } from "@/lib/mode";
 import { Fragment, useEffect, type ReactNode } from "react";
 import { tr } from "@/i18n/core";
 import { useLang } from "@/i18n/lang";
-import { Toaster } from "sonner";
+import { Notifications } from "@/components/ui/notifications";
 import { useVisited } from "@/lib/guide";
 import { useNav } from "@/lib/nav";
 import { useDemo } from "@/lib/store";
@@ -72,7 +72,7 @@ function LiveProviders({ children }: { children: ReactNode }) {
         </div>
       )}
       {children}
-      <Toaster />
+      <Notifications />
       <LiveConfirmation />
     </>
   );
@@ -133,21 +133,7 @@ function DemoProviders({ children }: { children: ReactNode }) {
   return (
     <>
       <Fragment key={lang}>{children}</Fragment>
-      <Toaster
-        position="top-center"
-        offset={56}
-        closeButton
-        toastOptions={{
-          classNames: {
-            toast:
-              "!rounded-lg !border !border-line !bg-white !text-ink !shadow-lift !font-sans !text-[15px]",
-            success: "!border-success/30",
-            error: "!border-danger/40",
-            title: "!font-semibold",
-            description: "!text-ink-muted",
-          },
-        }}
-      />
+      <Notifications />
       {hydrated && <GuidePanel key={`g-${lang}`} />}
     </>
   );

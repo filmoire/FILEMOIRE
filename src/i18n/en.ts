@@ -1,5 +1,18 @@
 /* Dictionnaire FR → EN (clé = texte français). Généré par scripts/i18n-merge.mjs puis relu. */
 export const EN: Record<string, string> = {
+  "Votre demande est en cours d’envoi.": "Your sign-in link is being sent.",
+  "Envoi du lien…": "Sending your link…",
+  "Votre lien a été envoyé": "Your sign-in link has been sent",
+  "Pensez à vérifier vos courriers indésirables.": "Please check your spam folder too.",
+  "Le lien n’a pas pu être envoyé. Réessayez dans quelques minutes.": "Your link could not be sent. Please try again in a few minutes.",
+  "Cette demande a expiré. Demandez un nouveau lien.": "This request has expired. Please request a new link.",
+  "Lien non envoyé": "Link not sent",
+  "Envoi en attente": "Sending is delayed",
+  "L’envoi prend plus de temps que prévu. Vérifiez votre messagerie avant de demander un nouveau lien.": "Sending is taking longer than expected. Check your inbox before requesting another link.",
+  "La demande est enregistrée, mais l’envoi n’est pas encore confirmé.": "Your request is saved, but sending has not been confirmed yet.",
+  "Impossible de confirmer l’envoi": "Unable to confirm sending",
+  "Connexion impossible": "Unable to sign in",
+  "Un lien personnel, à usage unique. Aucun mot de passe à retenir.": "A private, single-use link. No password to remember.",
   "La bêta est complète. Les comptes existants peuvent toujours se connecter.": "The beta is full. Existing accounts can still sign in.",
   "Le stockage de la bêta est complet. Réessayez après avoir supprimé des fichiers.": "Beta storage is full. Try again after deleting files.",
   "— des pages blanches seront ajoutées (multiple de 4)": "— blank pages will be added (multiple of 4)",

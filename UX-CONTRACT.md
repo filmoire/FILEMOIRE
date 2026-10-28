@@ -20,7 +20,7 @@ See `DESIGN.md`. Scoped runtime tokens live in `src/app/dashboard.css`; existing
 | Date | Input type=date | Existing checkout contract | Native OS calendar accepted | Checkout locale/state tests |
 | Form | Shared Input/Textarea and `live/form.tsx` | Server schemas | Explicit save, client constraint messages | Invalid submit and retry |
 | Scrollbar | Global CSS | DESIGN.md | Native width, token colors, forced colors | Computed styles |
-| Toast | `live/shell.tsx` Message | Existing live feedback | Persistent success/error live regions | E2E |
+| Toast | `ui/notifications.tsx` + `lib/toast.ts`; `live/shell.tsx` Message for persistent feedback | This contract | Shared Sonner success/error/info/loading; persistent inline recovery | Delivery unit/integration tests + browser |
 | CRUD | `live/client.ts` API + server commands | Server schemas/revisions | Stay inline after save; return to book after creation | E2E |
 | Confirmation | Shared Dialog + live confirmation provider | Existing permission/domain rules | Async confirmation; guarded navigation | Focus, cancel, failure |
 
@@ -31,6 +31,8 @@ Role destinations are real links under `/espace`, identified by `role`, `vue`, a
 Search/filter/page state for operational lists is URL-owned. Search terms in the question catalogue are public editorial text; private support-message search is not offered. Tables use bounded server pages (25 rows), known totals, stable ordering and Previous/Next controls. Empty and no-results states are distinct; retry keeps the current context. No bulk selection is introduced.
 
 ## Forms and feedback
+
+Login requests receive an opaque delivery receipt. Queuing shows a neutral pending state; only a completed email job produces a sent confirmation. Failed or expired jobs show persistent recovery text. Polling is bounded and cancelled on navigation. Provider acceptance does not assert inbox placement. The shared Sonner host uses existing public semantic tokens, a dismissible bottom-right stack, mobile gutters and localized controls. Toasts contain no login tokens or recipient addresses; critical guidance remains inline. Existing dashboard inline feedback remains canonical.
 
 Use app-owned constraint messages and noValidate in modified forms. Preserve non-sensitive input after errors, focus the first invalid control, prevent duplicate submission and announce pending state. Native select/date popups remain platform-owned. Long textareas keep internal scrolling and sufficient height. Unsaved in-app navigation uses an accessible confirmation; actual tab close retains beforeunload protection. No local narrative cache is added.
 

@@ -41,7 +41,7 @@ test("a new account creates a real private manuscript, saves across reloads and 
   await page.getByLabel("Adresse e-mail").fill(email);
   await page.getByRole("button", { name: "Recevoir mon lien" }).click();
   await expect(page.getByRole("status")).toContainText(
-    "Consultez votre messagerie",
+    "Votre demande est en cours d’envoi.",
   );
   await page.goto(`/acces#token=${await newestEmailToken(email)}`);
   await page.getByRole("button", { name: "Confirmer ma connexion" }).click();

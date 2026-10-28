@@ -56,6 +56,8 @@ Static content is flat. Use borders for rows and lilac for summaries. Dialogs al
 
 `LiveShell` owns header, role navigation, locale switch, identity and footer. Shared `Button`, `Input`, `Textarea`, `Select`, `Dialog` remain canonical. `dashboard-ui.tsx` owns repeated page introductions, empty panels, status badges and pagination. Enabled controls have hover, active and keyboard focus; disabled controls remain explained and cannot activate. Loading/error states are persistent text with retry; mutations only claim success after the server acknowledges them.
 
+`ui/notifications.tsx` owns the shared Sonner presentation for live and demo: cream surface, plum/ink typography, semantic icon and border, rounded-xl corners and the existing overlay shadow, all from `tailwind.config.ts`. Persistent `Message` notices use the same semantic colors and icons. The public sign-in card retains EB Garamond/Inter, with a quiet plum-tinted header and a full-width, stable-size submit button. Dashboard and book typography remain unchanged.
+
 ## Do's and Don'ts
 
 - Use actual accessible account data and server counts. Never copy mock names, dates, totals or shipping references into live screens.

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Logo } from "@/components/shell/logo";
 import { LangSwitch } from "@/components/shell/lang-switch";
+import { CircleAlert, CircleCheck, Info } from "lucide-react";
 import { useLang } from "@/i18n/lang";
 import { Button } from "@/components/ui/button";
 import type { Account } from "@/server/auth";
@@ -156,16 +157,34 @@ export function LivePublicHeader() {
 export const Message = ({
   error,
   success,
+  info,
 }: {
   error?: string;
   success?: string;
+  info?: string;
 }) =>
   error ? (
-    <p role="alert" className="my-4 rounded-md bg-danger-bg p-4 text-danger">
-      {error}
+    <p
+      role="alert"
+      className="my-4 flex items-start gap-3 rounded-xl border border-danger/20 bg-danger-bg p-4 text-danger"
+    >
+      <CircleAlert className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+      <span>{error}</span>
     </p>
   ) : success ? (
-    <p role="status" className="my-4 rounded-md bg-success-bg p-4 text-success">
-      {success}
+    <p
+      role="status"
+      className="my-4 flex items-start gap-3 rounded-xl border border-success/20 bg-success-bg p-4 text-success"
+    >
+      <CircleCheck className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+      <span>{success}</span>
+    </p>
+  ) : info ? (
+    <p
+      role="status"
+      className="my-4 flex items-start gap-3 rounded-xl border border-info/20 bg-info-bg p-4 text-info"
+    >
+      <Info className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+      <span>{info}</span>
     </p>
   ) : null;
