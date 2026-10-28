@@ -42,7 +42,7 @@ Pulled 7 Neon variables into .env.local
   Object Storage  AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_ENDPOINT_URL_S3, AWS_REGION
 ```
 
-The application uses the pooled `DATABASE_URL`. Migrations prefer `MIGRATION_DATABASE_URL`, then Neon's direct `DATABASE_URL_UNPOOLED`, then `DATABASE_URL`. All nine repository migrations have been applied. The new target currently uses the owner credentials supplied by Neon; create a restricted runtime role and reserve owner credentials for migration tooling before public hosting.
+The application uses the pooled `DATABASE_URL`. Migrations prefer `MIGRATION_DATABASE_URL`, then Neon's direct `DATABASE_URL_UNPOOLED`, then `DATABASE_URL`. All nine repository migrations have been applied. On 28 October, a restricted `filemoire_runtime` role was created and verified with a rolled-back application write. Its URL is saved separately in the ignored, mode-0600 `.env.filemoire.runtime`; use that URL for hosting. `.env.local` was preserved and still contains owner credentials for local setup/migrations. Never upload its owner URLs to the host.
 
 The PostgreSQL pool allows up to 15 seconds to establish a connection. A live verification attempt exceeded the previous five-second limit during cloud connection setup; the application and worker now use the longer bounded timeout without disabling certificate verification.
 
@@ -138,4 +138,6 @@ Security updates then raised Next.js to 15.5.28, Zod to 4.6.6 and Nodemailer to 
 
 ## Still separate from public launch
 
-The verified scope is Postgres and private file storage reached through the locally running application. Website hosting, hosted worker operation, verified Resend delivery, restricted database runtime credentials, legal approval, backup/restore rehearsal and hosted role acceptance remain in [PUBLIC-LAUNCH.md](PUBLIC-LAUNCH.md). Checkout, printing and automatic transcription remain outside this verification. The older staging project's storage test is also separate from this successful test of the new project.
+The verified scope is Postgres and private file storage reached through the locally running application. On 28 October, restricted runtime access and an authorized cloud backup restored into an isolated local container also passed. All 22 tables restored, six encrypted objects passed verification, and four project payloads decrypted; the encryption key remains separate. The older staging project's private upload/download test and local Docker web/worker smoke checks also passed. See [FREE-BETA.md](FREE-BETA.md) for the current evidence and limits.
+
+Website hosting, hosted worker operation, verified Resend inbox delivery/domain, legal approval, hosted restore/rollback and hosted role acceptance remain in [PUBLIC-LAUNCH.md](PUBLIC-LAUNCH.md). Checkout, printing and automatic transcription remain outside this verification.
