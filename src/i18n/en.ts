@@ -2152,6 +2152,7 @@ export const EN: Record<string, string> = {
   "Une édition dans deux langues, avec relecture humaine.": "An edition in two languages, with human proofreading.",
   "Une erreur est survenue.": "Something went wrong.",
   "Le service se réveille ou est temporairement indisponible. Réessayez dans une minute.": "The service is starting up or temporarily unavailable. Please try again in a minute.",
+  "Ce service est indisponible pour le moment. Vous pouvez continuer à consulter le site public.": "This service is currently unavailable. You can continue browsing the public website.",
   "Une heure": "One hour",
   "Une invitation pour {0}": "An invitation for {0}",
   "Une musique, un sport, une cause, un rêve.": "A piece of music, a sport, a cause, a dream.",

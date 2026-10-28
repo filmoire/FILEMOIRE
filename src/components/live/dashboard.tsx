@@ -175,9 +175,14 @@ function DashboardContent() {
           Chargement de vos livres…
         </p>
       ) : error ? (
-        <Button variant="outline" onClick={() => void refresh()}>
-          Réessayer
-        </Button>
+        <div className="flex flex-wrap gap-3">
+          <Button variant="outline" onClick={() => void refresh()}>
+            Réessayer
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/">Retour à l’accueil</Link>
+          </Button>
+        </div>
       ) : role === "operations" && account ? (
         <OperationsDashboard
           account={account}

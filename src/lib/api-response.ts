@@ -9,6 +9,12 @@ export async function readApiResponse<T>(response: Response): Promise<T> {
   const value = await response.json().catch(() => {
     throw new Error(unavailable);
   });
+  // A disabled or outdated API returns this generic route-level 404. The
+  // current frontend page exists; resource-specific 404s must remain intact.
+  if (response.status === 404 && value?.error === "Page introuvable.")
+    throw new Error(
+      "Ce service est indisponible pour le moment. Vous pouvez continuer à consulter le site public.",
+    );
   if (!response.ok)
     throw new Error(
       typeof value?.error === "string"

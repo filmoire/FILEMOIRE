@@ -24,3 +24,19 @@ it("preserves backend validation errors and normal JSON", async () => {
     readApiResponse(Response.json({ status: "ok" })),
   ).resolves.toEqual({ status: "ok" });
 });
+
+it("explains a disabled API without presenting the current page as missing", async () => {
+  await expect(
+    readApiResponse(
+      Response.json({ error: "Page introuvable." }, { status: 404 }),
+    ),
+  ).rejects.toThrow("Ce service est indisponible pour le moment");
+});
+
+it("preserves a resource-specific not-found response", async () => {
+  await expect(
+    readApiResponse(
+      Response.json({ error: "Livre introuvable." }, { status: 404 }),
+    ),
+  ).rejects.toThrow("Livre introuvable.");
+});
