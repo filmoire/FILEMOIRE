@@ -13,9 +13,13 @@ email sender, and hosted acceptance testing.
 
 GitHub CI passed for application commit `37abae7`:
 [Verify run](https://github.com/filmoire/FILEMOIRE/actions/runs/40669900447).
-The Render service was set to manual deployment, Docker command
-`node dist-worker/staging.cjs`, and health path `/api/v1/health`. No updated
-deployment was triggered: its saved environment still needs the backend settings.
+The Render service was set to manual deployment. The new Docker command
+`node dist-worker/staging.cjs` and health path `/api/v1/health` were prepared in
+the dashboard, then restored to their original empty/default settings while
+runtime configuration is pending: the old image does not contain the new
+launcher or health endpoint. Apply those two settings again immediately before
+deploying the updated source. No updated deployment was triggered; the saved
+environment still needs the backend settings.
 The old deployed version returned HTTP 404 for that health endpoint and HTTP 200
 for `/acces`; the login page alone is not evidence of a working backend.
 
