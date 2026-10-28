@@ -20,6 +20,14 @@ const schema = z.object({
   EMAIL_PROVIDER: z.enum(["smtp", "resend"]).default("smtp"),
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().optional(),
+  ACCOUNT_LIMIT: z.coerce.number().int().positive().max(10000).optional(),
+  PROJECT_STORAGE_LIMIT_MB: z.coerce
+    .number()
+    .int()
+    .positive()
+    .max(2048)
+    .default(2048),
+  TOTAL_MEDIA_LIMIT_MB: z.coerce.number().int().positive().optional(),
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   COHORT_LIMIT: z.coerce.number().int().positive().default(30),

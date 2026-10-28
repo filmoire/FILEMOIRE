@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { config } from "./config";
+import { validateFreeBeta } from "./free-beta";
 
 beforeEach(() => {
   vi.stubEnv("NODE_ENV", "production");
@@ -34,6 +35,9 @@ beforeEach(() => {
     TRANSCRIPTION_API_KEY: "",
     TRANSCRIPTION_MODEL: "",
     SMTP_URL: "",
+    ACCOUNT_LIMIT: "",
+    TOTAL_MEDIA_LIMIT_MB: "",
+    PROJECT_STORAGE_LIMIT_MB: "2048",
   }))
     vi.stubEnv(key, value);
 });
@@ -85,6 +89,31 @@ describe("hosted deployment boundaries", () => {
     vi.stubEnv("RESEND_API_KEY", "");
     expect(config().EMAIL_PROVIDER).toBe("smtp");
   });
+  it("requires bounded capacity, a real sender, and production approval for the free beta", () => {
+    vi.stubEnv("LEGAL_APPROVED", "true");
+    vi.stubEnv("PERSONAL_DRAFTS_ENABLED", "true");
+    expect(validateFreeBeta).toThrow(/limits/);
+    vi.stubEnv("ACCOUNT_LIMIT", "30");
+    vi.stubEnv("PROJECT_STORAGE_LIMIT_MB", "100");
+    vi.stubEnv("TOTAL_MEDIA_LIMIT_MB", "1024");
+    expect(validateFreeBeta).not.toThrow();
+    vi.stubEnv("EMAIL_FROM", "Filemoire <onboarding@resend.dev>");
+    expect(validateFreeBeta).toThrow(/sender/);
+    vi.stubEnv("EMAIL_FROM", "Filemoire <noreply@filemoire.fr>");
+    vi.stubEnv("CHECKOUT_ENABLED", "true");
+    expect(validateFreeBeta).toThrow(/paid/);
+    vi.stubEnv("CHECKOUT_ENABLED", "false");
+    vi.stubEnv("LEGAL_APPROVED", "false");
+    expect(validateFreeBeta).toThrow(/Legal/);
+  });
+  it.each(["0", "-1", "invalid", "1.5"])(
+    "rejects invalid capacity limits %s",
+    (value) => {
+      staging();
+      vi.stubEnv("ACCOUNT_LIMIT", value);
+      expect(config).toThrow();
+    },
+  );
   it("accepts Neon storage variables and enforces HTTPS on their endpoint", () => {
     staging();
     vi.stubEnv("S3_REGION", "");

@@ -1,5 +1,7 @@
 /* Dictionnaire FR → EN (clé = texte français). Généré par scripts/i18n-merge.mjs puis relu. */
 export const EN: Record<string, string> = {
+  "La bêta est complète. Les comptes existants peuvent toujours se connecter.": "The beta is full. Existing accounts can still sign in.",
+  "Le stockage de la bêta est complet. Réessayez après avoir supprimé des fichiers.": "Beta storage is full. Try again after deleting files.",
   "— des pages blanches seront ajoutées (multiple de 4)": "— blank pages will be added (multiple of 4)",
   ", {0} masqué(s)": ", {0} hidden",
   ", et votre progression (sans contenu).": ", and your progress (without content).",

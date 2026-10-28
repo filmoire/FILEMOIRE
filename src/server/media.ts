@@ -14,6 +14,7 @@ import { assert, hash, id, unseal, seal, audit } from "./security";
 import { putObject, getObject, deleteObject } from "./storage";
 import { enqueue } from "./jobs";
 import { transcriptionConfigured } from "./config";
+import { assertMediaCapacity, lockMediaCapacity } from "./capacity";
 const CHUNK = 4 * 1024 * 1024;
 const uploadSchema = z
   .object({
@@ -35,6 +36,7 @@ export async function beginUpload(
 ) {
   const v = uploadSchema.parse(input);
   return transaction(async (db) => {
+    await lockMediaCapacity(db);
     const row = await accessProject(db, a, projectId, true);
     assert(
       row.role === "narrator" && !row.deletion_at,
@@ -62,15 +64,7 @@ export async function beginUpload(
       413,
       "Photo trop volumineuse.",
     );
-    const used = await db.query(
-      "SELECT COALESCE((SELECT SUM(bytes) FROM media WHERE project_id=$1),0)+COALESCE((SELECT SUM(bytes) FROM uploads WHERE project_id=$1 AND status='uploading' AND expires_at>now()),0) AS bytes",
-      [projectId],
-    );
-    assert(
-      Number(used.rows[0].bytes) + v.bytes <= 2 * 1024 ** 3,
-      413,
-      "Limite de stockage du livre atteinte.",
-    );
+    await assertMediaCapacity(db, projectId, v.bytes);
     const uploadId = id();
     await db.query(
       "INSERT INTO uploads(id,project_id,owner_id,memory_id,kind,bytes,mime,caption) VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
@@ -149,6 +143,7 @@ export async function uploadStatus(a: Account, uploadId: string) {
 }
 export async function finishUpload(a: Account, uploadId: string) {
   return transaction(async (db) => {
+    await lockMediaCapacity(db);
     const { rows } = await db.query(
       "SELECT * FROM uploads WHERE id=$1 AND owner_id=$2 FOR UPDATE",
       [uploadId, a.id],
@@ -297,6 +292,8 @@ export async function finishUpload(a: Account, uploadId: string) {
     const m = p.memories.find((m) => m.id === u.memory_id);
     assert(m, 409, "Le souvenir a été supprimé.");
     const key = `media/${p.id}/${u.id}`;
+    // Recheck the decoded size: image conversion can exceed the upload reservation.
+    await assertMediaCapacity(db, p.id, bytes.length, u.id);
     await putObject(key, bytes);
     await db.query(
       "INSERT INTO media(id,project_id,owner_id,object_key,kind,mime,bytes,sha256) VALUES($1,$2,$3,$4,$5,$6,$7,$8)",

@@ -14,6 +14,7 @@ import {
 } from "./security";
 import { enqueue } from "./jobs";
 import { stagingEmailAllowed } from "@/lib/deployment";
+import { assertSignupCapacity } from "./capacity";
 export type Account = {
   id: string;
   email: string;
@@ -67,6 +68,7 @@ export async function requestLogin(email: string) {
     "Accès à la préproduction réservé aux comptes autorisés.",
   );
   await rateLimit(`login:${email}`, 5, 900);
+  await assertSignupCapacity(pool(), email);
   const token = secret();
   await transaction(async (db) => {
     await db.query(
@@ -88,6 +90,10 @@ export async function requestLogin(email: string) {
 export async function consumeLogin(token: string) {
   const session = secret();
   const account = await transaction(async (db) => {
+    if (config().ACCOUNT_LIMIT)
+      await db.query(
+        "SELECT pg_advisory_xact_lock(hashtext('filemoire-signups'))",
+      );
     const { rows } = await db.query(
       "UPDATE login_tokens SET used_at=now() WHERE token_hash=$1 AND used_at IS NULL AND expires_at>now() RETURNING email",
       [hash(token)],
@@ -98,6 +104,7 @@ export async function consumeLogin(token: string) {
       403,
       "Accès à la préproduction réservé aux comptes autorisés.",
     );
+    await assertSignupCapacity(db, rows[0].email);
     const a = await db.query(
       "INSERT INTO accounts(id,email) VALUES($1,$2) ON CONFLICT(email) DO UPDATE SET email=EXCLUDED.email RETURNING id,email,name",
       [id(), rows[0].email],

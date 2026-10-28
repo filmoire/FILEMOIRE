@@ -6,10 +6,12 @@ import { accessProject, bookHash } from "./projects";
 import { assert, hash, id, unseal } from "./security";
 import { putObject, getObject } from "./storage";
 import { renderProof } from "./pdf";
+import { assertMediaCapacity, lockMediaCapacity } from "./capacity";
 
 /** Persist the exact PDF being reviewed. Approval and print reuse these bytes. */
 export async function prepareProof(a: Account, projectId: string) {
   return transaction(async (db) => {
+    await lockMediaCapacity(db);
     const row = await accessProject(db, a, projectId, true);
     assert(row.role === "narrator" && !row.deletion_at, 403, "Accès refusé.");
     const p = unseal<Project>(row.payload);
@@ -48,6 +50,7 @@ export async function prepareProof(a: Account, projectId: string) {
     const bytes = await renderProof(p, db),
       mediaId = id(),
       key = `media/${projectId}/${mediaId}`;
+    await assertMediaCapacity(db, projectId, bytes.length);
     await putObject(key, bytes);
     await db.query(
       "INSERT INTO media(id,project_id,owner_id,object_key,kind,mime,bytes,sha256) VALUES($1,$2,$3,$4,'pdf','application/pdf',$5,$6)",
