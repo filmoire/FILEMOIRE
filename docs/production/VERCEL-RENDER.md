@@ -1,9 +1,11 @@
 # Vercel frontend + Render backend
 
-Prepared on 28 October 2026. The owner chose to prepare this architecture and
-decide the Vercel plan later. **No new hosted deployment has been made.** The
-existing Render service still runs the older release. Do not treat its login
-page as proof of backend connectivity.
+Updated on 28 October 2026. The Vercel frontend is publicly accessible at
+`https://filemoire-omega.vercel.app`. Render has deployed commit `01d09c1`, but
+its environment contains only `PORT`: the API returns `404 Page introuvable.`
+because `APP_MODE=live` is missing. Public page availability is not proof of
+account, database, storage or email connectivity. The owner will decide the
+Vercel plan separately.
 
 ## Architecture
 
@@ -42,9 +44,9 @@ launch therefore needs an eligible Vercel plan or a different frontend host.
 Disabling checkout does not by itself make a business site eligible for Hobby.
 No plan was purchased or upgraded.
 
-The connected Vercel account exposes the Calamelle team; no Filemoire project
-was found. Its billing plan was not returned by the connector. Confirm the
-intended team and eligible plan before creating or deploying a project.
+The browser-managed project is `filemoire` in the Filmoie team. The connected
+Vercel MCP account exposes a different team; use the intended project's
+dashboard when checking settings or deployments.
 
 [Render Free](https://render.com/docs/free) sleeps after 15 minutes of inactivity
 and can take about a minute to wake. The bundled worker also stops while the
@@ -96,12 +98,45 @@ while the backend is unavailable; write requests are not automatically retried.
    the stable frontend URL. Do not point untrusted preview branches at the live
    backend; preview deployments need their own matched backend/origin settings.
 
-**Previous import instructions are superseded for this split.** The private
-`artifacts/production/render-staging.env` file was prepared for an all-in-one
-Render site. Do not import it unchanged: `APP_ORIGIN` must become the selected
-frontend URL and `FILEMOIRE_SERVICE` must be `backend`. It deliberately omits
-the unconfirmed Resend key. No new private import file can be finalized until
-the frontend URL is chosen. Preserve the existing `PORT` variable.
+**Previous import instructions are superseded for this split.** Do not import
+the old all-in-one `artifacts/production/render-staging.env` unchanged.
+
+### Current public visitor setup: prepare the backend
+
+The owner selected public visitor access, so do not re-enable the staging
+password gate. A local private file has been prepared at
+`artifacts/production/render-backend-production.env` (mode `0600`, Git-ignored).
+It contains 28 settings, including the restricted production database URL,
+its matching existing encryption key and private object-storage credentials,
+`FILEMOIRE_SERVICE=backend`, and
+`APP_ORIGIN=https://filemoire-omega.vercel.app`. It excludes the database owner
+URL and the unconfirmed Resend key. It is a **configuration import**, not an
+approval to launch: `LEGAL_APPROVED` intentionally remains `false`.
+
+1. Open the existing Render service → Environment → Edit → More options →
+   Import from .env → Choose a file. On macOS, press Cmd+Shift+G in the chooser
+   and enter the private file's absolute path under this project.
+2. Click **Add variables**, keep the existing `PORT`, then **Save only**.
+   Verify keys such as `APP_MODE`, `DATABASE_URL`, `DATA_ENCRYPTION_KEY` and
+   `S3_BUCKET` appear in the saved list; there should be 29 keys including PORT.
+3. Add the replacement **sending-only** `RESEND_API_KEY` directly in Render.
+   Never paste credentials in chat or commit this import file. Verify
+   `filemoire.fr` in Resend before using the configured sender
+   `Filemoire <noreply@filemoire.fr>` for general users.
+4. Complete and approve the published legal/operator/privacy documents before
+   setting `LEGAL_APPROVED=true`. The public beta launcher deliberately refuses
+   to start until this approval and the other required settings are present.
+5. Set Docker Command to `node dist-worker/beta.cjs` and Health Check Path to
+   `/api/v1/health`. Keep the existing Free plan, region and `PORT`; keep
+   auto-deploy off during configuration. Rebuild and deploy the latest commit
+   only after the missing settings above are complete.
+6. Test `/api/v1/health` on Render and through the stable frontend, then sign-in,
+   session persistence, save/reload, private media and worker email delivery.
+
+The public frontend currently uses production stage and the Render origin.
+No frontend secret or staging password is needed. The free beta retains the
+30-account, 100 MiB/project and 1 GiB total media limits. Sales, printing and
+paid transcription remain disabled.
 
 Keep `TRUSTED_CLIENT_IP_HEADER` unset until a proxy header is proven to be
 overwritten on every ingress path. Existing shared/email/account rate limits
