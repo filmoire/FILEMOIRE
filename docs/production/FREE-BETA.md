@@ -1,5 +1,10 @@
 # Free manuscript beta deployment
 
+**28 October update:** the owner now requests a Vercel frontend and Render
+backend, with the Vercel plan decision deferred. Follow
+[VERCEL-RENDER.md](VERCEL-RENDER.md) for that topology. The all-in-one import
+settings/count below are historical and must not be used unchanged for the split.
+
 Prepared and locally verified on 28 October 2026. **The updated backend-connected
 release has not been deployed to Render yet.** An existing Free Docker service,
 `FILEMOIRE` (`srv-dbfi6n0u01pc73bclng0`), is live at

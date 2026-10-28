@@ -1,5 +1,10 @@
 # Production implementation status
 
+The requested target is now Vercel for the frontend and Render for the API/worker,
+with Neon and Resend unchanged. The owner asked to prepare this split and decide
+the Vercel plan later. See [VERCEL-RENDER.md](VERCEL-RENDER.md) for current setup
+and remaining launch gates; no new cloud deployment has been made.
+
 Updated 27 October 2026. **The application is not approved for public production, and all 15 steps are not complete.** A substantial server-backed implementation and local verification are now in place. The remaining gates require provider access, business/legal decisions, independent testing and real people/physical books.
 
 Latest status (28 October 2026): restricted Neon runtime access, private storage round trips, Linux Docker build, local web/worker smoke checks and an authorized local cloud-backup restore have passed. The bounded free beta profile is prepared. The existing Free Render service still runs older commit `c37f9d5` without backend environment settings; the updated release is awaiting secure configuration and deployment. Resend domain `filemoire.fr` has been added, with DNS verification pending. Local checks passed 83 unit tests and 90 integration tests. See [FREE-BETA.md](FREE-BETA.md) and [PUBLIC-LAUNCH.md](PUBLIC-LAUNCH.md). The table below retains the full commercial launch scope; its earlier implementation inventory is not a current provider or dependency audit.

@@ -23,6 +23,8 @@ Pour les démarrages suivants, exécutez `node scripts/local/start.mjs` depuis l
 
 Voir le [guide local](docs/production/LOCAL-WEBSITE.md), le [runbook](docs/production/RUNBOOK.md) et [les étapes restant avant un lancement public](docs/production/STATUS.md).
 
+Le [guide Vercel + Render](docs/production/VERCEL-RENDER.md) décrit la nouvelle séparation : interface sur Vercel, API et worker sur Render, données et médias privés sur Neon. La configuration est préparée ; le déploiement attend le choix du forfait Vercel.
+
 La [check-list de déploiement public du 27 octobre](docs/production/PUBLIC-LAUNCH.md) distingue les services gratuits déjà préparés, les vérifications restantes et les limites de l’hébergement gratuit. Les [résultats des tests locaux par rôle](docs/production/LOCAL-QA-2026-10-27.md) sont également disponibles.
 
 Le [guide Neon](docs/production/NEON-SETUP.md) décrit le projet cloud `filemoire-production`, ses fichiers privés et les commandes de vérification. Cette configuration utilise http://localhost:3200 et reste distincte du site entièrement local sur le port 3100.
