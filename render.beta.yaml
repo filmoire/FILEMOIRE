@@ -1,0 +1,70 @@
+# Public manuscript beta: deploy only after legal review and hosted acceptance.
+# Free hosting sleeps; email/reminder delivery can be delayed.
+# Apply migrations separately with the owner role before a manual deployment.
+services:
+  - type: web
+    name: filemoire-beta
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerCommand: node dist-worker/beta.cjs
+    healthCheckPath: /api/v1/health
+    autoDeployTrigger: off
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: APP_MODE
+        value: live
+      - key: NEXT_PUBLIC_APP_MODE
+        value: live
+      - key: DEPLOYMENT_STAGE
+        value: production
+      - key: NEXT_PUBLIC_DEPLOYMENT_STAGE
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_SSL
+        value: "true"
+      - key: DATA_ENCRYPTION_KEY
+        sync: false
+      - key: ADMIN_EMAILS
+        sync: false
+      - key: PERSONAL_DRAFTS_ENABLED
+        value: "true"
+      - key: ACCOUNT_LIMIT
+        value: "30"
+      - key: PROJECT_STORAGE_LIMIT_MB
+        value: "100"
+      - key: TOTAL_MEDIA_LIMIT_MB
+        value: "1024"
+      - key: STORAGE_DRIVER
+        value: s3
+      - key: S3_REGION
+        value: eu-central-1
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_BUCKET
+        value: filemoire-private
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: EMAIL_PROVIDER
+        value: resend
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: CHECKOUT_ENABLED
+        value: "false"
+      - key: PRINT_ENABLED
+        value: "false"
+      # Set true only after the owner has approved the published legal documents.
+      - key: LEGAL_APPROVED
+        sync: false
+      - key: COMMERCIAL_APPROVED
+        value: "false"
+      - key: PRINT_SPEC_APPROVED
+        value: "false"

@@ -5,6 +5,7 @@ await build({
     migrate: "scripts/production/migrate.ts",
     readiness: "scripts/production/readiness.ts",
     staging: "scripts/production/staging.ts",
+    beta: "scripts/production/beta.ts",
   },
   outdir: "dist-worker",
   outExtension: { ".js": ".cjs" },
