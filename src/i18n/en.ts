@@ -2151,6 +2151,7 @@ export const EN: Record<string, string> = {
   "Une demande, une évidence, une discussion.": "A proposal, something obvious, a conversation.",
   "Une édition dans deux langues, avec relecture humaine.": "An edition in two languages, with human proofreading.",
   "Une erreur est survenue.": "Something went wrong.",
+  "Le service se réveille ou est temporairement indisponible. Réessayez dans une minute.": "The service is starting up or temporarily unavailable. Please try again in a minute.",
   "Une heure": "One hour",
   "Une invitation pour {0}": "An invitation for {0}",
   "Une musique, un sport, une cause, un rêve.": "A piece of music, a sport, a cause, a dream.",

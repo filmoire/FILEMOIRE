@@ -1,4 +1,5 @@
 import { confirmAction } from "./confirmation";
+import { readApiResponse } from "@/lib/api-response";
 export async function api<T = Record<string, unknown>>(
   path: string,
   body?: unknown,
@@ -12,9 +13,7 @@ export async function api<T = Record<string, unknown>>(
     body: body === undefined ? undefined : JSON.stringify(body),
     cache: "no-store",
   });
-  const value = await response.json();
-  if (!response.ok) throw new Error(value.error ?? "Une erreur est survenue.");
-  return value;
+  return readApiResponse<T>(response);
 }
 export async function uploadFile(
   projectId: string,
@@ -76,11 +75,7 @@ export async function uploadFile(
         headers: { "Content-Type": "application/octet-stream" },
       });
       if (!r.ok) {
-        const value = await r.json();
-        throw new Error(
-          value.error ??
-            "Import interrompu. Sélectionnez à nouveau le même fichier pour reprendre.",
-        );
+        await readApiResponse(r);
       }
     }
     progress(
