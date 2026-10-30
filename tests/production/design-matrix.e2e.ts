@@ -113,6 +113,20 @@ for (const filled of [false, true])
           0,
         );
         await expect(page.locator("main").getByRole("alert")).toHaveCount(0);
+        const logos = page.getByRole("img", { name: "Filémoire", exact: true });
+        await expect(logos).toHaveCount(2);
+        await expect
+          .poll(() =>
+            logos.evaluateAll((images) =>
+              images.every(
+                (image) =>
+                  image instanceof HTMLImageElement &&
+                  image.complete &&
+                  image.naturalWidth > 0,
+              ),
+            ),
+          )
+          .toBe(true);
         expect(
           await page.evaluate(
             () => document.documentElement.scrollWidth <= innerWidth,

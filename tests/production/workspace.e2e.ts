@@ -39,7 +39,13 @@ test("a new account creates a real private manuscript, saves across reloads and 
   await page.getByRole("link", { name: "Commencer mon histoire" }).click();
   await expect(page).toHaveURL(/\/acces/);
   await page.getByLabel("Adresse e-mail").fill(email);
+  const queued = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/api/v1/auth/request") &&
+      response.request().method() === "POST",
+  );
   await page.getByRole("button", { name: "Recevoir mon lien" }).click();
+  expect((await queued).status()).toBe(202);
   await expect(page.getByRole("status")).toContainText(
     "Votre demande est en cours d’envoi.",
   );
@@ -482,11 +488,18 @@ test("English and French persist across public pages, reloads and sign-in", asyn
     .getByRole("button", { name: "Request a new link", exact: true })
     .click();
   await page.getByLabel("E-mail address", { exact: true }).fill(email);
+  const queued = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/api/v1/auth/request") &&
+      response.request().method() === "POST",
+  );
   await page
     .getByRole("button", { name: "Send me a sign-in link", exact: true })
     .click();
+  expect((await queued).status()).toBe(202);
+  // This suite intentionally leaves delivery queued; it does not run an email worker.
   await expect(page.getByRole("status")).toHaveText(
-    "Check your email to open your sign-in link.",
+    "Your sign-in link is being sent.",
   );
   await page.goto(`/acces#token=${await newestEmailToken(email)}`);
   await page

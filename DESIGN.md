@@ -58,6 +58,8 @@ Static content is flat. Use borders for rows and lilac for summaries. Dialogs al
 
 `ui/notifications.tsx` owns the shared Sonner presentation for live and demo: cream surface, plum/ink typography, semantic icon and border, rounded-xl corners and the existing overlay shadow, all from `tailwind.config.ts`. Persistent `Message` notices use the same semantic colors and icons. The public sign-in card retains EB Garamond/Inter, with a quiet plum-tinted header and a full-width, stable-size submit button. Dashboard and book typography remain unchanged.
 
+The 30 October brand correction uses the canonical `components/shell/logo.tsx` image in both dashboard header and footer, across all roles. The full illustrated logo replaces the reference screenshots’ text-only wordmark, following the user's feedback; its link returns to the current role’s home. The existing narrow-screen header wraps identity controls below the logo when needed.
+
 ## Do's and Don'ts
 
 - Use actual accessible account data and server counts. Never copy mock names, dates, totals or shipping references into live screens.

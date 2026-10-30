@@ -92,11 +92,6 @@
   gap: 24px;
   padding-block: 20px;
 }
-.dash-logo {
-  font: 26px var(--dash-display);
-  letter-spacing: -1px;
-  text-decoration: none;
-}
 .dash-identity {
   display: flex;
   align-items: center;

@@ -42,6 +42,8 @@ export default defineConfig({
       NEXT_BUILD_DIR: ".next-live-test",
       APP_ORIGIN: "http://localhost:3300",
       DATABASE_URL: database,
+      // Never inherit the cloud database's TLS setting from .env.local.
+      DATABASE_SSL: "false",
       DATA_ENCRYPTION_KEY: key,
       STORAGE_DRIVER: "local",
       LOCAL_STORAGE_DIR: ".production-test/media",

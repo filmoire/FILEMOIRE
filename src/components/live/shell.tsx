@@ -65,13 +65,7 @@ export function LiveShell({
       </a>
       <header className="dash-header">
         <div className="dash-container dash-top">
-          <Link
-            href={dashboardHref(role)}
-            className="dash-logo"
-            aria-label="Filémoire — accueil"
-          >
-            filémoire
-          </Link>
+          <Logo href={dashboardHref(role)} />
           <div className="dash-identity">
             {account && (
               <>
@@ -117,9 +111,7 @@ export function LiveShell({
         {children}
       </main>
       <footer className="dash-container dash-footer">
-        <Link href={dashboardHref(role)} className="dash-logo">
-          filémoire
-        </Link>
+        <Logo href={dashboardHref(role)} />
         <p>Vos souvenirs restent à vous.</p>
         <div className="dash-footer-actions">
           <Button asChild variant="outline" size="sm">

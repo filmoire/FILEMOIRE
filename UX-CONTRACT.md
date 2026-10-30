@@ -16,6 +16,7 @@ See `DESIGN.md`. Scoped runtime tokens live in `src/app/dashboard.css`; existing
 
 | Capability | Canonical owner | Source of truth | Allowed variants | Verification |
 |---|---|---|---|---|
+| Brand logo | `components/shell/logo.tsx`, reused by `LiveShell` | DESIGN.md, user feedback 30 October | Full image; current-role home link in dashboards | Role matrix desktop/mobile asset loading and overflow |
 | Select/Listbox | `components/ui/input.tsx` Select | This contract | Native: OS popup accepted by supplied HTML | Keyboard and open popup |
 | Date | Input type=date | Existing checkout contract | Native OS calendar accepted | Checkout locale/state tests |
 | Form | Shared Input/Textarea and `live/form.tsx` | Server schemas | Explicit save, client constraint messages | Invalid submit and retry |
