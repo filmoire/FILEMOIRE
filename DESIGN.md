@@ -42,7 +42,7 @@ Trebuchet MS with sans-serif fallback for headings, navigation, controls and tab
 
 ## Layout
 
-1200px content at a 1440px viewport; fluid gutters below 1280px. Two-line header: identity then role-specific navigation. Main content has 48px top padding and natural document scrolling. Buyer home uses a 1.9:1 split with 42px gap. At 800px the columns stack, navigation wraps and images move above empty-state copy. Tables own horizontal overflow and remain semantic tables.
+1200px content at a 1440px viewport; fluid gutters below 1280px. Two-line header: identity then role-specific navigation. Desktop main content starts with 54px top padding for family workspaces and 48px for operations, with natural document scrolling. Buyer home uses a 1.9:1 split with 42px gap. The editor's empty home illustration is 340px high; shared-book panels have a 40px column gap and 320px image. At 800px the columns stack, navigation wraps and images move above empty-state copy. Tables own horizontal overflow and remain semantic tables.
 
 ## Elevation & Depth
 
@@ -59,6 +59,8 @@ Static content is flat. Use borders for rows and lilac for summaries. Dialogs al
 `ui/notifications.tsx` owns the shared Sonner presentation for live and demo: cream surface, plum/ink typography, semantic icon and border, rounded-xl corners and the existing overlay shadow, all from `tailwind.config.ts`. Persistent `Message` notices use the same semantic colors and icons. The public sign-in card retains EB Garamond/Inter, with a quiet plum-tinted header and a full-width, stable-size submit button. Dashboard and book typography remain unchanged.
 
 The 30 October brand correction uses the canonical `components/shell/logo.tsx` image in both dashboard header and footer, across all roles. The full illustrated logo replaces the reference screenshots’ text-only wordmark, following the user's feedback; its link returns to the current role’s home. The existing narrow-screen header wraps identity controls below the logo when needed.
+
+The archive supplied again on 30 October contains buyer, family editor and operations references, with no narrator or public-homepage reference. Its compact question switches retain a 44px interactive target around the 36×22px visible track. Gift links use the reference's Georgia typography; ordinary form controls use Trebuchet MS. Reference demo names and counts remain replaced by authorized backend data.
 
 ## Do's and Don'ts
 

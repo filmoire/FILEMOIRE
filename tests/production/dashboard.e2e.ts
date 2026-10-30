@@ -156,7 +156,7 @@ test("editor opens only shared memories and sees their saved suggestion status",
     page.getByText("Proposition envoyée au narrateur.", { exact: true }),
   ).toBeVisible();
   await page
-    .getByRole("link", { name: "Mes propositions", exact: true })
+    .getByRole("link", { name: "Mes suggestions", exact: true })
     .click();
   await expect(
     page.getByRole("cell", { name: /^Correction proposée/ }),

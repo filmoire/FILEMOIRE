@@ -22,7 +22,7 @@ export const DASH_NAV: Record<DashboardRole, [string, string][]> = {
   editor: [
     ["accueil", "Accueil"],
     ["livres", "Livres confiés"],
-    ["propositions", "Mes propositions"],
+    ["propositions", "Mes suggestions"],
   ],
   narrator: [
     ["accueil", "Mes livres"],
@@ -54,7 +54,7 @@ export function PageIntro({
   action?: ReactNode;
 }) {
   return (
-    <div className="dash-intro">
+    <div className="dash-intro" data-title-only={!children}>
       <div>
         <h1>{title}</h1>
         {children && <p>{children}</p>}
@@ -65,7 +65,7 @@ export function PageIntro({
 }
 export function GiftLink() {
   return (
-    <Button asChild>
+    <Button asChild className="dash-gift-link">
       <Link href="/offrir">
         Offrir un cadeau <ArrowUpRight aria-hidden="true" />
       </Link>

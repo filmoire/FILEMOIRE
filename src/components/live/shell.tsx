@@ -41,6 +41,7 @@ export function LiveShell({
   return (
     <div
       className="live-workspace dashboard"
+      data-role={role}
       onClickCapture={async (event) => {
         const anchor = (event.target as HTMLElement).closest("a");
         if (

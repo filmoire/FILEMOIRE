@@ -453,12 +453,6 @@ function BuyerDashboard({
                   ? "Un de vos proches a commencé son parcours. Vous pouvez suivre les grandes étapes de son livre."
                   : "Les prochaines étapes de vos cadeaux apparaîtront ici."}
               </p>
-              <Link
-                href={dashboardHref("buyer", "suivi")}
-                className="underline"
-              >
-                Voir l’avancement
-              </Link>
             </section>
             <section className="dash-aside">
               <h3>Un livre à partager</h3>
