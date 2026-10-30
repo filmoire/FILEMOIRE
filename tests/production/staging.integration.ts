@@ -4,6 +4,7 @@ import {
   beforeAll,
   beforeEach,
   expect,
+  describe,
   it,
   vi,
 } from "vitest";
@@ -47,49 +48,60 @@ function privateStaging() {
   }))
     vi.stubEnv(name, value);
 }
-it("lets the allowed account sign in and blocks outsiders before queueing email", async () => {
-  privateStaging();
-  await expect(requestLogin("outsider@example.test")).rejects.toMatchObject({
-    status: 403,
+function resendTestAccess() {
+  vi.stubEnv("RESEND_TEST_RECIPIENT", "allowed@example.test");
+  vi.stubEnv("EMAIL_PROVIDER", "resend");
+  vi.stubEnv("EMAIL_FROM", "Filemoire test <onboarding@resend.dev>");
+}
+
+describe.each([
+  ["private staging", privateStaging],
+  ["online Resend testing", resendTestAccess],
+] as const)("%s", (_name, restrictAccess) => {
+  it("lets the allowed account sign in and blocks outsiders before queueing email", async () => {
+    restrictAccess();
+    await expect(requestLogin("outsider@example.test")).rejects.toMatchObject({
+      status: 403,
+    });
+    expect(
+      (await pool().query("SELECT count(*)::int AS n FROM login_tokens"))
+        .rows[0].n,
+    ).toBe(0);
+    expect(
+      (await pool().query("SELECT count(*)::int AS n FROM jobs")).rows[0].n,
+    ).toBe(0);
+    await requestLogin("allowed@example.test");
+    const login = await consumeLogin(
+      await newestEmailToken("allowed@example.test"),
+    );
+    expect((await currentAccount(login.session))?.email).toBe(
+      "allowed@example.test",
+    );
   });
-  expect(
-    (await pool().query("SELECT count(*)::int AS n FROM login_tokens")).rows[0]
-      .n,
-  ).toBe(0);
-  expect(
-    (await pool().query("SELECT count(*)::int AS n FROM jobs")).rows[0].n,
-  ).toBe(0);
-  await requestLogin("allowed@example.test");
-  const login = await consumeLogin(
-    await newestEmailToken("allowed@example.test"),
-  );
-  expect((await currentAccount(login.session))?.email).toBe(
-    "allowed@example.test",
-  );
-});
-it("revokes existing sessions when an email is removed from staging access", async () => {
-  await requestLogin("outsider@example.test");
-  const login = await consumeLogin(
-    await newestEmailToken("outsider@example.test"),
-  );
-  expect(await currentAccount(login.session)).not.toBeNull();
-  privateStaging();
-  expect(await currentAccount(login.session)).toBeNull();
-});
-it("rejects an already-issued login link and rolls back token consumption when access is revoked", async () => {
-  await requestLogin("outsider@example.test");
-  const token = await newestEmailToken("outsider@example.test");
-  privateStaging();
-  await expect(consumeLogin(token)).rejects.toMatchObject({ status: 403 });
-  expect(
-    (
-      await pool().query(
-        "SELECT used_at FROM login_tokens WHERE token_hash=$1",
-        [hash(token)],
-      )
-    ).rows[0].used_at,
-  ).toBeNull();
-  expect(
-    (await pool().query("SELECT count(*)::int AS n FROM accounts")).rows[0].n,
-  ).toBe(0);
+  it("revokes existing sessions when an email is removed from test access", async () => {
+    await requestLogin("outsider@example.test");
+    const login = await consumeLogin(
+      await newestEmailToken("outsider@example.test"),
+    );
+    expect(await currentAccount(login.session)).not.toBeNull();
+    restrictAccess();
+    expect(await currentAccount(login.session)).toBeNull();
+  });
+  it("rejects an already-issued login link and rolls back token consumption when access is revoked", async () => {
+    await requestLogin("outsider@example.test");
+    const token = await newestEmailToken("outsider@example.test");
+    restrictAccess();
+    await expect(consumeLogin(token)).rejects.toMatchObject({ status: 403 });
+    expect(
+      (
+        await pool().query(
+          "SELECT used_at FROM login_tokens WHERE token_hash=$1",
+          [hash(token)],
+        )
+      ).rows[0].used_at,
+    ).toBeNull();
+    expect(
+      (await pool().query("SELECT count(*)::int AS n FROM accounts")).rows[0].n,
+    ).toBe(0);
+  });
 });

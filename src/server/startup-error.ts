@@ -15,6 +15,8 @@ const safeReasons = new Set([
   "Free beta requires explicit account and media limits",
   "Free beta keeps paid integrations disabled",
   "Free beta requires a verified Resend sender domain",
+  "Free beta requires a verified Resend sender domain or restricted test access",
+  "Resend test access requires the onboarding@resend.dev sender",
   "Backend deployments require the frontend APP_ORIGIN",
   "Hosted launcher and deployment stage must match",
   "Hosted applications require a restricted runtime database role",

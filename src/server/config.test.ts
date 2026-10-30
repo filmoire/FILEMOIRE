@@ -19,6 +19,7 @@ beforeEach(() => {
     S3_ENDPOINT: "https://storage.example.test",
     EMAIL_PROVIDER: "resend",
     RESEND_API_KEY: "fixture",
+    RESEND_TEST_RECIPIENT: "",
     EMAIL_FROM: "test@example.test",
     LEGAL_APPROVED: "false",
     COMMERCIAL_APPROVED: "false",
@@ -117,6 +118,31 @@ describe("hosted deployment boundaries", () => {
     vi.stubEnv("CHECKOUT_ENABLED", "false");
     vi.stubEnv("LEGAL_APPROVED", "false");
     expect(validateFreeBeta).toThrow(/Legal/);
+  });
+  it("allows the shared sender only with one explicit test recipient", () => {
+    vi.stubEnv("LEGAL_APPROVED", "true");
+    vi.stubEnv("PERSONAL_DRAFTS_ENABLED", "true");
+    vi.stubEnv("ACCOUNT_LIMIT", "30");
+    vi.stubEnv("PROJECT_STORAGE_LIMIT_MB", "100");
+    vi.stubEnv("TOTAL_MEDIA_LIMIT_MB", "1024");
+    vi.stubEnv("EMAIL_FROM", "Filemoire test <onboarding@resend.dev>");
+    expect(validateFreeBeta).toThrow(/sender/);
+    vi.stubEnv("RESEND_TEST_RECIPIENT", "owner@example.test");
+    expect(validateFreeBeta).not.toThrow();
+    vi.stubEnv("RESEND_TEST_RECIPIENT", "one@example.test,two@example.test");
+    expect(validateFreeBeta).toThrow(/configuration/);
+    vi.stubEnv("RESEND_TEST_RECIPIENT", "owner@example.test");
+    vi.stubEnv("EMAIL_FROM", "Filemoire <noreply@filemoire.fr>");
+    expect(validateFreeBeta).toThrow(/onboarding@resend.dev/);
+    vi.stubEnv("EMAIL_FROM", "onboarding@resend.dev");
+    vi.stubEnv("EMAIL_PROVIDER", "smtp");
+    expect(validateFreeBeta).toThrow(/onboarding@resend.dev/);
+    vi.stubEnv("EMAIL_PROVIDER", "resend");
+    vi.stubEnv("LEGAL_APPROVED", "false");
+    expect(validateFreeBeta).toThrow(/Legal/);
+    vi.stubEnv("LEGAL_APPROVED", "true");
+    vi.stubEnv("CHECKOUT_ENABLED", "true");
+    expect(validateFreeBeta).toThrow(/paid/);
   });
   it.each(["0", "-1", "invalid", "1.5"])(
     "rejects invalid capacity limits %s",

@@ -23,6 +23,7 @@ beforeEach(() => {
     PRINT_SPEC_APPROVED: "false",
     EMAIL_PROVIDER: "resend",
     RESEND_API_KEY: "test-secret",
+    RESEND_TEST_RECIPIENT: "",
     EMAIL_FROM: "sender@example.test",
     STRIPE_SECRET_KEY: "",
     STRIPE_WEBHOOK_SECRET: "",
@@ -97,13 +98,11 @@ it.each([
   async (status, retryable) => {
     vi.stubGlobal(
       "fetch",
-      vi
-        .fn()
-        .mockResolvedValue(
-          new Response("private address and login token", {
-            status: Number(status),
-          }),
-        ),
+      vi.fn().mockResolvedValue(
+        new Response("private address and login token", {
+          status: Number(status),
+        }),
+      ),
     );
     const error = await sendEmail(message).catch((error: unknown) => error);
     expect(error).toBeInstanceOf(EmailProviderError);
@@ -135,4 +134,23 @@ it("preserves SMTP delivery and its stable message identifier", async () => {
       messageId: "<queued-job-id@staging.example.test>",
     }),
   );
+});
+it("restricts all mail to the test recipient even outside private staging", async () => {
+  vi.stubEnv("DEPLOYMENT_STAGE", "production");
+  vi.stubEnv("NEXT_PUBLIC_DEPLOYMENT_STAGE", "production");
+  vi.stubEnv("RESEND_TEST_RECIPIENT", message.to);
+  vi.stubEnv("EMAIL_FROM", "Filemoire test <onboarding@resend.dev>");
+  const fetch = vi.fn().mockResolvedValue(Response.json({ id: "provider-id" }));
+  vi.stubGlobal("fetch", fetch);
+  await expect(
+    sendEmail({ ...message, to: "outsider@example.test" }),
+  ).rejects.toThrow(/not allowed/);
+  expect(fetch).not.toHaveBeenCalled();
+  expect(smtpSend).not.toHaveBeenCalled();
+  await sendEmail(message);
+  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(JSON.parse(fetch.mock.calls[0][1].body)).toMatchObject({
+    from: "Filemoire test <onboarding@resend.dev>",
+    to: [message.to],
+  });
 });

@@ -1,5 +1,5 @@
 import { createTransport } from "nodemailer";
-import { stagingEmailAllowed } from "@/lib/deployment";
+import { deploymentEmailAllowed } from "@/lib/deployment";
 import { config, configured } from "./config";
 
 /** Provider response bodies can contain addresses or credentials; keep diagnostics bounded. */
@@ -20,8 +20,8 @@ export async function sendEmail(message: {
 }) {
   const c = config();
   // Also guard queued invitations and reminders, not only login requests.
-  if (!stagingEmailAllowed(message.to))
-    throw new Error("Staging email recipient is not allowed");
+  if (!deploymentEmailAllowed(message.to))
+    throw new Error("Test email recipient is not allowed");
   const body = {
     from: configured("EMAIL_FROM"),
     to: [message.to],

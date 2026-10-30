@@ -8,8 +8,19 @@ export function stagingEmails() {
     .filter(Boolean);
 }
 
-export function stagingEmailAllowed(email: string) {
-  return !isStaging() || stagingEmails().includes(email.trim().toLowerCase());
+export function deploymentEmailAllowed(email: string) {
+  const normalized = email.trim().toLowerCase();
+  const testRecipient = process.env.RESEND_TEST_RECIPIENT?.trim().toLowerCase();
+  if (testRecipient && normalized !== testRecipient) return false;
+  return !isStaging() || stagingEmails().includes(normalized);
+}
+
+export function isResendTestSender(sender: string | undefined) {
+  const normalized = sender?.trim().toLowerCase() ?? "";
+  return (
+    normalized === "onboarding@resend.dev" ||
+    /^[^<>\r\n]+<onboarding@resend\.dev>$/.test(normalized)
+  );
 }
 
 export function stagingAccessConfigured() {

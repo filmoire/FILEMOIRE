@@ -13,7 +13,7 @@ import {
   audit,
 } from "./security";
 import { enqueue } from "./jobs";
-import { stagingEmailAllowed } from "@/lib/deployment";
+import { deploymentEmailAllowed } from "@/lib/deployment";
 import { assertSignupCapacity } from "./capacity";
 export type Account = {
   id: string;
@@ -35,7 +35,7 @@ export async function currentAccount(token?: string): Promise<Account | null> {
   );
   if (!rows[0]) return null;
   const a = rows[0];
-  if (!stagingEmailAllowed(a.email)) return null;
+  if (!deploymentEmailAllowed(a.email)) return null;
   return {
     id: a.id,
     email: a.email,
@@ -63,9 +63,9 @@ export function requireAdmin(a: Account) {
 }
 export async function requestLogin(email: string) {
   assert(
-    stagingEmailAllowed(email),
+    deploymentEmailAllowed(email),
     403,
-    "Accès à la préproduction réservé aux comptes autorisés.",
+    "Cet accès de test est réservé aux adresses e-mail autorisées.",
   );
   await rateLimit(`login:${email}`, 5, 900);
   await assertSignupCapacity(pool(), email);
@@ -125,9 +125,9 @@ export async function consumeLogin(token: string) {
     );
     assert(rows[0], 400, "Ce lien a expiré ou a déjà été utilisé.");
     assert(
-      stagingEmailAllowed(rows[0].email),
+      deploymentEmailAllowed(rows[0].email),
       403,
-      "Accès à la préproduction réservé aux comptes autorisés.",
+      "Cet accès de test est réservé aux adresses e-mail autorisées.",
     );
     await assertSignupCapacity(db, rows[0].email);
     const a = await db.query(

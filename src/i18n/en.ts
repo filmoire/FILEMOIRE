@@ -1,5 +1,6 @@
 /* Dictionnaire FR → EN (clé = texte français). Généré par scripts/i18n-merge.mjs puis relu. */
 export const EN: Record<string, string> = {
+  "Cet accès de test est réservé aux adresses e-mail autorisées.": "This test is limited to approved email addresses.",
   "Votre demande est en cours d’envoi.": "Your sign-in link is being sent.",
   "Envoi du lien…": "Sending your link…",
   "Votre lien a été envoyé": "Your sign-in link has been sent",

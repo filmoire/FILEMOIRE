@@ -1,4 +1,5 @@
 import { config } from "./config";
+import { isResendTestSender } from "@/lib/deployment";
 
 /** This profile never enables sales or bypasses the production legal/HTTPS gates. */
 export function validateFreeBeta() {
@@ -38,7 +39,10 @@ export function validateFreeBeta() {
     throw new Error("Free beta keeps paid integrations disabled");
   if (
     c.EMAIL_PROVIDER !== "resend" ||
-    /@resend\.dev\b/i.test(c.EMAIL_FROM ?? "")
+    (/@resend\.dev\b/i.test(c.EMAIL_FROM ?? "") &&
+      !(c.RESEND_TEST_RECIPIENT && isResendTestSender(c.EMAIL_FROM)))
   )
-    throw new Error("Free beta requires a verified Resend sender domain");
+    throw new Error(
+      "Free beta requires a verified Resend sender domain or restricted test access",
+    );
 }

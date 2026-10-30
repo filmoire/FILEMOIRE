@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { stagingAccessConfigured, stagingEmails } from "@/lib/deployment";
+import {
+  isResendTestSender,
+  stagingAccessConfigured,
+  stagingEmails,
+} from "@/lib/deployment";
 
 const schema = z.object({
   DEPLOYMENT_STAGE: z.enum(["production", "staging"]).default("production"),
@@ -19,6 +23,7 @@ const schema = z.object({
   SMTP_URL: z.string().optional(),
   EMAIL_PROVIDER: z.enum(["smtp", "resend"]).default("smtp"),
   RESEND_API_KEY: z.string().optional(),
+  RESEND_TEST_RECIPIENT: z.string().trim().email().optional(),
   EMAIL_FROM: z.string().optional(),
   ACCOUNT_LIMIT: z.coerce.number().int().positive().max(10000).optional(),
   PROJECT_STORAGE_LIMIT_MB: z.coerce
@@ -46,6 +51,13 @@ export function config() {
   });
   if (!parsed.success) throw new Error("Invalid server configuration");
   const c = parsed.data;
+  if (
+    c.RESEND_TEST_RECIPIENT &&
+    (c.EMAIL_PROVIDER !== "resend" || !isResendTestSender(c.EMAIL_FROM))
+  )
+    throw new Error(
+      "Resend test access requires the onboarding@resend.dev sender",
+    );
   if (c.DEPLOYMENT_STAGE === "staging") {
     if (
       process.env.APP_MODE !== "live" ||
