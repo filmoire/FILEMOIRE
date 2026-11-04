@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 /** Jetons de la charte Filémoire (dossier de déploiement, diapositive 4). */
-const config: Config = {
+const config = {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
@@ -35,5 +35,5 @@ const config: Config = {
     },
   },
   plugins: [],
-};
+} satisfies Config;
 export default config;

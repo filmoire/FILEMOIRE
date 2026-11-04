@@ -22,7 +22,7 @@ RESEND_TEST_RECIPIENT=admin-dev@filemoire.fr
 ```
 
 Keep the existing private `RESEND_API_KEY`, database/storage credentials,
-`APP_ORIGIN=https://filemoire-omega.vercel.app`, production stage settings,
+`APP_ORIGIN=https://www.filemoire.fr`, production stage settings,
 and `node dist-worker/beta.cjs` start command. Keep checkout and printing disabled.
 No new Vercel environment variable is required. Rebuild and deploy the latest
 commit on Render; restarting an old release does not install this feature.
@@ -32,7 +32,7 @@ is created. Existing sessions and unconsumed links for other addresses stop
 working while this setting is enabled. Pending invitations and reminders to
 other recipients are blocked at the email adapter. Those records are not deleted.
 
-After deployment, open `/acces` on the Vercel site and request a fresh link for
+After deployment, open `https://www.filemoire.fr/acces` and request a fresh link for
 `admin-dev@filemoire.fr`. Resend acceptance confirms submission to the provider;
 check the real mailbox (and spam folder), then open the one-use link and confirm
 sign-in. The link expires after 15 minutes. Use the workspace role selector to
@@ -47,3 +47,8 @@ Multi-person invitation flows require local Mailpit testing or a verified domain
 3. Redeploy and request fresh sign-in links. Previously failed emails are not
    automatically replayed. Removing this restriction makes other existing
    sessions eligible again and restores normal account access.
+
+Do not remove the restriction before the domain is verified and the public
+account launch is approved. Record provider acceptance, actual inbox delivery,
+and successful use of the link as separate checks. Test a second consenting
+recipient and invitation acceptance before declaring public email complete.

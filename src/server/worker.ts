@@ -7,6 +7,7 @@ import { config, configured } from "./config";
 import { assert, seal, unseal, id, hash } from "./security";
 import { deleteObject, getObject } from "./storage";
 import { deleteMedia } from "./media";
+import { renderEmail } from "./email-templates";
 
 export async function runJob(job: Job) {
   if (job.kind === "email") {
@@ -51,6 +52,8 @@ export async function runJob(job: Job) {
       to: String(job.payload.to),
       subject: String(job.payload.subject),
       text: String(job.payload.text),
+      html: typeof job.payload.html === "string" ? job.payload.html : undefined,
+      legacyPlainText: typeof job.payload.html !== "string",
     });
     if (job.payload.projectId && job.payload.invitationHash)
       await transaction(async (db) => {
@@ -335,10 +338,13 @@ export async function scheduleDue() {
                 questionId: q.id,
                 reminder: q.remindersSent > 0,
                 to: p.narrator.email,
-                subject: q.remindersSent
-                  ? "Un souvenir, à votre rythme"
-                  : "Votre prochaine question Filémoire",
-                text: `${q.text}\nRépondez à votre rythme : ${config().APP_ORIGIN}/espace\nVous pouvez désactiver les rappels dans vos préférences.`,
+                ...renderEmail(
+                  {
+                    kind: q.remindersSent ? "reminder" : "question",
+                    question: q.text,
+                  },
+                  config().APP_ORIGIN,
+                ),
               },
               `question:${p.id}:${q.id}:${q.remindersSent}`,
             );

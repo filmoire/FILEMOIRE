@@ -10,6 +10,7 @@ import { config, configured } from "./config";
 import { assert, audit, hash, id, seal, secret, unseal } from "./security";
 import { enqueue } from "./jobs";
 import { giftDeliveryTime } from "./time";
+import { renderEmail } from "./email-templates";
 const stripe = () => new Stripe(configured("STRIPE_SECRET_KEY"));
 export const checkoutSchema = z
   .object({
@@ -247,8 +248,17 @@ async function fulfill(db: DB, session: Stripe.Checkout.Session) {
       projectId: p.id,
       invitationHash: hash(token),
       to: v.recipient.email,
-      subject: "Un livre de souvenirs vous attend",
-      text: `${order.buyerName} vous offre Filémoire.\n${v.message}\nConnectez-vous avec ${v.recipient.email}, puis acceptez votre invitation : ${config().APP_ORIGIN}/rejoindre#token=${token}`,
+      ...renderEmail(
+        {
+          kind: "gift-invitation",
+          token,
+          email: v.recipient.email,
+          name: v.recipient.firstName,
+          buyerName: order.buyerName,
+          message: v.message,
+        },
+        config().APP_ORIGIN,
+      ),
     },
     `gift:${row.id}`,
     sendAt,
@@ -258,8 +268,14 @@ async function fulfill(db: DB, session: Stripe.Checkout.Session) {
     "email",
     {
       to: row.buyer_email,
-      subject: "Votre commande Filémoire est confirmée",
-      text: `Commande ${order.ref}. Montant payé : ${(row.total / 100).toFixed(2)} EUR. Retrouvez votre commande dans ${config().APP_ORIGIN}/espace`,
+      ...renderEmail(
+        {
+          kind: "order-confirmation",
+          reference: order.ref,
+          totalCents: row.total,
+        },
+        config().APP_ORIGIN,
+      ),
     },
     `receipt:${row.id}`,
   );

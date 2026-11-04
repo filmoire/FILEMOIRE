@@ -1,13 +1,45 @@
 # Production implementation status
 
-The requested target is now Vercel for the frontend and Render for the API/worker,
-with Neon and Resend unchanged. The owner asked to prepare this split and decide
-the Vercel plan later. See [VERCEL-RENDER.md](VERCEL-RENDER.md) for current setup
-and remaining launch gates; no new cloud deployment has been made.
+## Current launch work — updated 4 November 2026
 
-Updated 27 October 2026. **The application is not approved for public production, and all 15 steps are not complete.** A substantial server-backed implementation and local verification are now in place. The remaining gates require provider access, business/legal decisions, independent testing and real people/physical books.
+**Deployed preview; public commercial launch is not complete.** The canonical
+frontend is `https://www.filemoire.fr`, backed by Render and Neon. The origin
+correction was deployed on Render as `dep-dbkr7sp9dmos739mldq0`, commit `d0562d6`.
+See [VERCEL-RENDER.md](VERCEL-RENDER.md) for the split and historical setup steps.
 
-Latest status (28 October 2026): restricted Neon runtime access, private storage round trips, Linux Docker build, local web/worker smoke checks and an authorized local cloud-backup restore have passed. The bounded free beta profile is prepared. The existing Free Render service still runs older commit `c37f9d5` without backend environment settings; the updated release is awaiting secure configuration and deployment. Resend domain `filemoire.fr` has been added, with DNS verification pending. Local checks passed 83 unit tests and 90 integration tests. See [FREE-BETA.md](FREE-BETA.md) and [PUBLIC-LAUNCH.md](PUBLIC-LAUNCH.md). The table below retains the full commercial launch scope; its earlier implementation inventory is not a current provider or dependency audit.
+The owner explicitly chose to retain free preview hosting for now, while keeping
+paid gifts and printed books in the intended launch scope. No paid upgrade or
+real transaction has been authorized. Website deployment, local tests and a
+legal approval flag do not establish approval of the unfinished legal documents.
+
+| Step | Current evidence | What still prevents completion |
+| --- | --- | --- |
+| 1. Public email | On 4 November, all three DNS records matched on both authoritative servers and a public resolver; Resend domain/records now Verified. Direct `noreply@filemoire.fr` test returned 200 and Delivered; deployed login request returned 202, delivery state sent, and Resend Delivered; see [evidence](RESEND-DNS.md) | Confirm inbox placement and use of the login link; app sender/test-recipient settings were not changed. Change sender and remove test restriction together only after public account approval; test a second consenting recipient and invitations |
+| 2. Legal/privacy | Bilingual working draft published | Actual operator details, monitored contact, final terms/retention decisions and owner review; see [LEGAL-DRAFT.md](LEGAL-DRAFT.md) |
+| 3. Hosting | Vercel frontend, Render API/worker and Neon already deployed | Owner retained free preview; business launch still needs an eligible commercial frontend plan/host and reliable continuous worker operation |
+| 4. Live acceptance | 3 November local checks: 118 unit tests, 97 database integration tests, TypeScript, lint, frontend build/isolation verification, worker build and HTTP-only split cookie/origin/4 MiB upload check passed. On 4 November, after initial timeouts, the public homepage and backend health returned 200, sign-in page loaded, and a login email was delivered | Hosted multi-user email, successful link consumption, roles, media and PDF acceptance remain pending; no new full rendered UI pass is claimed |
+| 5. Recovery/monitoring | On 3 November, the existing 28 October snapshot was restored into a temporary network-isolated PostgreSQL 18 container: 22 table counts, four decrypted project payloads and six referenced media hashes passed | Scheduled off-device backups, separate key escrow, deletion reconciliation, live alert ownership and a hosted recovery/rollback drill remain to be configured |
+| 6. Paid gifts/printing | Payment and print adapters and local contract tests exist | Stripe business/test/live setup, approved prices/refund terms, named printer and actual supplier integration/preflight/physical proof; current beta launcher deliberately rejects paid-provider settings |
+
+The local `pnpm` launcher could not verify registry signatures because its
+registry requests failed. Verification above used the already-installed tool
+entry points directly; dependency signatures were not bypassed and no packages
+were installed. These results are not a fresh dependency audit.
+
+The backup restore used the production encryption key, kept separately from the
+backup. It matches the private production env import, not the distinct staging
+key. Keep keys labelled by environment and snapshot compatibility; do not
+replace the production key with the staging key. The temporary restore
+container was removed after verification; no cloud data was contacted or changed.
+
+## Historical implementation inventory
+
+The dated inventory below describes implementation work from October. It is not
+the current provider status, a new dependency audit, or evidence that the real
+pilot, supplier acceptance or commercial review has happened. Earlier notes in
+[FREE-BETA.md](FREE-BETA.md) and [PUBLIC-LAUNCH.md](PUBLIC-LAUNCH.md) also retain
+historical pre-deployment details; the current launch table above supersedes
+their deployment status.
 
 Source control is configured for [filmoire/FILEMOIRE](https://github.com/filmoire/FILEMOIRE). The Verify workflow runs on pushes and pull requests; check [GitHub Actions](https://github.com/filmoire/FILEMOIRE/actions/workflows/verify.yml) for the result on the exact revision being released. Repository publication does not deploy the website.
 
@@ -54,4 +86,7 @@ Checkout defaults closed. Printing defaults closed and additionally requires sup
 - [Launch evidence template](../../deployment/launch-evidence.example.json) and `pnpm check:readiness <evidence-file>`.
 - [Original reference audit](../REFERENCE-AUDIT.md).
 
-No public deployment, email to a real third party, real charge/refund, print purchase or pilot recruitment was performed. The reference HTML and PPTX in Downloads were left untouched.
+At the time of the original October inventory, no public deployment, real
+charge/refund, print purchase or pilot recruitment had been performed. Later
+preview deployments are recorded in the current status above. The reference
+HTML and PPTX in Downloads were left untouched.

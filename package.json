@@ -29,6 +29,7 @@
     "worker": "tsx scripts/production/worker.ts",
     "worker:neon": "node --env-file=.env.local --import tsx scripts/production/worker.ts",
     "build:worker": "node scripts/production/build-worker.mjs",
+    "preview:emails": "tsx scripts/production/preview-emails.ts",
     "check:readiness": "tsx scripts/production/readiness.ts",
     "audit:production": "pnpm audit --prod --audit-level=high"
   },

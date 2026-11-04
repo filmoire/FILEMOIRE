@@ -1,6 +1,7 @@
 import { createTransport } from "nodemailer";
 import { deploymentEmailAllowed } from "@/lib/deployment";
 import { config, configured } from "./config";
+import { renderLegacyEmail } from "./email-templates";
 
 /** Provider response bodies can contain addresses or credentials; keep diagnostics bounded. */
 export class EmailProviderError extends Error {
@@ -17,6 +18,9 @@ export async function sendEmail(message: {
   to: string;
   subject: string;
   text: string;
+  html?: string;
+  /** Pre-template queue retries must keep the original provider payload. */
+  legacyPlainText?: boolean;
 }) {
   const c = config();
   // Also guard queued invitations and reminders, not only login requests.
@@ -27,6 +31,13 @@ export async function sendEmail(message: {
     to: [message.to],
     subject: message.subject,
     text: message.text,
+    ...(!message.legacyPlainText
+      ? {
+          html:
+            message.html ??
+            renderLegacyEmail(message.subject, message.text, c.APP_ORIGIN),
+        }
+      : {}),
   };
   if (c.EMAIL_PROVIDER === "resend") {
     const response = await fetch("https://api.resend.com/emails", {

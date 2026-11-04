@@ -15,6 +15,7 @@ import {
 import { enqueue } from "./jobs";
 import { deploymentEmailAllowed } from "@/lib/deployment";
 import { assertSignupCapacity } from "./capacity";
+import { renderEmail } from "./email-templates";
 export type Account = {
   id: string;
   email: string;
@@ -81,8 +82,7 @@ export async function requestLogin(email: string) {
       {
         to: email,
         loginTokenHash: hash(token),
-        subject: "Votre lien de connexion Filémoire",
-        text: `Connectez-vous avec ce lien valable 15 minutes : ${config().APP_ORIGIN}/acces#token=${token}\nIgnorez cet e-mail si vous ne l’avez pas demandé.`,
+        ...renderEmail({ kind: "login", token }, config().APP_ORIGIN),
       },
       `login:${hash(token)}`,
     );

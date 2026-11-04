@@ -64,6 +64,27 @@ The archive supplied again on 30 October contains buyer, family editor and opera
 
 ## Do's and Don'ts
 
+### Transactional emails — 4 November 2026
+
+`src/server/email-templates.ts` owns the shared email layout and the eight active
+message variants. Its color adapter imports `tailwind.config.ts`, the existing
+public brand owner, rather than maintaining another palette. Cream stationery,
+the illustrated PNG logo, plum headings/buttons and a pale plum personal-message
+panel extend the public sign-in identity. Georgia and Arial replace remote fonts
+for email-client compatibility. The signature is the personal message presented
+as a note with a fine gold edge, followed by “Vos souvenirs restent à vous.”
+
+Emails use a fluid 620px table layout, inline critical styles, a mobile adjustment
+at 480px, meaningful image alt text and a plain-text alternative. One clear
+action is followed by a copyable URL. Dynamic names/messages are escaped; no
+tracking pixels or remote font resources are added. Existing French transactional
+copy remains French; personal messages are never translated. UI language storage
+and email localization are not changed in this work.
+
+The app uses passwordless, single-use sign-in links. The sign-in template is also
+the account-access recovery email; no nonexistent password-reset flow is offered.
+Preview examples contain fictional data and invalid sample tokens only.
+
 - Use actual accessible account data and server counts. Never copy mock names, dates, totals or shipping references into live screens.
 - Preserve narrator authority, MFA, scoped support grants, immutable approved PDFs and unsaved recording protection.
 - Translate interface copy, never a person's name, narrative, caption or cover title.

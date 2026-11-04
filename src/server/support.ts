@@ -4,6 +4,8 @@ import { requireAdmin } from "./auth";
 import { pool, transaction } from "./db";
 import { id, seal, unseal, assert, audit } from "./security";
 import { enqueue } from "./jobs";
+import { config } from "./config";
+import { renderEmail } from "./email-templates";
 export const contactSchema = z
   .object({
     name: z.string().trim().min(2).max(100),
@@ -64,7 +66,13 @@ export async function replySupport(
     await enqueue(
       db,
       "email",
-      { to: request.email, subject: "Votre demande Filémoire", text: v.text },
+      {
+        to: request.email,
+        ...renderEmail(
+          { kind: "support-reply", name: request.name, message: v.text },
+          config().APP_ORIGIN,
+        ),
+      },
       `support-reply:${ticketId}`,
     );
     await db.query(

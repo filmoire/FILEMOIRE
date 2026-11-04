@@ -62,6 +62,7 @@ it("uses HTTPS with a stable idempotency key across retries", async () => {
       to: [message.to],
       subject: message.subject,
       text: message.text,
+      html: expect.stringContaining("Private login link"),
     });
   }
   expect(smtpSend).not.toHaveBeenCalled();
@@ -132,7 +133,27 @@ it("preserves SMTP delivery and its stable message identifier", async () => {
     expect.objectContaining({
       to: [message.to],
       messageId: "<queued-job-id@staging.example.test>",
+      html: expect.stringContaining('alt="Filémoire"'),
     }),
+  );
+});
+it("sends the same rendered HTML and text through Resend and SMTP", async () => {
+  const branded = {
+    ...message,
+    html: "<!doctype html><p>Rendered message</p>",
+  };
+  const fetch = vi.fn().mockResolvedValue(Response.json({ id: "provider-id" }));
+  vi.stubGlobal("fetch", fetch);
+  await sendEmail(branded);
+  expect(JSON.parse(fetch.mock.calls[0][1].body)).toMatchObject({
+    html: branded.html,
+    text: branded.text,
+  });
+  vi.stubEnv("EMAIL_PROVIDER", "smtp");
+  vi.stubEnv("SMTP_URL", "smtp://localhost:1025");
+  await sendEmail(branded);
+  expect(smtpSend).toHaveBeenCalledWith(
+    expect.objectContaining({ html: branded.html, text: branded.text }),
   );
 });
 it("restricts all mail to the test recipient even outside private staging", async () => {

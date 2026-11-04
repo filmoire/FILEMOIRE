@@ -14,6 +14,7 @@ import { pool, transaction, type DB } from "./db";
 import { assert, audit, hash, id, seal, secret, unseal } from "./security";
 import { enqueue } from "./jobs";
 import { config, personalDraftsEnabled } from "./config";
+import { renderEmail } from "./email-templates";
 
 export type ProjectRow = {
   id: string;
@@ -832,8 +833,16 @@ export async function invite(a: Account, projectId: string, input: unknown) {
         projectId,
         invitationHash: hash(token),
         to: v.email,
-        subject: "Votre invitation Filémoire",
-        text: `Vous êtes invité à aider pour un livre familial. Connectez-vous avec ${v.email}, puis acceptez : ${config().APP_ORIGIN}/rejoindre#token=${token}`,
+        ...renderEmail(
+          {
+            kind: "family-invitation",
+            token,
+            email: v.email,
+            name: v.name,
+            role: v.role,
+          },
+          config().APP_ORIGIN,
+        ),
       },
       `invite:${hash(token)}`,
     );
@@ -956,8 +965,15 @@ export async function resendNarratorInvite(a: Account, projectId: string) {
         projectId,
         invitationHash: hash(token),
         to: p.narrator.email,
-        subject: "Votre invitation Filémoire",
-        text: `Un livre de souvenirs vous attend. Connectez-vous avec ${p.narrator.email}, puis acceptez votre invitation : ${config().APP_ORIGIN}/rejoindre#token=${token}`,
+        ...renderEmail(
+          {
+            kind: "invitation-renewed",
+            token,
+            email: p.narrator.email,
+            name: p.narrator.firstName,
+          },
+          config().APP_ORIGIN,
+        ),
       },
       `narrator-invite:${hash(token)}`,
     );

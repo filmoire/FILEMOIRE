@@ -22,6 +22,7 @@ See `DESIGN.md`. Scoped runtime tokens live in `src/app/dashboard.css`; existing
 | Form | Shared Input/Textarea and `live/form.tsx` | Server schemas | Explicit save, client constraint messages | Invalid submit and retry |
 | Scrollbar | Global CSS | DESIGN.md | Native width, token colors, forced colors | Computed styles |
 | Toast | `ui/notifications.tsx` + `lib/toast.ts`; `live/shell.tsx` Message for persistent feedback | This contract | Shared Sonner success/error/info/loading; persistent inline recovery | Delivery unit/integration tests + browser |
+| Transactional email | `server/email-templates.ts`; `server/email.ts` transport; encrypted jobs and worker | Existing auth/invitation/payment/support commands | Eight branded variants, HTML + text, French; passwordless access recovery | Template escaping/link tests, database queue tests, SMTP/Mailpit delivery, mobile/desktop preview |
 | CRUD | `live/client.ts` API + server commands | Server schemas/revisions | Stay inline after save; return to book after creation | E2E |
 | Confirmation | Shared Dialog + live confirmation provider | Existing permission/domain rules | Async confirmation; guarded navigation | Focus, cancel, failure |
 
@@ -38,6 +39,14 @@ Login requests receive an opaque delivery receipt. Queuing shows a neutral pendi
 Use app-owned constraint messages and noValidate in modified forms. Preserve non-sensitive input after errors, focus the first invalid control, prevent duplicate submission and announce pending state. Native select/date popups remain platform-owned. Long textareas keep internal scrolling and sufficient height. Unsaved in-app navigation uses an accessible confirmation; actual tab close retains beforeunload protection. No local narrative cache is added.
 
 ## Permission and mutation boundaries
+
+Email styling does not change recipients, expiry, consent, membership checks,
+payment events, send schedules or idempotency keys. New jobs store their complete
+HTML and text in the existing encrypted payload so retries use stable content.
+Pre-template jobs retain their original text-only provider payload to avoid
+idempotency conflicts. Login and invitation secrets remain URL fragments; previews
+and screenshots must use fictional tokens. An email click does not itself accept
+an invitation or grant a role. Public email access remains a deployment decision.
 
 UI role selection never grants access. Buyer progress respects the narrator preference. Editors receive only current shared content; proposal history displays only their own safe metadata and never restores old private text. Operations display operational metadata; reading a book requires the existing expiring support grant and fresh MFA. Financial, printing and external-email actions retain their existing explicit confirmation and server gates. No external side effects are exercised against real customer data during design testing.
 

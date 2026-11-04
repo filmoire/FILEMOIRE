@@ -1,15 +1,27 @@
 # Vercel frontend + Render backend
 
-Updated on 28 October 2026. The Vercel frontend is publicly accessible at
-`https://filemoire-omega.vercel.app`. Render now has 30 saved environment
-variables, including the restricted database, storage, encryption and Resend
-settings. The Docker command is `node dist-worker/beta.cjs` and health path is
-`/api/v1/health`. After the owner's deployment, health returns 200 both directly
-and through Vercel, confirming a database query succeeds. The legal page still
-contains placeholders; deployment is not evidence of document approval. Resend
-logs reject email with 403 (filemoire.fr is unverified). DNS verification remains
-required before live email delivery can pass. The owner will decide the Vercel
-plan separately.
+Updated on 3 November 2026. The canonical frontend is
+`https://www.filemoire.fr`. The apex domain and previous Vercel alias redirect
+there. Render's `APP_ORIGIN` was updated to this exact origin and deployment
+`dep-dbkr7sp9dmos739mldq0` succeeded on commit `d0562d6`. The backend uses
+`node dist-worker/beta.cjs`, restricted Neon credentials, private object storage
+and health path `/api/v1/health`. Health and origin checks passed after that
+deployment; later launch checks timed out before HTTP connection, so they do
+not establish current availability or diagnose a particular provider failure.
+
+Email remains in restricted Resend testing mode. The three sender-domain DNS
+records were still absent from `ns01.one.com` on 3 November. Completing website
+DNS does not verify email DNS. Follow [RESEND-DNS.md](RESEND-DNS.md), then
+[EMAIL-TESTING.md](EMAIL-TESTING.md) to switch the sender and test delivery.
+The published legal page is a working draft awaiting actual operator details
+and approval. Neither a successful deployment nor an environment flag is
+evidence that this review happened.
+
+The owner chose to retain the **free preview** for now and include paid gifts
+and printed books in the eventual launch. No paid plan upgrade is authorized.
+Sales and printing remain disabled until their separate acceptance checks pass.
+The setup/import sections below retain historical instructions; do not reimport
+an old env file or revert `APP_ORIGIN` when following them.
 
 Login requests now return an opaque queue receipt. The browser polls its status
 for at most 40 seconds of queue waiting, with bounded network timeouts. Queuing
@@ -123,7 +135,9 @@ password gate. A local private file has been prepared at
 It contains 28 settings, including the restricted production database URL,
 its matching existing encryption key and private object-storage credentials,
 `FILEMOIRE_SERVICE=backend`, and
-`APP_ORIGIN=https://filemoire-omega.vercel.app`. It excludes the database owner
+`APP_ORIGIN=https://filemoire-omega.vercel.app` in the original import. That file
+is historical: the current Render value must remain
+`APP_ORIGIN=https://www.filemoire.fr`. It excludes the database owner
 URL and the unconfirmed Resend key. It is a **configuration import**, not an
 approval to launch: `LEGAL_APPROVED` intentionally remains `false`.
 
