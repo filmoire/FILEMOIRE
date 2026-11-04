@@ -43,6 +43,8 @@ import {
 import { createCheckout, refundOrder, stripeWebhook } from "./payments";
 import { configureAudioLink, listen } from "./audio";
 import { requestPrint, updatePrint } from "./printing";
+import { requestWithdrawal, withdrawalSchema } from "./withdrawal";
+import { requireMonitor, workerHealth } from "./monitoring";
 import { prepareProof, proofBytes } from "./proofs";
 import { pool, transaction } from "./db";
 import {
@@ -142,6 +144,11 @@ export async function handleApi(req: Request, path: string[]) {
       await pool().query("SELECT 1");
       return reply({ status: "ok" });
     }
+    if (key === "health/worker" && method === "GET") {
+      requireMonitor(req);
+      const health = await workerHealth();
+      return reply(health, health.status === "ok" ? 200 : 503);
+    }
     if (key === "stripe/webhook" && method === "POST") {
       await stripeWebhook(
         (await bodyBytes(req, 1024 * 1024)).toString(),
@@ -150,6 +157,17 @@ export async function handleApi(req: Request, path: string[]) {
       return reply({ received: true });
     }
     if (method !== "GET" && method !== "HEAD") sameOrigin(req);
+    if (key === "withdrawals" && method === "POST") {
+      const header = process.env.TRUSTED_CLIENT_IP_HEADER;
+      await rateLimit(
+        `withdrawal-ip:${header ? req.headers.get(header) || "unknown" : "shared"}`,
+        header ? 10 : 100,
+        3600,
+      );
+      const value = withdrawalSchema.parse(await json(req));
+      await rateLimit(`withdrawal-email:${value.email}`, 5, 3600);
+      return reply(await requestWithdrawal(value), 201);
+    }
     if (key === "contact" && method === "POST") {
       const header = process.env.TRUSTED_CLIENT_IP_HEADER;
       await rateLimit(

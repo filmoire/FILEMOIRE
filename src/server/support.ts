@@ -19,6 +19,9 @@ export const contactSchema = z
     message: z.string().trim().min(10).max(5000),
   })
   .strict();
+type SupportRequest = Omit<z.infer<typeof contactSchema>, "topic"> & {
+  topic: "question" | "devis" | "retractation";
+};
 export async function contact(input: unknown) {
   const v = contactSchema.parse(input);
   const ticketId = id();
@@ -38,7 +41,7 @@ export async function supportList(a: Account) {
     id: r.id,
     status: r.status,
     createdAt: r.created_at,
-    ...unseal<z.infer<typeof contactSchema>>(r.payload),
+    ...unseal<SupportRequest>(r.payload),
   }));
 }
 export async function replySupport(
@@ -62,7 +65,7 @@ export async function replySupport(
       409,
       "Cette demande a déjà été traitée.",
     );
-    const request = unseal<z.infer<typeof contactSchema>>(r.payload);
+    const request = unseal<SupportRequest>(r.payload);
     await enqueue(
       db,
       "email",

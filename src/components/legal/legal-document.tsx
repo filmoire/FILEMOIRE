@@ -189,6 +189,13 @@ export function LegalDocument() {
             <p className="text-ink-muted" translate="no">
               {t(labels.refundsIntro)}
             </p>
+            <Link
+              className="inline-block underline"
+              href="/retractation"
+              translate="no"
+            >
+              {t(["Se rétracter du contrat", "Withdraw from a contract"])}
+            </Link>
           </div>
           {REFUND_SECTIONS.map((section) => (
             <div key={section.id} className="max-w-3xl space-y-3">

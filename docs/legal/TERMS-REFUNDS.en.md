@@ -1,12 +1,12 @@
 # Filémoire / Intertrad — Terms of use, sales and refunds
 
-Draft dated 4 November 2026 · Version 0.2
+Draft dated 4 November 2026 · Version 0.3
 
 > Working draft — completion and review required. This draft uses the information supplied for Intertrad in Paris, France. The full postal address, legal status, retention periods, provider arrangements and commercial terms still require completion and review before approval. Purchases and printing are not open. Use fictional stories and test files during testing.
 
 - **Operator and data controller — supplied name :** Intertrad — legal identity and status to be confirmed
 - **Legal status or company form; share capital where applicable :** To be specified by Intertrad
-- **Business or registered office address :** Paris, France — street number, street and postcode required
+- **Business or registered office address :** Rue Ordener, 75018 Paris, France — street number required
 - **Registration and VAT number, as applicable :** No number supplied; status and applicability to be confirmed
 - **Person responsible for publication :** To be identified by Intertrad
 - **Support and privacy contact :** admin-dev@filemoire.fr
@@ -64,7 +64,7 @@ For a declined or expired invitation, contact admin-dev@filemoire.fr. Any additi
 
 Where distance-selling withdrawal rights apply, consumers normally have 14 days to notify withdrawal without giving a reason: from contract conclusion for a service, or receipt for goods. The starting day is not counted; an expiry on a Saturday, Sunday, public holiday or non-working day moves to the next working day. Rules for combined offers must be specified for each offer.
 
-A clear request can be sent to admin-dev@filemoire.fr before the deadline; the template below is optional. For contracts concluded through an online interface, a free withdrawal function with durable acknowledgement must also be available under the rules effective since 19 June 2026. That function still needs implementation before relevant sales open; email is not a substitute for it.
+A clear request can be sent to admin-dev@filemoire.fr before the deadline; the template below is optional. For contracts concluded through an online interface, a free withdrawal function with durable acknowledgement must also be available under the rules effective since 19 June 2026. The “Withdraw from a contract” form records a declaration, offers a dated acknowledgement to download and queues an email copy. The team then checks the contract and applicable rights; the acknowledgement does not confirm a completed refund. Legal review and commercial acceptance testing remain required before sales open.
 
 ## 4. Started services and digital content
 

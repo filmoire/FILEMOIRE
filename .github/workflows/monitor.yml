@@ -24,3 +24,8 @@ jobs:
         run: node --test scripts/production/monitor.test.mjs
       - name: Check deployed website
         run: node scripts/production/monitor.mjs
+      - name: Check worker when continuous hosting is configured
+        if: ${{ always() && vars.FILEMOIRE_WORKER_MONITOR_ENABLED == 'true' }}
+        env:
+          MONITOR_TOKEN: ${{ secrets.FILEMOIRE_MONITOR_TOKEN }}
+        run: node scripts/production/monitor-worker.mjs

@@ -1,12 +1,12 @@
 # Filémoire / Intertrad — Politique de confidentialité
 
-Projet du 4 novembre 2026 · Version 0.2
+Projet du 4 novembre 2026 · Version 0.3
 
 > Document de travail — à compléter et à valider. Ce projet reprend les informations communiquées pour Intertrad, à Paris, France. L’adresse postale complète, le statut juridique, les durées de conservation, les engagements des prestataires et les conditions commerciales restent à compléter et à faire relire avant validation. Les achats et impressions ne sont pas ouverts. Pendant les essais, utilisez des récits fictifs et des fichiers de test.
 
 - **Éditeur et responsable du traitement — nom communiqué :** Intertrad — dénomination et statut juridique à confirmer
 - **Statut ou forme juridique ; capital social si applicable :** À préciser par Intertrad
-- **Adresse professionnelle ou siège social :** Paris, France — numéro, voie et code postal à compléter
+- **Adresse professionnelle ou siège social :** Rue Ordener, 75018 Paris, France — numéro de voie à compléter
 - **Immatriculation et numéro de TVA, selon le statut :** Aucun numéro fourni ; situation et applicabilité à confirmer
 - **Responsable de la publication :** À désigner par Intertrad
 - **Contact support et confidentialité :** admin-dev@filemoire.fr

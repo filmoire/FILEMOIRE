@@ -26,6 +26,7 @@ const LIVE_TITLES: Record<string, string> = {
   "/rejoindre": "Un livre vous attend",
   "/ecoute": "Écouter un souvenir",
   "/legal": "Confidentialité et conditions",
+  "/retractation": "Se rétracter du contrat",
   "/comment-ca-marche": "Comment ça marche",
   "/offres": "Offres et tarifs",
   "/livre-exemple": "Livre exemple",
@@ -48,13 +49,13 @@ function LiveProviders({ children }: { children: ReactNode }) {
     };
     fix();
     const observer = new MutationObserver(fix);
-    const title = document.querySelector("title");
-    if (title)
-      observer.observe(title, {
-        childList: true,
-        characterData: true,
-        subtree: true,
-      });
+    // Next may replace the title node after streaming metadata. Observe its
+    // parent too so the selected language survives that replacement.
+    observer.observe(document.head, {
+      childList: true,
+      characterData: true,
+      subtree: true,
+    });
     return () => observer.disconnect();
   }, [lang, pathname]);
   // Live page roots subscribe to language changes without remounting their forms

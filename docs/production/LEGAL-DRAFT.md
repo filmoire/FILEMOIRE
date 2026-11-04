@@ -13,7 +13,7 @@ under `docs/legal/PRIVACY-POLICY.{fr,en}.md` and
 ## Details supplied by the owner
 
 - Name: **Intertrad**. Its exact legal identity/form has not been verified.
-- Location: **Paris, France**. Street address and postcode remain missing.
+- Location: **Rue Ordener, 75018 Paris, France**. Street/building number remains missing.
 - Registration/VAT: owner answered **“no”**. This is recorded as no number
   supplied, not as a claim of exemption or that registration is unnecessary.
 - Support/privacy email: **admin-dev@filemoire.fr**, now explicitly designated
@@ -70,10 +70,10 @@ no price, printer, delivery promise or discretionary refund benefit is invented.
 - Classify each digital/service/physical component. Implement any required
   separate express early-performance/withdrawal acknowledgements and durable
   confirmations; approving a PDF must not silently waive consumer rights.
-- Implement and test the free customer-facing online withdrawal function with
-  durable acknowledgement required for relevant online contracts from
-  19 June 2026 (Consumer Code L221-21). The current admin-only refund endpoint
-  does not provide this customer function. Email alone is not its substitute.
+- Complete commercial/legal acceptance of the implemented customer-facing
+  online withdrawal function and durable acknowledgement, including live
+  delivery and operations handling. `/retractation` and its receipt were
+  locally tested; implementation alone is not legal approval.
 - Supply a return address/process, including who pays permissible return costs.
   Final terms need the applicable statutory guarantee information panels
   under decree 2022-946; generic guarantee text is not the final required panel.
@@ -102,3 +102,7 @@ The legal review remains a separate owner responsibility.
 - https://www.legifrance.gouv.fr/eli/decret/2022/6/29/2022-946/jo/texte
 
 These sources guide the draft; they do not approve Filemoire or its configuration.
+
+## 4 November follow-up
+
+The owner supplied Rue Ordener, 75018 Paris, France. Draft v0.3 includes it, with the street/building number still explicitly missing. The customer withdrawal form and dated downloadable/queued-email receipt are implemented and locally tested; final legal/commercial acceptance and live delivery validation remain pending. No approval flag was changed. See LAUNCH-HANDOFF.md.

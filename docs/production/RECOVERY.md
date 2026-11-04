@@ -96,3 +96,7 @@ Therefore the following remain pending:
   cutover/rollback rehearsal.
 
 Do not describe the successful restore drill as completion of these items.
+
+## Additional local preparation
+
+The age-encrypted archive helper and protected worker/queue monitor are now implemented and tested. No private backup destination/vault or live monitor credential has been configured. See [LAUNCH-HANDOFF.md](LAUNCH-HANDOFF.md) for commands, safeguards and activation steps. These additions do not change the pending off-device backup, alert-delivery or cutover status above.

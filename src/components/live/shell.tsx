@@ -28,7 +28,7 @@ export function LiveShell({
   view?: string;
   roleSwitcher?: ReactNode;
 }) {
-  useLang((s) => s.lang);
+  const lang = useLang((s) => s.lang);
   const router = useRouter();
   const [error, setError] = useState("");
   const [signingOut, setSigningOut] = useState(false);
@@ -115,6 +115,11 @@ export function LiveShell({
         <Logo href={dashboardHref(role)} />
         <p>Vos souvenirs restent à vous.</p>
         <div className="dash-footer-actions">
+          <Link href="/retractation" translate="no">
+            {lang === "en"
+              ? "Withdraw from a contract"
+              : "Se rétracter du contrat"}
+          </Link>
           <Button asChild variant="outline" size="sm">
             <Link href="/legal">Confidentialité</Link>
           </Button>

@@ -1,12 +1,12 @@
 # Filémoire / Intertrad — Privacy policy
 
-Draft dated 4 November 2026 · Version 0.2
+Draft dated 4 November 2026 · Version 0.3
 
 > Working draft — completion and review required. This draft uses the information supplied for Intertrad in Paris, France. The full postal address, legal status, retention periods, provider arrangements and commercial terms still require completion and review before approval. Purchases and printing are not open. Use fictional stories and test files during testing.
 
 - **Operator and data controller — supplied name :** Intertrad — legal identity and status to be confirmed
 - **Legal status or company form; share capital where applicable :** To be specified by Intertrad
-- **Business or registered office address :** Paris, France — street number, street and postcode required
+- **Business or registered office address :** Rue Ordener, 75018 Paris, France — street number required
 - **Registration and VAT number, as applicable :** No number supplied; status and applicability to be confirmed
 - **Person responsible for publication :** To be identified by Intertrad
 - **Support and privacy contact :** admin-dev@filemoire.fr

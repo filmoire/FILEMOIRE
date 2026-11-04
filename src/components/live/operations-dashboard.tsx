@@ -266,7 +266,11 @@ function OverviewPanel() {
               >
                 <span>
                   <span className="dash-quiet">
-                    {ticket.topic === "devis" ? "Demande de devis" : "Question"}{" "}
+                    {ticket.topic === "retractation"
+                      ? "Rétractation"
+                      : ticket.topic === "devis"
+                        ? "Demande de devis"
+                        : "Question"}{" "}
                     · {ticket.id.slice(0, 8).toUpperCase()}
                   </span>
                   <br />
@@ -564,14 +568,20 @@ function RecordsPanel({ view }: { view: string }) {
                 <div className="dash-actions justify-between mb-3 dash-quiet dash-sans text-sm">
                   <span>
                     {row.id.slice(0, 8).toUpperCase()} ·{" "}
-                    {row.topic === "devis" ? "Devis" : "Question"}
+                    {row.topic === "retractation"
+                      ? "Rétractation"
+                      : row.topic === "devis"
+                        ? "Devis"
+                        : "Question"}
                   </span>
                   <small>{dateLabel(row.created_at)}</small>
                 </div>
                 <h2>
-                  {row.topic === "devis"
-                    ? "Demande de devis"
-                    : "Demande de support"}
+                  {row.topic === "retractation"
+                    ? "Déclaration de rétractation"
+                    : row.topic === "devis"
+                      ? "Demande de devis"
+                      : "Demande de support"}
                 </h2>
                 <p translate="no" className="dash-quiet text-sm mb-4">
                   {row.name} · {row.email}

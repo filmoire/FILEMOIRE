@@ -1,12 +1,12 @@
 # Filémoire / Intertrad — Conditions d’utilisation, ventes et remboursements
 
-Projet du 4 novembre 2026 · Version 0.2
+Projet du 4 novembre 2026 · Version 0.3
 
 > Document de travail — à compléter et à valider. Ce projet reprend les informations communiquées pour Intertrad, à Paris, France. L’adresse postale complète, le statut juridique, les durées de conservation, les engagements des prestataires et les conditions commerciales restent à compléter et à faire relire avant validation. Les achats et impressions ne sont pas ouverts. Pendant les essais, utilisez des récits fictifs et des fichiers de test.
 
 - **Éditeur et responsable du traitement — nom communiqué :** Intertrad — dénomination et statut juridique à confirmer
 - **Statut ou forme juridique ; capital social si applicable :** À préciser par Intertrad
-- **Adresse professionnelle ou siège social :** Paris, France — numéro, voie et code postal à compléter
+- **Adresse professionnelle ou siège social :** Rue Ordener, 75018 Paris, France — numéro de voie à compléter
 - **Immatriculation et numéro de TVA, selon le statut :** Aucun numéro fourni ; situation et applicabilité à confirmer
 - **Responsable de la publication :** À désigner par Intertrad
 - **Contact support et confidentialité :** admin-dev@filemoire.fr
@@ -64,7 +64,7 @@ En cas de refus ou d’expiration, contactez admin-dev@filemoire.fr. La règle c
 
 Lorsqu’un droit de rétractation s’applique à une vente à distance, le consommateur dispose en principe de 14 jours pour notifier sa décision sans motif : à compter de la conclusion du contrat pour un service, et de la réception pour un bien. Le jour de départ n’est pas compté ; une échéance tombant un samedi, dimanche ou jour férié ou chômé est reportée au premier jour ouvrable suivant. Les règles propres aux offres combinées devront être précisées dans chaque offre.
 
-Une demande claire peut être adressée à admin-dev@filemoire.fr avant l’expiration du délai ; le modèle ci-dessous peut être utilisé sans être obligatoire. Pour les contrats conclus sur une interface en ligne, une fonctionnalité gratuite de rétractation et son accusé de réception sur support durable doivent aussi être disponibles selon les règles en vigueur depuis le 19 juin 2026. Cette fonctionnalité reste à mettre en place avant l’ouverture des ventes concernées ; l’adresse e-mail ne la remplace pas.
+Une demande claire peut être adressée à admin-dev@filemoire.fr avant l’expiration du délai ; le modèle ci-dessous peut être utilisé sans être obligatoire. Pour les contrats conclus sur une interface en ligne, une fonctionnalité gratuite de rétractation et son accusé de réception sur support durable doivent aussi être disponibles selon les règles en vigueur depuis le 19 juin 2026. Le formulaire « Se rétracter du contrat » permet d’enregistrer une déclaration, de télécharger un accusé daté et d’en demander l’envoi par e-mail. L’équipe vérifie ensuite le contrat et les droits applicables ; cet accusé ne confirme pas un remboursement exécuté. La validation juridique et les essais commerciaux restent nécessaires avant l’ouverture des ventes.
 
 ## 4. Service commencé et contenu numérique
 

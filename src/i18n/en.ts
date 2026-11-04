@@ -1,5 +1,8 @@
 /* Dictionnaire FR → EN (clé = texte français). Généré par scripts/i18n-merge.mjs puis relu. */
 export const EN: Record<string, string> = {
+  "Se rétracter du contrat": "Withdraw from a contract",
+  "Rétractation": "Withdrawal",
+  "Déclaration de rétractation": "Withdrawal declaration",
   "Cet accès de test est réservé aux adresses e-mail autorisées.": "This test is limited to approved email addresses.",
   "Votre demande est en cours d’envoi.": "Your sign-in link is being sent.",
   "Envoi du lien…": "Sending your link…",

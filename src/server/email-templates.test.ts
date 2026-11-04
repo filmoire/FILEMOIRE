@@ -22,6 +22,16 @@ const templates: EmailTemplate[] = [
   },
   { kind: "invitation-renewed", ...invitation },
   { kind: "order-confirmation", reference: "FM-TEST", totalCents: 17900 },
+  {
+    kind: "withdrawal-receipt",
+    reference: "request-fixture",
+    orderReference: "FM-TEST",
+    name: "Camille",
+    email: "camille@example.test",
+    receivedAt: "2026-11-04T12:00:00.000Z",
+    declaration: "Je notifie ma décision de me rétracter.",
+    language: "fr",
+  },
   { kind: "question", question: "Quel souvenir vous fait sourire ?" },
   { kind: "reminder", question: "Quel souvenir vous fait sourire ?" },
   {
@@ -30,6 +40,29 @@ const templates: EmailTemplate[] = [
     message: "Votre demande est résolue.\nMerci.",
   },
 ];
+
+it("renders English withdrawal receipts with complete dated details and escaped declarations", () => {
+  const message = renderEmail(
+    {
+      kind: "withdrawal-receipt",
+      reference: "receipt-123",
+      orderReference: "FM-TEST",
+      name: "<script>bad()</script>",
+      email: "fixture@example.test",
+      receivedAt: "2026-11-04T14:00:00.000Z",
+      declaration: "Withdraw <img src=x onerror=alert(1)>",
+      language: "en",
+    },
+    origin,
+  );
+  expect(message.html).toContain('<html lang="en">');
+  expect(message.html).not.toContain("<script>");
+  expect(message.html).not.toContain("<img src=x");
+  expect(message.text).toContain("receipt-123");
+  expect(message.text).toContain("2026-11-04T14:00:00.000Z");
+  expect(message.text).toContain("not confirmation of a completed refund");
+  expect(message.text).toContain("Your memories remain yours.");
+});
 
 it.each(templates)(
   "renders $kind with a working brand, text fallback and same-origin action",

@@ -138,6 +138,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
 }
 
 export function SiteFooter() {
+  const lang = useLang((s) => s.lang);
   return (
     <footer className="no-print mt-20 border-t border-line bg-creme-200/60">
       <div className="container-page grid gap-8 py-12 sm:grid-cols-2 lg:grid-cols-4">
@@ -221,7 +222,14 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-line py-4 text-center text-xs text-ink-muted">
         {isLive ? (
-          <Link href="/legal">Filémoire · Conditions et confidentialité</Link>
+          <div className="flex flex-wrap justify-center gap-5">
+            <Link href="/legal">Filémoire · Conditions et confidentialité</Link>
+            <Link href="/retractation" translate="no">
+              {lang === "en"
+                ? "Withdraw from a contract"
+                : "Se rétracter du contrat"}
+            </Link>
+          </div>
         ) : (
           "Filémoire — prototype 2026 · Ne saisissez aucune donnée réelle."
         )}

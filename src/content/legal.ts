@@ -10,8 +10,8 @@ export const LEGAL_LABELS = {
     "Understand how your data is used, who can access your story and the rules for your Filémoire workspace.",
   ],
   version: [
-    "Projet du 4 novembre 2026 · Version 0.2",
-    "Draft dated 4 November 2026 · Version 0.2",
+    "Projet du 4 novembre 2026 · Version 0.3",
+    "Draft dated 4 November 2026 · Version 0.3",
   ],
   draftTitle: [
     "Document de travail — à compléter et à valider",
@@ -98,8 +98,8 @@ export const OPERATOR_FIELDS: { label: LegalText; value: LegalText }[] = [
       "Business or registered office address",
     ],
     value: [
-      "Paris, France — numéro, voie et code postal à compléter",
-      "Paris, France — street number, street and postcode required",
+      "Rue Ordener, 75018 Paris, France — numéro de voie à compléter",
+      "Rue Ordener, 75018 Paris, France — street number required",
     ],
   },
   {
@@ -499,8 +499,8 @@ export const REFUND_SECTIONS: Section[] = [
         "Where distance-selling withdrawal rights apply, consumers normally have 14 days to notify withdrawal without giving a reason: from contract conclusion for a service, or receipt for goods. The starting day is not counted; an expiry on a Saturday, Sunday, public holiday or non-working day moves to the next working day. Rules for combined offers must be specified for each offer.",
       ],
       [
-        "Une demande claire peut être adressée à admin-dev@filemoire.fr avant l’expiration du délai ; le modèle ci-dessous peut être utilisé sans être obligatoire. Pour les contrats conclus sur une interface en ligne, une fonctionnalité gratuite de rétractation et son accusé de réception sur support durable doivent aussi être disponibles selon les règles en vigueur depuis le 19 juin 2026. Cette fonctionnalité reste à mettre en place avant l’ouverture des ventes concernées ; l’adresse e-mail ne la remplace pas.",
-        "A clear request can be sent to admin-dev@filemoire.fr before the deadline; the template below is optional. For contracts concluded through an online interface, a free withdrawal function with durable acknowledgement must also be available under the rules effective since 19 June 2026. That function still needs implementation before relevant sales open; email is not a substitute for it.",
+        "Une demande claire peut être adressée à admin-dev@filemoire.fr avant l’expiration du délai ; le modèle ci-dessous peut être utilisé sans être obligatoire. Pour les contrats conclus sur une interface en ligne, une fonctionnalité gratuite de rétractation et son accusé de réception sur support durable doivent aussi être disponibles selon les règles en vigueur depuis le 19 juin 2026. Le formulaire « Se rétracter du contrat » permet d’enregistrer une déclaration, de télécharger un accusé daté et d’en demander l’envoi par e-mail. L’équipe vérifie ensuite le contrat et les droits applicables ; cet accusé ne confirme pas un remboursement exécuté. La validation juridique et les essais commerciaux restent nécessaires avant l’ouverture des ventes.",
+        "A clear request can be sent to admin-dev@filemoire.fr before the deadline; the template below is optional. For contracts concluded through an online interface, a free withdrawal function with durable acknowledgement must also be available under the rules effective since 19 June 2026. The “Withdraw from a contract” form records a declaration, offers a dated acknowledgement to download and queues an email copy. The team then checks the contract and applicable rights; the acknowledgement does not confirm a completed refund. Legal review and commercial acceptance testing remain required before sales open.",
       ],
     ],
   },
