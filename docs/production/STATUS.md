@@ -5,6 +5,8 @@
 **Deployed preview; public commercial launch is not complete.** The canonical
 frontend is `https://www.filemoire.fr`, backed by Render and Neon. The origin
 correction was deployed on Render as `dep-dbkr7sp9dmos739mldq0`, commit `d0562d6`.
+Branded transactional emails are deployed at commit `41f2e6d`; the subsequent
+email environment update is live as `dep-dbli84ff3r2c73a7q800`.
 See [VERCEL-RENDER.md](VERCEL-RENDER.md) for the split and historical setup steps.
 
 The owner explicitly chose to retain free preview hosting for now, while keeping
@@ -14,23 +16,28 @@ legal approval flag do not establish approval of the unfinished legal documents.
 
 | Step | Current evidence | What still prevents completion |
 | --- | --- | --- |
-| 1. Public email | On 4 November, all three DNS records matched on both authoritative servers and a public resolver; Resend domain/records now Verified. Direct `noreply@filemoire.fr` test returned 200 and Delivered; deployed login request returned 202, delivery state sent, and Resend Delivered; see [evidence](RESEND-DNS.md) | Confirm inbox placement and use of the login link; app sender/test-recipient settings were not changed. Change sender and remove test restriction together only after public account approval; test a second consenting recipient and invitations |
-| 2. Legal/privacy | Bilingual working draft published | Actual operator details, monitored contact, final terms/retention decisions and owner review; see [LEGAL-DRAFT.md](LEGAL-DRAFT.md) |
+| 1. Legal/privacy | Bilingual working draft published. Owner reconfirmed on 4 November that actual details are **not ready** | Actual operator details, monitored contact, final terms/retention decisions and owner review; see [LEGAL-DRAFT.md](LEGAL-DRAFT.md) |
+| 2. Public email | Resend domain/records Verified. Render uses `Filémoire <noreply@filemoire.fr>` without the test-recipient restriction. Login links were delivered and consumed with two approved inboxes. A live editor invitation was delivered and accepted by the intended second account; see [acceptance evidence](ACCEPTANCE-2026-11-04.md). The 30-account beta limit remains | Inbox-placement monitoring and abuse/deliverability operations remain ongoing work. Public email does not approve unfinished legal documents or commercial launch |
 | 3. Hosting | Vercel frontend, Render API/worker and Neon already deployed | Owner retained free preview; business launch still needs an eligible commercial frontend plan/host and reliable continuous worker operation |
-| 4. Live acceptance | 3 November local checks: 118 unit tests, 97 database integration tests, TypeScript, lint, frontend build/isolation verification, worker build and HTTP-only split cookie/origin/4 MiB upload check passed. On 4 November, after initial timeouts, the public homepage and backend health returned 200, sign-in page loaded, and a login email was delivered | Hosted multi-user email, successful link consumption, roles, media and PDF acceptance remain pending; no new full rendered UI pass is claimed |
-| 5. Recovery/monitoring | On 3 November, the existing 28 October snapshot was restored into a temporary network-isolated PostgreSQL 18 container: 22 table counts, four decrypted project payloads and six referenced media hashes passed | Scheduled off-device backups, separate key escrow, deletion reconciliation, live alert ownership and a hosted recovery/rollback drill remain to be configured |
+| 4. Live acceptance | Two-account hosted login/invitation, narrator persistence, editor visibility/proposal approval, real PNG upload and four-page A5 PDF approval/download passed on 4 November. Approved PDF equals reviewed PDF byte for byte. See [technical acceptance](ACCEPTANCE-2026-11-04.md). Code commit `41f2e6d` also passed full GitHub Verify run `41817864116` (137 unit and 100 DB integration tests, builds and browser/split suites) | Real human/device acceptance and paid buyer/gift/refund/printing flows still require the missing provider setup; these checks are not a human pilot |
+| 5. Recovery/monitoring | Fresh production snapshot verified locally and then restored into a new database/private bucket on an expiring Neon branch: 22 tables, 5 decrypted projects and 6 media objects/hashes passed. Added a credential-free, four-times-daily GitHub website monitor; live checks returned 200. Nine monitor/restore-guard tests pass. See [recovery evidence and scope](RECOVERY.md) | Owner says backup storage/key vault are not ready. Scheduled off-device backups, separate key escrow, deletion reconciliation, alert delivery/ownership, protected worker/queue checks and an application cutover/rollback drill remain pending |
 | 6. Paid gifts/printing | Payment and print adapters and local contract tests exist | Stripe business/test/live setup, approved prices/refund terms, named printer and actual supplier integration/preflight/physical proof; current beta launcher deliberately rejects paid-provider settings |
 
-The local `pnpm` launcher could not verify registry signatures because its
-registry requests failed. Verification above used the already-installed tool
-entry points directly; dependency signatures were not bypassed and no packages
-were installed. These results are not a fresh dependency audit.
+The earlier local `pnpm` launcher could not verify registry signatures because
+registry requests failed; that run used installed tool entry points without
+bypassing signatures. The subsequent GitHub Verify run on `41f2e6d` passed its
+dependency audit. The 4 November recovery/monitoring work adds operational
+scripts and documentation, with no application dependency or runtime settings
+change. Five already-installed official Neon skills were updated as required by
+the Neon workflow; the existing authenticated CLI was reused when MCP returned
+an authorization error.
 
-The backup restore used the production encryption key, kept separately from the
+The recovery tests used the production encryption key, kept separately from the
 backup. It matches the private production env import, not the distinct staging
 key. Keep keys labelled by environment and snapshot compatibility; do not
-replace the production key with the staging key. The temporary restore
-container was removed after verification; no cloud data was contacted or changed.
+replace the production key with the staging key. Temporary local restore
+containers were removed after verification. The 4 November hosted drill wrote
+only to its isolated, expiring Neon branch; production data was not modified.
 
 ## Historical implementation inventory
 

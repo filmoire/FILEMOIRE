@@ -1,5 +1,31 @@
 # Online email testing without DNS
 
+## Current deployment — 4 November 2026
+
+At the user's explicit request, the owner-only test restriction has been removed
+from the Render backend. `EMAIL_PROVIDER=resend` remains configured,
+`EMAIL_FROM=Filémoire <noreply@filemoire.fr>` is live, and
+`RESEND_TEST_RECIPIENT` is absent. Render deployment
+`dep-dbli84ff3r2c73a7q800` succeeded using code revision `41f2e6d`.
+
+Fresh login requests through `https://www.filemoire.fr` returned HTTP 202 and
+queue status `sent` for the admin mailbox and a second, explicitly approved
+Gmail mailbox. Resend reports both **Delivered** with the new sender. Later
+hosted acceptance consumed fresh links for both accounts and sent/accepted a
+real editor invitation for an explicitly fictional manuscript. See
+[acceptance evidence](ACCEPTANCE-2026-11-04.md). Inbox/spam placement remains a
+recipient check; provider delivery alone does not establish inbox placement.
+
+The existing 30-account beta capacity, rate limits, role checks and closed paid
+features remain in effect. This email change is not approval of the unfinished
+legal documents or a completed commercial launch. Private verification evidence
+is under `artifacts/production/public-email-2026-11-04/`.
+
+The instructions below describe the former restricted test mode and how to
+restore it if deliberately needed; they are not the current live settings.
+
+## Restricted test mode
+
 This temporary mode keeps the public website accessible and limits account
 access and all outgoing email to one address. It does not remove sign-in,
 administrative MFA, encryption, production startup checks, or capacity limits.

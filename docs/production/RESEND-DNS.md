@@ -25,12 +25,17 @@ Email evidence from the same session:
 - Earlier HTTP 403 sender-domain failures were before verification. The direct
   test retry used the same idempotency key; one domain-test email was accepted.
 - **Delivered** is Resend's recipient-server delivery confirmation. Inbox/spam
-  placement and successful use of the one-use login link remain user checks.
+  placement remains a recipient check. Later two-account acceptance successfully
+  consumed fresh one-use links; see [acceptance evidence](ACCEPTANCE-2026-11-04.md).
 
-No Render environment settings or account-access restrictions were changed in
-this verification. The live login test is separate from the direct own-domain
-sender test. Moving the app from its previously configured owner-only test
-sender to normal delivery still follows [EMAIL-TESTING.md](EMAIL-TESTING.md).
+The initial DNS verification did not change Render's account-access settings.
+Later on 4 November, the user explicitly requested normal email delivery. Render
+deployment `dep-dbli84ff3r2c73a7q800` is live with
+`EMAIL_FROM=Filémoire <noreply@filemoire.fr>` and no `RESEND_TEST_RECIPIENT`.
+Fresh website login emails to the admin mailbox and an explicitly approved
+Gmail mailbox both returned 202, reached queue status `sent`, and show
+**Delivered** in Resend with the verified sender. See
+[EMAIL-TESTING.md](EMAIL-TESTING.md) for current behavior and remaining checks.
 Private screenshots are under the Git-ignored
 `artifacts/production/email-verification-2026-11-04/` directory.
 

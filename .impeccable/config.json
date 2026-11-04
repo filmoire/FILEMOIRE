@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "src/server/email-templates.ts"
+        ],
+        "createdAt": "2026-11-04T11:20:45.831Z",
+        "reason": "Agent review: DESIGN.md lines 67-75 explicitly specifies the email personal-message note with a fine gold edge. This 3px brand-token rule is the intentional stationery detail already checked on desktop and mobile; preserve the documented email design."
+      }
+    ]
+  }
+}
