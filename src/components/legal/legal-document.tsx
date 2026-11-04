@@ -5,10 +5,12 @@ import { ArrowLeft, ArrowUp, FileText } from "lucide-react";
 import { LivePublicHeader } from "@/components/live/shell";
 import {
   LEGAL_LABELS as labels,
+  LEGAL_CONTACT_EMAIL,
   LEGAL_PROVIDERS,
   LEGAL_SOURCES,
   OPERATOR_FIELDS,
   PRIVACY_SECTIONS,
+  REFUND_SECTIONS,
   TERMS_SECTIONS,
   type LegalText,
 } from "@/content/legal";
@@ -21,6 +23,7 @@ export function LegalDocument() {
     ["mentions", labels.operatorTitle],
     ["confidentialite", labels.privacyTitle],
     ["conditions", labels.termsTitle],
+    ["remboursements", labels.refundsTitle],
     ["contact", labels.contactTitle],
   ] as const;
 
@@ -96,14 +99,14 @@ export function LegalDocument() {
           <dl className="divide-y divide-line rounded-xl border border-line bg-white px-5 sm:px-6">
             {OPERATOR_FIELDS.map((field) => (
               <div
-                key={field[0]}
+                key={field.label[0]}
                 className="grid gap-2 py-4 sm:grid-cols-[1.3fr_1fr] sm:gap-8"
               >
                 <dt className="text-sm font-medium" translate="no">
-                  {t(field)}
+                  {t(field.label)}
                 </dt>
                 <dd className="text-sm text-ink-muted" translate="no">
-                  {t(labels.missing)}
+                  {t(field.value)}
                 </dd>
               </div>
             ))}
@@ -175,6 +178,31 @@ export function LegalDocument() {
         </section>
 
         <section
+          id="remboursements"
+          aria-labelledby="refunds-title"
+          className="scroll-mt-6 space-y-8 border-t border-line pt-10"
+        >
+          <div className="max-w-3xl space-y-3">
+            <h2 id="refunds-title" translate="no">
+              {t(labels.refundsTitle)}
+            </h2>
+            <p className="text-ink-muted" translate="no">
+              {t(labels.refundsIntro)}
+            </p>
+          </div>
+          {REFUND_SECTIONS.map((section) => (
+            <div key={section.id} className="max-w-3xl space-y-3">
+              <h3 translate="no">{t(section.title)}</h3>
+              {section.paragraphs.map((paragraph, index) => (
+                <p key={index} translate="no">
+                  {t(paragraph)}
+                </p>
+              ))}
+            </div>
+          ))}
+        </section>
+
+        <section
           id="contact"
           aria-labelledby="contact-title"
           className="scroll-mt-6 space-y-5 rounded-xl border border-line bg-white p-5 sm:p-8"
@@ -184,6 +212,15 @@ export function LegalDocument() {
           </h2>
           <p className="max-w-3xl" translate="no">
             {t(labels.contactBody)}
+          </p>
+          <p>
+            <a
+              href={`mailto:${LEGAL_CONTACT_EMAIL}`}
+              className="underline"
+              translate="no"
+            >
+              {LEGAL_CONTACT_EMAIL}
+            </a>
           </p>
           <Link
             href="/#contact"
