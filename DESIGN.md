@@ -30,7 +30,7 @@ components:
 
 The user supplied “Dashboard Filémoier final” on 22 October 2026. Its buyer, family editor and operations screenshots, including both empty and populated states, are the visual authority. This is a product workspace for families writing and gifting books; operational screens support the service without exposing private stories. French and English interface copy use the existing locale provider; personal text is never translated.
 
-The signature is generous cream paper, plum typography, lilac illustration panels and fine dividing rules. Avoid generic analytics cards, gradients, heavy shadows and invented sample activity. Public marketing and printed book typography retain their existing identity.
+The signature is generous cream paper, plum typography, lilac illustration panels and fine dividing rules. Avoid generic analytics cards, gradients, heavy shadows and invented sample activity. Public pages other than the landing page, and printed books, retain their existing typography.
 
 ## Colors
 
@@ -93,3 +93,11 @@ Preview examples contain fictional data and invalid sample tokens only.
 ## Designer completion — 26 October 2026
 
 The seven-step gift flow preserves the supplied first-step composition and extends it with the same typography, controls and lilac summary. Shared books use the illustrated home empty state and a plain empty panel on the books tab. Support uses full-width ruled rows. Question groups follow chapter order with compact metadata tags and canonical activation switches. Orders and projects use operational metadata columns from the reference. The added language, account, refresh and protected operational controls remain available for a working application.
+
+## Public landing page — 5 November 2026
+
+The user supplied `Filemoire - Landing page.zip` and requested this design with the illustrated logo. Its standalone HTML (p25 / p48) now owns the homepage composition: an open typographic hero with two illustrations, three journey steps, a voice example, narrator privacy, the book, packages, FAQ and closing invitation. The original five images are optimized as local WebP assets in `public/landing`; their content and crops follow the reference.
+
+`src/app/landing.css` owns the scoped `--landing-*` tokens: paper #f8f3ef, ink #432535, wash #e9dfed, accent #78506c, line #d5c8bc. Trebuchet MS headings and Georgia body copy intentionally replace the previous EB Garamond/Inter homepage treatment. The desktop container is 1280px, the hero heading 83px, section headings 54px, and image/button radii 40px. Columns stack below 700px, with a tablet adjustment for navigation and pricing. These rules do not change the dashboards, sign-in, legal pages or printed books.
+
+The canonical illustrated logo appears in the header and footer as explicitly requested, replacing the reference's text-only wordmark. Functional differences from the static mockup are deliberate: sample-book links open the existing book preview, package links select the existing gift flow, quote/contact buttons open the existing backend-connected form, and the footer retains language, legal and withdrawal links. The story example uses native disclosure; imagery reserves dimensions; focused controls are visible; motion respects the existing reduced-motion baseline. French/English use the shared locale provider and reviewed landing copy. No new animation, icon family or production service is introduced.

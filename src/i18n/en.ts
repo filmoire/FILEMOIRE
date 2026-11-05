@@ -1,4 +1,6 @@
 /* Dictionnaire FR → EN (clé = texte français). Généré par scripts/i18n-merge.mjs puis relu. */
+import { LANDING_EN } from "./landing-en";
+
 export const EN: Record<string, string> = {
   "Se rétracter du contrat": "Withdraw from a contract",
   "Rétractation": "Withdrawal",
@@ -2444,4 +2446,5 @@ export const EN: Record<string, string> = {
   "Votre commande sera confirmée après le paiement. Votre proche reste libre d’accepter l’invitation.": "Your order will be confirmed after payment. Your loved one is free to accept the invitation.",
   "Votre demande Filémoire": "Your Filémoire request",
   "Vous n’avez été invité sur aucun livre pour l’instant.": "You have not been invited to a book yet.",
+  ...LANDING_EN,
 };

@@ -34,6 +34,9 @@ export function PublicShell({ children }: { children: ReactNode }) {
       useDemo.getState().setPersona({ role: "acheteur" });
     push("/acheteur/offrir");
   };
+  // The supplied landing design owns its header and footer. Other public pages
+  // keep the shared navigation and their existing layout.
+  if (pathname === "/") return children;
   return (
     <div className="flex min-h-screen flex-col">
       <a

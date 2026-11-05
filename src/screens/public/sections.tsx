@@ -448,8 +448,13 @@ export function ContactForm({
         />
       </Field>
       <div className="sm:col-span-2">
-        <Button type="submit" size="lg">
-          <Mail /> Envoyer
+        <Button
+          type="submit"
+          size="lg"
+          disabled={formState.isSubmitting}
+          aria-busy={formState.isSubmitting}
+        >
+          <Mail /> {formState.isSubmitting ? "Envoi en cours…" : "Envoyer"}
         </Button>
         <p className="mt-2 text-sm text-ink-muted">
           {isLive
