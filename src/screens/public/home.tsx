@@ -78,6 +78,7 @@ export function HomeScreen() {
           <a className="button" href="#offres">
             Offrir Filémoire ↗
           </a>
+          <LangSwitch className="landing-language landing-header-language" />
         </header>
         <main id="contenu" tabIndex={-1}>
           <section className="wrap hero">

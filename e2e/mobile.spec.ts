@@ -26,6 +26,9 @@ test("mobile : pas de défilement horizontal et parcours narrateur utilisable", 
   }
   await page.locator('button[lang="fr"]:visible').first().click();
   await go(page, "/");
+  await expect(page.getByRole("banner").getByRole("button", { name: "Français", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("navigation", { name: "Navigation principale" }).getByRole("link", { name: "Les offres", exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "Voir un livre exemple ↗", exact: true }).first().click();
   await page.getByRole("button", { name: "Ouvrir le menu" }).click();
   await expect(page.locator("#menu-mobile").getByRole("link", { name: "Offres" })).toBeVisible();
 });

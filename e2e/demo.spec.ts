@@ -9,9 +9,10 @@ test("parcours de démonstration complet : les 19 étapes de validation", async 
   await fresh(page);
 
   // 1. Page d'accueil
-  await expect(page.getByRole("heading", { level: 1, name: "Une question à la fois, une vie à transmettre." })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Gardez la façon dont il raconte." })).toBeVisible();
 
   // 2. Offres et livre exemple
+  await page.getByRole("link", { name: "Voir un livre exemple ↗", exact: true }).first().click();
   await page.getByRole("navigation", { name: "Navigation principale" }).getByRole("link", { name: "Offres" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Choisissez le parcours à offrir" })).toBeVisible();
   await page.getByRole("navigation", { name: "Navigation principale" }).getByRole("link", { name: "Livre exemple" }).click();

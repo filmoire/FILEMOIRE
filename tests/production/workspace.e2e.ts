@@ -441,11 +441,14 @@ test("English and French persist across public pages, reloads and sign-in", asyn
       missing.add(text);
   };
   await page.goto("/");
-  await page.locator('button[aria-label="English"]:visible').click();
+  await page.getByRole("banner").getByRole("button", { name: "English", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(
-    page.getByRole("link", { name: "Start my story", exact: true }),
+    page.getByRole("heading", { name: "Keep the way they tell their story.", exact: true }),
   ).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("banner").getByRole("button", { name: "English", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("contentinfo").getByRole("button", { name: "English", exact: true })).toHaveAttribute("aria-pressed", "true");
   await collect();
   for (const path of [
     "/comment-ca-marche",

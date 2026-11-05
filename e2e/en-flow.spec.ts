@@ -14,9 +14,10 @@ test("English: the 19-step demo works end to end and nothing is left untranslate
   const errors = collectErrors(page);
   await fresh(page);
   await page.locator('button[lang="en"]:visible').first().click();
-  await expect(page.getByRole("heading", { level: 1, name: "One question at a time, a life to pass on." })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Keep the way they tell their story." })).toBeVisible();
 
   const mainNav = page.getByRole("navigation", { name: "Main navigation" });
+  await page.getByRole("link", { name: "Explore a sample book ↗", exact: true }).first().click();
   await mainNav.getByRole("link", { name: "Offers" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Choose the journey to give" })).toBeVisible();
   await mainNav.getByRole("link", { name: "Sample book" }).click();
