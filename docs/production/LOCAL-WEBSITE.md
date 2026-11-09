@@ -5,7 +5,7 @@ Run `node scripts/local/start.mjs` from the repository. No provider account is r
 ## First use
 
 1. Open the address printed by the launcher, normally http://localhost:3100.
-2. Choose **Commencer mon histoire** and enter an email address. For local testing you can use a fictional address such as `writer@example.test`.
+2. Choose **Connexion** in the homepage header (footer on mobile) and enter an email address. For local testing you can use a fictional address such as `writer@example.test`.
 3. Open http://localhost:8025. Open the newest login message for that address, follow its link and choose **Confirmer ma connexion**.
 4. Enter your name and book title, choose a theme, read the privacy information and create your private manuscript.
 5. Answer a question. Drafts save automatically; **Enregistrer ma réponse** adds the finished answer to your book. Reloading the page preserves your work.

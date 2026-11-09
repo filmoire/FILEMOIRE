@@ -1,6 +1,34 @@
 # Production implementation status
 
-## Current launch work — updated 4 November 2026
+## Deployment follow-up — 9 November 2026
+
+The public website, sign-in page, catalog, logo and database health through the
+Vercel-to-Render proxy passed the live availability check on 9 November. Vercel
+serves the redesigned landing page and FR/EN controls from `03aada0`; Render is
+live on `4e2430e` (`dep-dblkul0m7kps73brjeo0`). The subsequent changes are frontend
+and test/documentation changes, with no backend changes waiting to be deployed.
+
+The previous GitHub Verify run on `03aada0` failed six desktop/mobile checks
+that still targeted the old landing page. The tests now load both actual hero
+images, use the current sample-book and sign-in links, and follow the offers
+anchor and gift sign-in redirect before testing another navigation. Existing
+private manuscript, upload, PDF, access-control and support assertions remain.
+The local instructions also identify the mobile footer sign-in link correctly.
+Consult the Verify result on the exact release commit before calling CI green.
+
+All 34 desktop/mobile real-workspace browser checks passed locally in 2.8 minutes.
+TypeScript, ESLint and all 14 backup-encryption, restore-isolation and monitor
+guard tests passed locally. These guard tests do not constitute a new hosted
+restore, scheduled backup or notification-delivery test.
+
+The existing Stripe sandbox account was checked again: `charges_enabled=false`,
+`payouts_enabled=false`, `details_submitted=false`. This is sandbox evidence,
+not proof of live activation. The public catalog still reports
+`ordersOpen=false`. The owner retained free preview and has not supplied the
+remaining legal, printer, backup-storage or key-vault inputs. No hosting plan,
+approval flag, payment setting, production key or backup destination was changed.
+
+## Launch checklist — evidence from 4 November 2026
 
 **Deployed preview; public commercial launch is not complete.** The canonical
 frontend is `https://www.filemoire.fr`, backed by Render and Neon. The origin

@@ -8,14 +8,17 @@ test("live public illustrations load while demo application routes stay blocked"
   page.on("pageerror", (error) => pageErrors.push(error.message));
 
   await page.goto("/");
-  const hero = page.locator('img[src="/demo/jardin.svg"]');
-  await expect(hero).toBeVisible();
-  await expect
-    .poll(() => hero.evaluate((img: HTMLImageElement) => img.naturalWidth))
-    .toBeGreaterThan(0);
+  for (const src of ["/landing/family-voice.webp", "/landing/rose-book.webp"]) {
+    const hero = page.locator(`img[src="${src}"]`);
+    await expect(hero).toBeVisible();
+    await expect
+      .poll(() => hero.evaluate((img: HTMLImageElement) => img.naturalWidth))
+      .toBeGreaterThan(0);
+  }
 
   await page
-    .getByRole("link", { name: "Voir un livre exemple", exact: true })
+    .getByRole("link", { name: "Voir un livre exemple ↗", exact: true })
+    .first()
     .click();
   await expect(page).toHaveURL(/\/livre-exemple$/);
   await expect(

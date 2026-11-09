@@ -1,18 +1,21 @@
 # Vercel frontend + Render backend
 
-Updated on 3 November 2026. The canonical frontend is
+Updated on 9 November 2026. The canonical frontend is
 `https://www.filemoire.fr`. The apex domain and previous Vercel alias redirect
-there. Render's `APP_ORIGIN` was updated to this exact origin and deployment
-`dep-dbkr7sp9dmos739mldq0` succeeded on commit `d0562d6`. The backend uses
+there. Render's `APP_ORIGIN` remains this exact origin. The latest verified
+backend deployment is `dep-dblkul0m7kps73brjeo0` on commit `4e2430e`. The backend uses
 `node dist-worker/beta.cjs`, restricted Neon credentials, private object storage
-and health path `/api/v1/health`. Health and origin checks passed after that
-deployment; later launch checks timed out before HTTP connection, so they do
-not establish current availability or diagnose a particular provider failure.
+and health path `/api/v1/health`. The 9 November public check passed for the
+homepage, sign-in page, catalog, logo and database health through the frontend
+proxy. The database health request needed its bounded second attempt; a passing
+availability check does not establish continuous worker or email delivery.
 
-Email remains in restricted Resend testing mode. The three sender-domain DNS
-records were still absent from `ns01.one.com` on 3 November. Completing website
-DNS does not verify email DNS. Follow [RESEND-DNS.md](RESEND-DNS.md), then
-[EMAIL-TESTING.md](EMAIL-TESTING.md) to switch the sender and test delivery.
+Resend sender-domain verification and the switch to
+`Filémoire <noreply@filemoire.fr>` without the owner-only restriction were
+completed on 4 November. Login and editor-invitation delivery were verified
+then; see [acceptance evidence](ACCEPTANCE-2026-11-04.md). No new email was sent
+during the 9 November availability check. The earlier DNS/import instructions
+below are setup history, not a request to revert working email settings.
 The published legal page is a working draft awaiting actual operator details
 and approval. Neither a successful deployment nor an environment flag is
 evidence that this review happened.

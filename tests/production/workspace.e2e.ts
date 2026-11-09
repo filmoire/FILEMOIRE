@@ -36,7 +36,10 @@ test("a new account creates a real private manuscript, saves across reloads and 
 }, info) => {
   const email = `writer-${randomUUID()}@example.test`;
   await page.goto("/");
-  await page.getByRole("link", { name: "Commencer mon histoire" }).click();
+  await page
+    .getByRole("link", { name: "Connexion", exact: true })
+    .first()
+    .click();
   await expect(page).toHaveURL(/\/acces/);
   await page.getByLabel("Adresse e-mail").fill(email);
   const queued = page.waitForResponse(
@@ -276,10 +279,20 @@ test("public live mode hides demo controls, redirects legacy routes and persists
     page.getByText("Jouer le rôle de", { exact: false }),
   ).toHaveCount(0);
   await page
-    .getByRole("button", { name: "Offrir Filémoire", exact: true })
-    .first()
+    .getByRole("banner")
+    .getByRole("link", { name: "Offrir Filémoire ↗", exact: true })
     .click();
-  await expect(page).toHaveURL(/\/offrir/);
+  await expect(page).toHaveURL(/\/#offres$/);
+  const offer = page.getByRole("link", {
+    name: "Offrir Essentiel ↗",
+    exact: true,
+  });
+  await expect(offer).toHaveAttribute("href", "/offrir?formule=essentiel");
+  await offer.click();
+  // The gift flow requires sign-in. Wait for its redirect before navigating
+  // again so a late auth response cannot interrupt the next page.
+  await expect(page).toHaveURL(/\/acces\?retour=\/offrir$/);
+  await expect(page.getByLabel("Adresse e-mail")).toBeEditable();
   await page.goto("/narrateur");
   await expect(page).toHaveURL(/\/acces/);
   await page.goto("/#contact");
@@ -441,14 +454,28 @@ test("English and French persist across public pages, reloads and sign-in", asyn
       missing.add(text);
   };
   await page.goto("/");
-  await page.getByRole("banner").getByRole("button", { name: "English", exact: true }).click();
+  await page
+    .getByRole("banner")
+    .getByRole("button", { name: "English", exact: true })
+    .click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(
-    page.getByRole("heading", { name: "Keep the way they tell their story.", exact: true }),
+    page.getByRole("heading", {
+      name: "Keep the way they tell their story.",
+      exact: true,
+    }),
   ).toBeVisible();
   await page.reload();
-  await expect(page.getByRole("banner").getByRole("button", { name: "English", exact: true })).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByRole("contentinfo").getByRole("button", { name: "English", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(
+    page
+      .getByRole("banner")
+      .getByRole("button", { name: "English", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(
+    page
+      .getByRole("contentinfo")
+      .getByRole("button", { name: "English", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
   await collect();
   for (const path of [
     "/comment-ca-marche",
