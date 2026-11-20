@@ -91,20 +91,33 @@ function DashboardContent() {
     "editor",
     "buyer",
   ];
-  const defaultRole = account?.admin
-    ? "operations"
-    : projects.some((p) => p.role === "narrator")
-      ? "narrator"
-      : projects.some((p) => ["editor", "contributor"].includes(p.role))
-        ? "editor"
-        : projects.length === 0 && personalDrafts
-          ? "narrator"
-          : "buyer";
+  // A book link uses the membership returned by the server, even when this
+  // account also owns another book or has an operations role.
+  const linkedProject = projects.find((p) => p.id === params.get("livre"));
+  const linkedRole =
+    linkedProject?.role === "contributor"
+      ? "editor"
+      : linkedProject?.role === "support"
+        ? undefined
+        : linkedProject?.role;
+  const defaultRole =
+    linkedRole ??
+    (account?.admin
+      ? "operations"
+      : projects.some((p) => p.role === "narrator")
+        ? "narrator"
+        : projects.some((p) => ["editor", "contributor"].includes(p.role))
+          ? "editor"
+          : projects.length === 0 && personalDrafts
+            ? "narrator"
+            : "buyer");
   const requested = params.get("role") as DashboardRole;
   const role = roles.includes(requested) ? requested : defaultRole;
   const view = DASH_NAV[role].some(([key]) => key === params.get("vue"))
     ? params.get("vue")!
-    : "accueil";
+    : role === "editor" && linkedProject
+      ? "livres"
+      : "accueil";
   const relevant = projects.filter((p) =>
     role === "narrator"
       ? p.role === "narrator"

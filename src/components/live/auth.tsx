@@ -268,7 +268,8 @@ export function JoinScreen() {
   useLang((s) => s.lang);
   const [token, setToken] = useState(""),
     [error, setError] = useState(""),
-    [ready, setReady] = useState(false);
+    [ready, setReady] = useState(false),
+    [accepting, setAccepting] = useState(false);
   useEffect(() => {
     setToken(new URLSearchParams(location.hash.slice(1)).get("token") ?? "");
     api<{ account: unknown }>("me")
@@ -287,13 +288,20 @@ export function JoinScreen() {
       {ready ? (
         <Button
           className="mt-6"
+          disabled={accepting}
           onClick={async () => {
+            setAccepting(true);
+            setError("");
             try {
-              await api("invitations/accept", { token });
+              const { projectId } = await api<{ projectId: string }>(
+                "invitations/accept",
+                { token },
+              );
               history.replaceState(null, "", "/rejoindre");
-              location.href = "/espace";
+              location.href = `/espace?${new URLSearchParams({ livre: projectId })}`;
             } catch (e) {
               setError((e as Error).message);
+              setAccepting(false);
             }
           }}
         >
