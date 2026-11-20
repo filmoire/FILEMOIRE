@@ -526,6 +526,17 @@ function AnswerForm({
     latestText = useRef(text),
     saveRef = useRef(mutate),
     paused = useRef(false);
+  const focusNewVoiceDraft = useRef(false);
+  const focusRecorder = (memoryId: string) => {
+    const button = document.getElementById(`voice-record-${memoryId}`);
+    button?.scrollIntoView({ block: "center" });
+    button?.focus({ preventScroll: true });
+  };
+  useEffect(() => {
+    if (!focusNewVoiceDraft.current || !m?.id) return;
+    focusNewVoiceDraft.current = false;
+    focusRecorder(m.id);
+  }, [m?.id]);
   latestText.current = text;
   saveRef.current = mutate;
   useEffect(() => {
@@ -630,15 +641,19 @@ function AnswerForm({
       </p>
       <Message error={error} />
       <div className="flex flex-wrap gap-3">
-        {!m &&
-          !text.trim() &&
+        {!text.trim() &&
           (p.kind === "personal" || p.packageCode !== "essentiel") && (
             <Button
               variant="outline"
               disabled={busy}
               onClick={async () => {
+                if (m) {
+                  focusRecorder(m.id);
+                  return;
+                }
                 setBusy(true);
                 setError("");
+                focusNewVoiceDraft.current = true;
                 try {
                   await mutate({
                     type: "answer",
@@ -651,6 +666,7 @@ function AnswerForm({
                     "Brouillon vocal créé. Enregistrez votre voix dans le souvenir ci-dessous.",
                   );
                 } catch (e) {
+                  focusNewVoiceDraft.current = false;
                   setError((e as Error).message);
                 } finally {
                   setBusy(false);
@@ -718,19 +734,22 @@ function UploadControls({
 }) {
   const [progress, setProgress] = useState<number | null>(null),
     [error, setError] = useState(""),
+    [starting, setStarting] = useState(false),
     [recording, setRecording] = useState(false),
     [failedRecording, setFailedRecording] = useState<File | null>(null),
     [recordingUrl, setRecordingUrl] = useState("");
   const recorder = useRef<MediaRecorder | null>(null),
-    stream = useRef<MediaStream | null>(null);
-  useEffect(
-    () => () => {
+    stream = useRef<MediaStream | null>(null),
+    mounted = useRef(false);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
       if (recorder.current) recorder.current.onstop = null;
       stream.current?.getTracks().forEach((t) => t.stop());
       markRecording(false, memoryId);
-    },
-    [memoryId],
-  );
+    };
+  }, [memoryId]);
   useEffect(() => {
     if (!failedRecording) {
       setRecordingUrl("");
@@ -772,8 +791,26 @@ function UploadControls({
     }
   };
   const record = async () => {
+    if (starting || recording) return;
+    setError("");
+    setStarting(true);
+    let capture: MediaStream | undefined;
     try {
+      if (
+        !navigator.mediaDevices?.getUserMedia ||
+        typeof MediaRecorder === "undefined"
+      ) {
+        setError(
+          "Ce navigateur ne permet pas l’enregistrement. Ouvrez Filémoire dans un navigateur récent ou importez un audio.",
+        );
+        return;
+      }
       const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+      capture = s;
+      if (!mounted.current) {
+        s.getTracks().forEach((track) => track.stop());
+        return;
+      }
       stream.current = s;
       const r = new MediaRecorder(s);
       recorder.current = r;
@@ -801,10 +838,16 @@ function UploadControls({
       r.start(1000);
       setRecording(true);
       markRecording(true, memoryId);
-    } catch {
+    } catch (e) {
+      capture?.getTracks().forEach((track) => track.stop());
       setError(
-        "Le micro n’est pas disponible. Autorisez-le ou importez un enregistrement.",
+        e instanceof DOMException &&
+          ["NotAllowedError", "SecurityError"].includes(e.name)
+          ? "L’accès au micro est bloqué. Autorisez le micro pour ce site dans votre navigateur, puis réessayez. Vous pouvez aussi importer un audio."
+          : "Le micro n’est pas disponible. Autorisez-le ou importez un enregistrement.",
       );
+    } finally {
+      setStarting(false);
     }
   };
   return (
@@ -866,14 +909,32 @@ function UploadControls({
               />
             </label>
             <Button
+              id={`voice-record-${memoryId}`}
               variant="outline"
-              disabled={progress !== null}
+              disabled={progress !== null || starting}
+              aria-busy={starting}
               onClick={() =>
                 recording ? recorder.current?.stop() : void record()
               }
             >
-              {recording ? "Arrêter et sauvegarder" : "Enregistrer ma voix"}
+              {starting
+                ? "Autorisez le micro…"
+                : recording
+                  ? "Arrêter et sauvegarder"
+                  : "Enregistrer ma voix"}
             </Button>
+            {starting && (
+              <p role="status" className="w-full text-sm text-ink-muted">
+                Acceptez l’accès au microphone dans la fenêtre de votre
+                navigateur pour commencer.
+              </p>
+            )}
+            {recording && (
+              <p role="status" className="w-full text-sm text-ink-muted">
+                Enregistrement en cours. Parlez, puis choisissez « Arrêter et
+                sauvegarder ».
+              </p>
+            )}
           </>
         )}
       </div>

@@ -314,6 +314,20 @@ test("starts with voice, finishes a personal story and renders its private QR", 
   page,
   isMobile,
 }) => {
+  // Exercise denied permission and a successful retry without using a real mic.
+  await page.addInitScript(() => {
+    const getUserMedia = navigator.mediaDevices.getUserMedia.bind(
+      navigator.mediaDevices,
+    );
+    let denied = false;
+    navigator.mediaDevices.getUserMedia = async (constraints) => {
+      if (!denied) {
+        denied = true;
+        throw new DOMException("Permission denied", "NotAllowedError");
+      }
+      return getUserMedia(constraints);
+    };
+  });
   const narrator = await account();
   process.env.PERSONAL_DRAFTS_ENABLED = "true";
   let personal;
@@ -335,9 +349,31 @@ test("starts with voice, finishes a personal story and renders its private QR", 
   await page
     .getByRole("button", { name: "Répondre avec ma voix", exact: true })
     .click();
+  const recordButton = page.getByRole("button", {
+    name: "Enregistrer ma voix",
+    exact: true,
+  });
+  await expect(recordButton).toBeFocused();
+  await expect(recordButton).toBeInViewport();
+  // Existing voice drafts remain reachable from the answer area without duplication.
+  await page
+    .getByRole("button", { name: "Répondre avec ma voix", exact: true })
+    .click();
+  await expect(recordButton).toBeFocused();
+  await expect(page.locator("article")).toHaveCount(1);
+  await recordButton.click();
+  await expect(
+    page.getByRole("alert").filter({ hasText: "L’accès au micro est bloqué." }),
+  ).toBeVisible();
   await page
     .getByRole("button", { name: "Enregistrer ma voix", exact: true })
     .click();
+  await expect(
+    page.getByRole("alert").filter({ hasText: "L’accès au micro est bloqué." }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("status").filter({ hasText: "Enregistrement en cours." }),
+  ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Arrêter et sauvegarder", exact: true }),
   ).toBeVisible();

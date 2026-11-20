@@ -2,6 +2,11 @@
 import { LANDING_EN } from "./landing-en";
 
 export const EN: Record<string, string> = {
+  "Ce navigateur ne permet pas l’enregistrement. Ouvrez Filémoire dans un navigateur récent ou importez un audio.": "This browser cannot record audio. Open Filémoire in a recent browser or upload an audio file.",
+  "L’accès au micro est bloqué. Autorisez le micro pour ce site dans votre navigateur, puis réessayez. Vous pouvez aussi importer un audio.": "Microphone access is blocked. Allow the microphone for this site in your browser, then try again. You can also upload an audio file.",
+  "Autorisez le micro…": "Allow microphone access…",
+  "Acceptez l’accès au microphone dans la fenêtre de votre navigateur pour commencer.": "Allow microphone access in your browser’s prompt to start recording.",
+  "Enregistrement en cours. Parlez, puis choisissez « Arrêter et sauvegarder ».": "Recording in progress. Speak, then choose “Stop and save”.",
   "Se rétracter du contrat": "Withdraw from a contract",
   "Rétractation": "Withdrawal",
   "Déclaration de rétractation": "Withdrawal declaration",
