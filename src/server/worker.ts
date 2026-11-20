@@ -8,6 +8,7 @@ import { assert, seal, unseal, id, hash } from "./security";
 import { deleteObject, getObject } from "./storage";
 import { deleteMedia } from "./media";
 import { renderEmail } from "./email-templates";
+import { transcribeAudio } from "./transcription";
 
 export async function runJob(job: Job) {
   if (job.kind === "email") {
@@ -85,44 +86,21 @@ export async function runJob(job: Job) {
     const audioId = String(job.payload.audioId),
       projectId = String(job.payload.projectId);
     const { rows } = await pool().query(
-      "SELECT m.object_key,m.mime FROM media m JOIN projects p ON p.id=m.project_id WHERE m.id=$1 AND m.project_id=$2 AND p.deletion_at IS NULL",
+      "SELECT m.object_key,m.mime,p.payload FROM media m JOIN projects p ON p.id=m.project_id WHERE m.id=$1 AND m.project_id=$2 AND p.deletion_at IS NULL",
       [audioId, projectId],
     );
     if (!rows[0]) return;
-    const form = new FormData();
-    const ext =
-      (
-        {
-          "audio/mpeg": "mp3",
-          "audio/wav": "wav",
-          "audio/ogg": "ogg",
-          "audio/webm": "webm",
-          "audio/mp4": "m4a",
-        } as Record<string, string>
-      )[rows[0].mime] ?? "audio";
-    form.append(
-      "file",
-      new Blob([new Uint8Array(await getObject(rows[0].object_key))], {
-        type: rows[0].mime,
-      }),
-      `recording.${ext}`,
-    );
-    form.append("model", configured("TRANSCRIPTION_MODEL"));
-    form.append("response_format", "json");
-    const response = await fetch(configured("TRANSCRIPTION_URL"), {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${configured("TRANSCRIPTION_API_KEY")}`,
-      },
-      body: form,
-      signal: AbortSignal.timeout(180000),
-    });
-    assert(response.ok, 502, "Transcription provider failed");
-    const result = await response.json();
-    assert(
-      typeof result.text === "string" && result.text.length <= 100000,
-      502,
-      "Invalid transcription response",
+    const current = unseal<Project>(rows[0].payload);
+    if (
+      !current.audios.some(
+        (audio) =>
+          audio.id === audioId && audio.transcript.status === "en_cours",
+      )
+    )
+      return;
+    const transcript = await transcribeAudio(
+      await getObject(rows[0].object_key),
+      rows[0].mime,
     );
     await transaction(async (db) => {
       const r = await db.query(
@@ -134,7 +112,7 @@ export async function runJob(job: Job) {
       const audio = p.audios.find((x) => x.id === audioId);
       if (audio && audio.transcript.status === "en_cours") {
         audio.transcript = {
-          text: result.text,
+          text: transcript,
           status: "a_relire",
           simulated: false,
         };

@@ -19,6 +19,7 @@ import {
   markUnsaved,
   markRecording,
   confirmNavigation,
+  hasUnsavedChanges,
 } from "./client";
 import { Message } from "./shell";
 import { confirmAction } from "./confirmation";
@@ -47,6 +48,31 @@ export function ProjectWorkspace({
     [busy, setBusy] = useState(false);
   const p = view.project,
     narrator = view.role === "narrator";
+  const refreshLatest = useRef(refresh);
+  refreshLatest.current = refresh;
+  const transcribing =
+    narrator &&
+    p.audios.some((audio) => audio.transcript.status === "en_cours");
+  useEffect(() => {
+    if (!transcribing) return;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const poll = async () => {
+      if (cancelled) return;
+      try {
+        if (!document.hidden && !hasUnsavedChanges())
+          await refreshLatest.current();
+      } catch {
+        // Keep the recording and manual refresh available during a network outage.
+      }
+      if (!cancelled) timer = setTimeout(poll, 5000);
+    };
+    timer = setTimeout(poll, 5000);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [transcribing]);
   const latest = useRef(view);
   latest.current = view;
   const mutate: Mutate = async (command) => {
@@ -324,6 +350,7 @@ export function ProjectWorkspace({
                         </p>
                         {narrator ? (
                           <Transcript
+                            available={view.transcriptionAvailable}
                             p={p}
                             audio={audio}
                             mutate={mutate}
@@ -344,6 +371,7 @@ export function ProjectWorkspace({
                     ))}
                   {narrator && !locked && (
                     <UploadControls
+                      transcriptionAvailable={view.transcriptionAvailable}
                       projectId={p.id}
                       memoryId={m.id}
                       audioAllowed={
@@ -725,11 +753,13 @@ function UploadControls({
   projectId,
   memoryId,
   audioAllowed,
+  transcriptionAvailable,
   refresh,
 }: {
   projectId: string;
   memoryId: string;
   audioAllowed: boolean;
+  transcriptionAvailable: boolean;
   refresh: () => Promise<void>;
 }) {
   const [progress, setProgress] = useState<number | null>(null),
@@ -854,6 +884,13 @@ function UploadControls({
     <div className="mt-6 border-t border-line pt-4">
       <p className="font-semibold">Enrichir ce souvenir</p>
       <Message error={error} />
+      {audioAllowed && transcriptionAvailable && (
+        <p className="mt-2 text-sm text-ink-muted">
+          Après sauvegarde, votre audio sera envoyé au service de transcription
+          pour préparer un texte à relire. Vous pourrez le corriger avant de
+          l’ajouter au récit.
+        </p>
+      )}
       {progress !== null && <p role="status">Import : {progress} %</p>}
       {failedRecording && (
         <div className="space-y-3">
@@ -1014,21 +1051,24 @@ function Transcript({
   mutate,
   refresh,
   locked,
+  available,
 }: {
   p: Project;
   audio: Project["audios"][number];
   mutate: Mutate;
   refresh: () => Promise<void>;
   locked: boolean;
+  available: boolean;
 }) {
   const [text, setText] = useState(audio.transcript.text),
     [error, setError] = useState(""),
-    [message, setMessage] = useState("");
+    [message, setMessage] = useState(""),
+    [requesting, setRequesting] = useState(false);
   useEffect(() => setText(audio.transcript.text), [audio.transcript.text]);
   return (
     <div className="mt-4 space-y-3">
       <Message error={error} success={message} />
-      {audio.transcript.manual && (
+      {audio.transcript.manual && !available && (
         <p className="text-sm text-ink-muted">
           Votre enregistrement est sauvegardé. La transcription automatique
           n’est pas activée ; écoutez votre audio, puis saisissez le texte
@@ -1048,6 +1088,7 @@ function Transcript({
             Texte à relire
             <Textarea
               disabled={locked}
+              translate="no"
               className="mt-2"
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -1100,23 +1141,41 @@ function Transcript({
           </Button>
         </>
       )}
-      {audio.transcript.status === "echec" && (
-        <Button
-          variant="outline"
-          onClick={async () => {
-            try {
-              await api(`projects/${p.id}/transcription/retry`, {
-                audioId: audio.id,
-              });
-              await refresh();
-            } catch (e) {
-              setError((e as Error).message);
-            }
-          }}
-        >
-          Réessayer la transcription
-        </Button>
-      )}
+      {available &&
+        (audio.transcript.status === "echec" ||
+          (audio.transcript.manual && !audio.transcript.text.trim())) && (
+          <Button
+            variant="outline"
+            disabled={locked || requesting || !!text.trim()}
+            onClick={async () => {
+              if (
+                !(await confirmAction(
+                  "Cet audio sera envoyé au service de transcription. Le texte obtenu restera à relire avant validation.",
+                  "Transcrire cet audio",
+                ))
+              )
+                return;
+              setRequesting(true);
+              setError("");
+              try {
+                await api(`projects/${p.id}/transcription/retry`, {
+                  audioId: audio.id,
+                });
+                await refresh();
+              } catch (e) {
+                setError((e as Error).message);
+              } finally {
+                setRequesting(false);
+              }
+            }}
+          >
+            {requesting
+              ? "Transcription demandée…"
+              : audio.transcript.status === "echec"
+                ? "Réessayer la transcription"
+                : "Transcrire cet audio"}
+          </Button>
+        )}
       {(p.kind === "personal" || p.packageCode === "voix") &&
         audio.transcript.status === "validee" && (
           <Form

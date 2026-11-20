@@ -1,5 +1,6 @@
 import { config } from "./config";
 import { isResendTestSender } from "@/lib/deployment";
+import { groqFreeTranscriptionConfigured } from "./transcription-settings";
 
 /** This profile never enables sales or bypasses the production legal/HTTPS gates. */
 export function validateFreeBeta() {
@@ -31,12 +32,21 @@ export function validateFreeBeta() {
       "STRIPE_WEBHOOK_SECRET",
       "PRINT_API_URL",
       "PRINT_API_KEY",
-      "TRANSCRIPTION_URL",
-      "TRANSCRIPTION_API_KEY",
-      "TRANSCRIPTION_MODEL",
     ].some((key) => !!process.env[key])
   )
     throw new Error("Free beta keeps paid integrations disabled");
+  if (
+    [
+      "TRANSCRIPTION_URL",
+      "TRANSCRIPTION_API_KEY",
+      "TRANSCRIPTION_MODEL",
+      "GROQ_FREE_TIER",
+    ].some((key) => !!process.env[key] && process.env[key] !== "false") &&
+    !groqFreeTranscriptionConfigured()
+  )
+    throw new Error(
+      "Free beta transcription requires a confirmed Groq Free account and complete Groq transcription settings",
+    );
   if (
     c.EMAIL_PROVIDER !== "resend" ||
     (/@resend\.dev\b/i.test(c.EMAIL_FROM ?? "") &&

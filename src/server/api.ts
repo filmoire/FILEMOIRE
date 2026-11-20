@@ -6,7 +6,6 @@ import {
   buyerOrders,
 } from "./dashboard";
 import { z, ZodError } from "zod";
-import type { Project } from "@/lib/types";
 import {
   currentAccount,
   requireAccount,
@@ -28,7 +27,6 @@ import {
   projectView,
   revokeMember,
   updateProject,
-  saveProject,
   resendNarratorInvite,
   cancelNarratorInvite,
   createPersonalProject,
@@ -54,14 +52,9 @@ import {
   id,
   rateLimit,
   sameOrigin,
-  unseal,
 } from "./security";
-import { enqueue } from "./jobs";
-import {
-  config,
-  personalDraftsEnabled,
-  transcriptionConfigured,
-} from "./config";
+import { requestTranscription } from "./transcription";
+import { config, personalDraftsEnabled } from "./config";
 import { PACKAGES, EXTRA_COPY_PRICE, GIFT_BOX_PRICE } from "@/lib/catalog";
 import { exportArchive } from "./export";
 import {
@@ -447,40 +440,11 @@ export async function handleApi(req: Request, path: string[]) {
         return reply({ ok: true });
       }
       if (sub === "transcription/retry" && method === "POST") {
-        assert(
-          transcriptionConfigured(),
-          503,
-          "La transcription automatique n’est pas configurée. Vous pouvez saisir le texte de votre enregistrement.",
-        );
         const v = z
           .object({ audioId: z.string().uuid() })
           .strict()
           .parse(await json(req));
-        await transaction(async (db) => {
-          const row = await accessProject(db, a, pid, true);
-          assert(
-            row.role === "narrator" && !row.deletion_at,
-            403,
-            "Accès refusé.",
-          );
-          const p = unseal<Project>(row.payload);
-          assert(
-            p.audios.some(
-              (x) => x.id === v.audioId && x.transcript.status === "echec",
-            ),
-            409,
-            "Aucune transcription en échec.",
-          );
-          await enqueue(
-            db,
-            "transcribe",
-            { projectId: pid, audioId: v.audioId },
-            `transcribe-retry:${v.audioId}:${id()}`,
-          );
-          p.audios.find((x) => x.id === v.audioId)!.transcript.status =
-            "en_cours";
-          await saveProject(db, a, row, p);
-        });
+        await requestTranscription(a, pid, v.audioId);
         return reply({ ok: true });
       }
     }

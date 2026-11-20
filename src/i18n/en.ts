@@ -2,6 +2,11 @@
 import { LANDING_EN } from "./landing-en";
 
 export const EN: Record<string, string> = {
+  "Après sauvegarde, votre audio sera envoyé au service de transcription pour préparer un texte à relire. Vous pourrez le corriger avant de l’ajouter au récit.": "After saving, your audio will be sent to the transcription service to prepare text for review. You can correct it before adding it to your story.",
+  "Cet audio sera envoyé au service de transcription. Le texte obtenu restera à relire avant validation.": "This audio will be sent to the transcription service. You will be able to review the text before approving it.",
+  "Transcrire cet audio": "Transcribe this audio",
+  "Transcription demandée…": "Requesting transcription…",
+  "Cette transcription est déjà en cours ou contient un texte à conserver.": "This transcription is already in progress or contains text that must be preserved.",
   "Ce navigateur ne permet pas l’enregistrement. Ouvrez Filémoire dans un navigateur récent ou importez un audio.": "This browser cannot record audio. Open Filémoire in a recent browser or upload an audio file.",
   "L’accès au micro est bloqué. Autorisez le micro pour ce site dans votre navigateur, puis réessayez. Vous pouvez aussi importer un audio.": "Microphone access is blocked. Allow the microphone for this site in your browser, then try again. You can also upload an audio file.",
   "Autorisez le micro…": "Allow microphone access…",

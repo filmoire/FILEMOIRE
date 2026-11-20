@@ -65,6 +65,7 @@ import { prepareProof } from "../../src/server/proofs";
 import { exportArchive } from "../../src/server/export";
 import tar from "tar-stream";
 import { renderProof } from "../../src/server/pdf";
+import { requestTranscription } from "../../src/server/transcription";
 import type { Project } from "../../src/lib/types";
 
 const stripeCalls = vi.hoisted(() => ({
@@ -684,6 +685,92 @@ it("transcribes through the adapter while retaining the original recording for r
     delete process.env.TRANSCRIPTION_URL;
     delete process.env.TRANSCRIPTION_API_KEY;
     delete process.env.TRANSCRIPTION_MODEL;
+  }
+});
+
+it("queues older saved audio once, protects narrator access and preserves reviewed text", async () => {
+  const b = await book();
+  const v = await answer(b);
+  const bytes = wav();
+  const u = await beginUpload(b.narrator, b.projectId, {
+    memoryId: v.project.memories[0].id,
+    kind: "audio",
+    bytes: bytes.length,
+    mime: "audio/wav",
+  });
+  await uploadPart(b.narrator, u.id, 0, bytes);
+  await finishUpload(b.narrator, u.id);
+  expect(
+    projectView(await accessProject(pool(), b.narrator, b.projectId)).project
+      .audios[0].transcript.manual,
+  ).toBe(true);
+  vi.stubEnv("TRANSCRIPTION_URL", "https://transcription.example.test");
+  vi.stubEnv("TRANSCRIPTION_API_KEY", "fixture");
+  vi.stubEnv("TRANSCRIPTION_MODEL", "fixture");
+  try {
+    const row = await accessProject(pool(), b.narrator, b.projectId);
+    const original = unseal<Project>(row.payload);
+    await pool().query("UPDATE projects SET payload=$2 WHERE id=$1", [
+      b.projectId,
+      seal({ ...original, book: { ...original.book, status: "approuve" } }),
+    ]);
+    await expect(
+      requestTranscription(b.narrator, b.projectId, u.id),
+    ).rejects.toMatchObject({ status: 409 });
+    await pool().query(
+      "UPDATE projects SET payload=$2,deletion_at=now() WHERE id=$1",
+      [b.projectId, seal(original)],
+    );
+    await expect(
+      requestTranscription(b.narrator, b.projectId, u.id),
+    ).rejects.toMatchObject({ status: 403 });
+    await pool().query("UPDATE projects SET deletion_at=NULL WHERE id=$1", [
+      b.projectId,
+    ]);
+    await expect(
+      requestTranscription(b.buyer, b.projectId, u.id),
+    ).rejects.toMatchObject({ status: 403 });
+    const requests = await Promise.allSettled([
+      requestTranscription(b.narrator, b.projectId, u.id),
+      requestTranscription(b.narrator, b.projectId, u.id),
+    ]);
+    expect(requests.filter((r) => r.status === "fulfilled")).toHaveLength(1);
+    const jobs = await pool().query(
+      "SELECT * FROM jobs WHERE kind='transcribe'",
+    );
+    expect(jobs.rowCount).toBe(1);
+    const current = projectView(
+      await accessProject(pool(), b.narrator, b.projectId),
+    );
+    expect(current.transcriptionAvailable).toBe(true);
+    expect(current.project.audios[0].transcript.status).toBe("en_cours");
+    await updateProject(b.narrator, b.projectId, current.revision, {
+      type: "transcript",
+      audioId: u.id,
+      text: "Texte corrigé à conserver.",
+      approved: true,
+    });
+    const fetch = vi
+      .spyOn(globalThis, "fetch")
+      .mockRejectedValue(
+        new Error("A reviewed transcript must not reach the provider"),
+      );
+    try {
+      await runJob(toJob(jobs.rows[0]));
+      expect(fetch).not.toHaveBeenCalled();
+      await expect(
+        requestTranscription(b.narrator, b.projectId, u.id),
+      ).rejects.toMatchObject({ status: 409 });
+      expect(
+        projectView(await accessProject(pool(), b.narrator, b.projectId))
+          .project.audios[0].transcript.text,
+      ).toBe("Texte corrigé à conserver.");
+      expect((await readMedia(b.narrator, u.id)).bytes).toEqual(bytes);
+    } finally {
+      fetch.mockRestore();
+    }
+  } finally {
+    vi.unstubAllEnvs();
   }
 });
 

@@ -10,8 +10,8 @@ export const LEGAL_LABELS = {
     "Understand how your data is used, who can access your story and the rules for your Filémoire workspace.",
   ],
   version: [
-    "Projet du 4 novembre 2026 · Version 0.3",
-    "Draft dated 4 November 2026 · Version 0.3",
+    "Projet du 20 novembre 2026 · Version 0.4",
+    "Draft dated 20 November 2026 · Version 0.4",
   ],
   draftTitle: [
     "Document de travail — à compléter et à valider",
@@ -167,6 +167,14 @@ export const LEGAL_PROVIDERS: { name: string; purpose: LegalText }[] = [
       "Sending sign-in links and messages needed for the service.",
     ],
   },
+
+  {
+    name: "Groq",
+    purpose: [
+      "Transcription audio optionnelle : traitement d’une copie de l’enregistrement pour préparer un texte à relire, uniquement si le service est activé.",
+      "Optional audio transcription: processing a copy of the recording to prepare text for review, only when the service is enabled.",
+    ],
+  },
 ];
 
 export const PRIVACY_SECTIONS: Section[] = [
@@ -179,8 +187,8 @@ export const PRIVACY_SECTIONS: Section[] = [
         "Intertrad in Paris, France is the supplied name of Filémoire’s operator and controller for the processing described here. Contact it at admin-dev@filemoire.fr. Its legal identity and full postal address still require confirmation in the legal notice.",
       ],
       [
-        "Cette politique couvre le site, les espaces narrateur, acheteur et famille, les invitations, les médias et le support. Les paiements, l’impression et la transcription automatique ne sont pas actifs dans la version de test ; leurs prestataires et traitements devront être décrits avant activation.",
-        "This policy covers the website, narrator, buyer and family workspaces, invitations, media and support. Payments, printing and automatic transcription are inactive in the test version; their providers and processing must be described before activation.",
+        "Cette politique couvre le site, les espaces narrateur, acheteur et famille, les invitations, les médias et le support. Les paiements et l’impression ne sont pas actifs dans la version de test. La transcription audio optionnelle utilise Groq lorsqu’elle est activée, selon les modalités décrites ci-dessous.",
+        "This policy covers the website, narrator, buyer and family workspaces, invitations, media and support. Payments and printing are inactive in the test version. Optional audio transcription uses Groq when enabled, as described below.",
       ],
     ],
   },
@@ -267,8 +275,8 @@ export const PRIVACY_SECTIONS: Section[] = [
     ],
     paragraphs: [
       [
-        "L’enregistrement au microphone nécessite votre permission dans le navigateur. La version de test permet de conserver l’audio et de saisir ou corriger le texte manuellement ; aucun service de transcription automatique n’y est activé. Un futur service de transcription devra être présenté avant son utilisation.",
-        "Recording requires microphone permission in your browser. The test version can store audio and lets you manually enter or correct text; no automatic transcription service is enabled in this version. Any future transcription service must be explained before use.",
+        "L’enregistrement au microphone nécessite votre permission dans le navigateur. Lorsque la transcription automatique est activée, l’interface le signale avant l’enregistrement ou l’import : une copie déchiffrée de l’audio est envoyée à Groq pour produire un texte, tandis que l’original reste chiffré dans le stockage Filémoire. Les anciens enregistrements ne sont envoyés que sur demande du narrateur. Le texte obtenu reste privé et à relire ; il peut être corrigé et doit être validé avant son ajout au récit. La transcription peut comporter des erreurs.",
+        "Recording requires microphone permission in your browser. When automatic transcription is enabled, the interface explains this before recording or uploading: a decrypted copy of the audio is sent to Groq to produce text, while the original stays encrypted in Filémoire storage. Older recordings are sent only at the narrator’s request. The resulting text remains private and awaiting review; it can be corrected and must be approved before being added to the story. Transcription can contain errors.",
       ],
       [
         "Les photos sont traitées pour l’affichage et les métadonnées EXIF sont retirées lors de leur réencodage. Les récits et fichiers sont chiffrés par l’application et les accès sont contrôlés. Le service déchiffre les contenus pour les afficher et produire vos documents : il ne s’agit pas d’un chiffrement de bout en bout. Certaines données de compte et de suivi restent distinctes du récit chiffré.",
@@ -346,6 +354,10 @@ export const PRIVACY_SECTIONS: Section[] = [
     title: ["8. Prestataires et localisation", "8. Providers and location"],
     paragraphs: [
       [
+        "Pour la transcription optionnelle, Groq reçoit l’audio et renvoie le texte. Selon sa documentation, les données d’inférence ne sont pas conservées par défaut, mais certaines entrées et sorties peuvent être conservées jusqu’à 30 jours pour la fiabilité ou la prévention des abus, sauf activation du réglage Zero Data Retention. Les données éventuellement conservées par Groq sont stockées aux États-Unis. Le réglage effectif du compte et les garanties contractuelles doivent être confirmés par Intertrad ; ce document ne présume pas que la conservation est désactivée.",
+        "For optional transcription, Groq receives the audio and returns text. Its documentation states that inference data is not retained by default, but some inputs and outputs may be retained for up to 30 days for reliability or abuse prevention unless Zero Data Retention is enabled. Any customer data retained by Groq is stored in the United States. Intertrad must confirm the account’s actual setting and contractual safeguards; this document does not assume retention is disabled.",
+      ],
+      [
         "Vercel sert le site, Render exécute l’application et les tâches de traitement, Neon conserve la base de données et les fichiers privés, et Resend transmet les e-mails de connexion et d’invitation. Les destinataires sont limités aux personnes autorisées par le narrateur, aux personnes habilitées pour l’exploitation et aux prestataires nécessaires à ces fonctions, ainsi qu’aux autorités lorsqu’une obligation légale l’impose.",
         "Vercel serves the website, Render runs the application and processing jobs, Neon stores the database and private files, and Resend delivers login and invitation emails. Recipients are limited to people authorised by the narrator, authorised operations personnel and providers needed for these functions, plus authorities where legally required.",
       ],
@@ -380,8 +392,8 @@ export const TERMS_SECTIONS: Section[] = [
     title: ["Le service et son périmètre", "The service and its scope"],
     paragraphs: [
       [
-        "Filémoire permet de préparer un récit de famille, d’y associer des médias, de collaborer sur les éléments autorisés et de produire un PDF. La version de test est limitée à des essais ; achats, commandes d’impression et transcription automatique restent désactivés. Une formule affichée n’est pas une commande confirmée.",
-        "Filémoire helps you prepare a family story, attach media, collaborate on authorised content and produce a PDF. The test version is for testing only; purchases, print orders and automatic transcription remain disabled. A displayed package is not a confirmed order.",
+        "Filémoire permet de préparer un récit de famille, d’y associer des médias, de collaborer sur les éléments autorisés et de produire un PDF. La version de test est limitée à des essais ; achats et commandes d’impression restent désactivés. La transcription audio est disponible uniquement lorsque le service est activé et dans les limites de capacité indiquées. Une formule affichée n’est pas une commande confirmée.",
+        "Filémoire helps you prepare a family story, attach media, collaborate on authorised content and produce a PDF. The test version is for testing only; purchases and print orders remain disabled. Audio transcription is available only when the service is enabled and within its stated capacity limits. A displayed package is not a confirmed order.",
       ],
     ],
   },

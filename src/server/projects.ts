@@ -13,7 +13,11 @@ import type { Account } from "./auth";
 import { pool, transaction, type DB } from "./db";
 import { assert, audit, hash, id, seal, secret, unseal } from "./security";
 import { enqueue } from "./jobs";
-import { config, personalDraftsEnabled } from "./config";
+import {
+  config,
+  personalDraftsEnabled,
+  transcriptionConfigured,
+} from "./config";
 import { renderEmail } from "./email-templates";
 
 export type ProjectRow = {
@@ -238,6 +242,7 @@ export function projectView(row: ProjectRow) {
     role,
     canSuggest: row.can_suggest,
     purchasedByAccount: !!row.purchasedByAccount,
+    transcriptionAvailable: role === "narrator" && transcriptionConfigured(),
     project: p,
     deletionAt: row.deletion_at,
   };

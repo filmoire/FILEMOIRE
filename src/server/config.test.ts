@@ -36,6 +36,7 @@ beforeEach(() => {
     TRANSCRIPTION_URL: "",
     TRANSCRIPTION_API_KEY: "",
     TRANSCRIPTION_MODEL: "",
+    GROQ_FREE_TIER: "",
     SMTP_URL: "",
     ACCOUNT_LIMIT: "",
     TOTAL_MEDIA_LIMIT_MB: "",
@@ -49,6 +50,33 @@ const staging = () => {
   vi.stubEnv("NEXT_PUBLIC_DEPLOYMENT_STAGE", "staging");
 };
 describe("hosted deployment boundaries", () => {
+  it("allows only the explicit complete Groq Free transcription opt-in in free beta", () => {
+    vi.stubEnv("LEGAL_APPROVED", "true");
+    vi.stubEnv("PERSONAL_DRAFTS_ENABLED", "true");
+    vi.stubEnv("ACCOUNT_LIMIT", "30");
+    vi.stubEnv("PROJECT_STORAGE_LIMIT_MB", "100");
+    vi.stubEnv("TOTAL_MEDIA_LIMIT_MB", "1024");
+    vi.stubEnv(
+      "TRANSCRIPTION_URL",
+      "https://api.groq.com/openai/v1/audio/transcriptions",
+    );
+    vi.stubEnv("TRANSCRIPTION_MODEL", "whisper-large-v3");
+    vi.stubEnv("TRANSCRIPTION_API_KEY", "fixture");
+    expect(validateFreeBeta).toThrow(/Groq Free/);
+    vi.stubEnv("GROQ_FREE_TIER", "true");
+    expect(validateFreeBeta).not.toThrow();
+    vi.stubEnv("TRANSCRIPTION_URL", "https://other.example.test");
+    expect(validateFreeBeta).toThrow(/Groq Free/);
+    vi.stubEnv(
+      "TRANSCRIPTION_URL",
+      "https://api.groq.com/openai/v1/audio/transcriptions",
+    );
+    vi.stubEnv("TRANSCRIPTION_MODEL", "other-model");
+    expect(validateFreeBeta).toThrow(/Groq Free/);
+    vi.stubEnv("TRANSCRIPTION_MODEL", "whisper-large-v3");
+    vi.stubEnv("TRANSCRIPTION_API_KEY", "");
+    expect(validateFreeBeta).toThrow(/Groq Free/);
+  });
   it("keeps legal approval mandatory for public production", () => {
     expect(config).toThrow(/Legal documents/);
     vi.stubEnv("LEGAL_APPROVED", "true");
