@@ -6,6 +6,7 @@ import {
   type FormEvent,
 } from "react";
 import { tr } from "@/i18n/core";
+import { useLang } from "@/i18n/lang";
 
 /** Native constraints, app-owned messages; no browser validation bubble. */
 export function Form({
@@ -13,6 +14,7 @@ export function Form({
   children,
   ...props
 }: FormHTMLAttributes<HTMLFormElement>) {
+  useLang((state) => state.lang);
   const id = useId();
   const [error, setError] = useState("");
   const submit = (event: FormEvent<HTMLFormElement>) => {
@@ -44,11 +46,9 @@ export function Form({
     if (invalid) {
       event.preventDefault();
       setError(
-        tr(
-          invalid.validity.valueMissing
-            ? "Complétez le champ indiqué pour continuer."
-            : "Vérifiez la valeur du champ indiqué.",
-        ),
+        invalid.validity.valueMissing
+          ? "Complétez le champ indiqué pour continuer."
+          : "Vérifiez la valeur du champ indiqué.",
       );
       invalid.setAttribute("aria-invalid", "true");
       invalid.setAttribute(
@@ -71,7 +71,7 @@ export function Form({
           role="alert"
           className="rounded-md bg-danger-bg p-4 text-danger"
         >
-          {error}
+          {tr(error)}
         </p>
       )}
       {children}

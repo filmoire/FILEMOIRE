@@ -147,3 +147,37 @@ test("native language switching preserves the sign-in form with browser translat
   ).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test("sign-in validation follows language changes without losing the entered address", async ({
+  page,
+}) => {
+  await page.route("**/api/v1/**", (route) => route.abort());
+  await page.goto("/acces");
+  await page.getByRole("button", { name: "English", exact: true }).click();
+  await page
+    .getByLabel("E-mail address", { exact: true })
+    .fill("invalid-email");
+  await page
+    .getByRole("button", { name: "Send me a sign-in link", exact: true })
+    .click();
+  await expect(
+    page
+      .getByRole("alert")
+      .filter({ hasText: "Check the value in the highlighted field." }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Français", exact: true }).click();
+  await expect(
+    page
+      .getByRole("alert")
+      .filter({ hasText: "Vérifiez la valeur du champ indiqué." }),
+  ).toBeVisible();
+  await expect(page.getByLabel("Adresse e-mail", { exact: true })).toHaveValue(
+    "invalid-email",
+  );
+  await page.getByRole("button", { name: "English", exact: true }).click();
+  await expect(
+    page
+      .getByRole("alert")
+      .filter({ hasText: "Check the value in the highlighted field." }),
+  ).toBeVisible();
+});
