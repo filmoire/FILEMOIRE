@@ -236,11 +236,15 @@ export function AccessScreen({ localInbox = false }: { localInbox?: boolean }) {
                 ) : (
                   <ArrowRight aria-hidden="true" />
                 )}
-                {busy
-                  ? "Envoi en cours…"
-                  : sent
-                    ? "Recevoir un nouveau lien"
-                    : "Recevoir mon lien"}
+                {/* Keep a stable element beside the changing icon, even if a
+                    browser translator replaces the label's text node. */}
+                <span>
+                  {busy
+                    ? "Envoi en cours…"
+                    : sent
+                      ? "Recevoir un nouveau lien"
+                      : "Recevoir mon lien"}
+                </span>
               </Button>
             </Form>
           )}

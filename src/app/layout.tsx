@@ -18,6 +18,9 @@ export const metadata: Metadata = {
       ? "Filémoire : offrir des questions, recueillir une histoire de famille et créer un livre."
       : "Prototype interactif Filémoire : offrir des questions, recueillir une histoire de famille, créer un livre. Données fictives, intégrations simulées.",
   robots: { index: false, follow: false },
+  // The app supplies FR/EN itself. Browser translation can replace text nodes
+  // that React still owns, breaking form updates with insertBefore/removeChild.
+  other: { google: "notranslate" },
 };
 
 export const viewport: Viewport = {
@@ -32,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr">
+    <html lang="fr" translate="no" className="notranslate">
       <body>
         <Providers>{children}</Providers>
       </body>
