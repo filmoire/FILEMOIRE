@@ -1,12 +1,12 @@
 # Filémoire / Intertrad — Privacy policy
 
-Draft dated 4 November 2026 · Version 0.3
+Draft dated 24 November 2026 · Version 0.5
 
-> Working draft — completion and review required. This draft uses the information supplied for Intertrad in Paris, France. The full postal address, legal status, retention periods, provider arrangements and commercial terms still require completion and review before approval. Purchases and printing are not open. Use fictional stories and test files during testing.
+> Working draft — completion and review required. This draft uses the information supplied for Intertrad in Paris, France. The legal status, retention periods, provider arrangements and commercial terms still require completion and review before approval. Purchases and printing are not open. Use fictional stories and test files during testing.
 
 - **Operator and data controller — supplied name :** Intertrad — legal identity and status to be confirmed
 - **Legal status or company form; share capital where applicable :** To be specified by Intertrad
-- **Business or registered office address :** Rue Ordener, 75018 Paris, France — street number required
+- **Business or registered office address :** 21 Rue Ordener, 75018 Paris, France
 - **Registration and VAT number, as applicable :** No number supplied; status and applicability to be confirmed
 - **Person responsible for publication :** To be identified by Intertrad
 - **Support and privacy contact :** admin-dev@filemoire.fr
@@ -14,9 +14,9 @@ Draft dated 4 November 2026 · Version 0.3
 
 ## Controller and scope
 
-Intertrad in Paris, France is the supplied name of Filémoire’s operator and controller for the processing described here. Contact it at admin-dev@filemoire.fr. Its legal identity and full postal address still require confirmation in the legal notice.
+Intertrad in Paris, France is the supplied name of Filémoire’s operator and controller for the processing described here. Contact it at admin-dev@filemoire.fr. Its legal identity still requires confirmation in the legal notice.
 
-This policy covers the website, narrator, buyer and family workspaces, invitations, media and support. Payments, printing and automatic transcription are inactive in the test version; their providers and processing must be described before activation.
+This policy covers the website, narrator, buyer and family workspaces, invitations, media and support. Payments and printing are inactive in the test version. Optional audio transcription uses Groq when enabled, as described below.
 
 ## 1. Information used by the service
 
@@ -50,7 +50,7 @@ Revoking access prevents further access through the service but cannot recall a 
 
 ## 4. Photos, voice and content protection
 
-Recording requires microphone permission in your browser. The test version can store audio and lets you manually enter or correct text; no automatic transcription service is enabled in this version. Any future transcription service must be explained before use.
+Recording requires microphone permission in your browser. When automatic transcription is enabled, the interface explains this before recording or uploading: a decrypted copy of the audio is sent to Groq to produce text, while the original stays encrypted in Filémoire storage. Older recordings are sent only at the narrator’s request. The resulting text remains private and awaiting review; it can be corrected and must be approved before being added to the story. Transcription can contain errors.
 
 Photos are processed for display and EXIF metadata is removed during re-encoding. Stories and files are encrypted by the application and access is controlled. The service decrypts content to display it and produce documents: this is not end-to-end encryption. Some account and operational data is stored separately from encrypted stories.
 
@@ -84,6 +84,8 @@ A response is due within one month of receiving the request. If complexity or th
 
 ## 8. Providers and location
 
+For optional transcription, Groq receives the audio and returns text. Its documentation states that inference data is not retained by default, but some inputs and outputs may be retained for up to 30 days for reliability or abuse prevention unless Zero Data Retention is enabled. Any customer data retained by Groq is stored in the United States. Intertrad must confirm the account’s actual setting and contractual safeguards; this document does not assume retention is disabled.
+
 Vercel serves the website, Render runs the application and processing jobs, Neon stores the database and private files, and Resend delivers login and invitation emails. Recipients are limited to people authorised by the narrator, authorised operations personnel and providers needed for these functions, plus authorities where legally required.
 
 The reviewed Neon project is configured in AWS Central Europe. This does not guarantee that all processing, support access or subprocessors remain in the European Economic Area. Before approval, Intertrad must identify the contracting entities, countries, processing agreements and safeguards for any transfers: adequacy decisions or other appropriate mechanisms, including standard contractual clauses where necessary. These checks are not yet complete.
@@ -100,6 +102,7 @@ Before opening to real stories, Intertrad must decide age eligibility, additiona
 - **Render :** Running the application, processing files and background tasks.
 - **Neon :** Database and private storage for photos, recordings and documents.
 - **Resend :** Sending sign-in links and messages needed for the service.
+- **Groq :** Optional audio transcription: processing a copy of the recording to prepare text for review, only when the service is enabled.
 
 The hosts’ legal names, addresses and contact details, contracts, actual regions, subprocessors and any transfers outside the European Economic Area must be checked and added before approval. This draft does not promise exclusively European hosting.
 

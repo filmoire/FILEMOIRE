@@ -1,12 +1,12 @@
 # Filémoire / Intertrad — Terms of use, sales and refunds
 
-Draft dated 4 November 2026 · Version 0.3
+Draft dated 24 November 2026 · Version 0.5
 
-> Working draft — completion and review required. This draft uses the information supplied for Intertrad in Paris, France. The full postal address, legal status, retention periods, provider arrangements and commercial terms still require completion and review before approval. Purchases and printing are not open. Use fictional stories and test files during testing.
+> Working draft — completion and review required. This draft uses the information supplied for Intertrad in Paris, France. The legal status, retention periods, provider arrangements and commercial terms still require completion and review before approval. Purchases and printing are not open. Use fictional stories and test files during testing.
 
 - **Operator and data controller — supplied name :** Intertrad — legal identity and status to be confirmed
 - **Legal status or company form; share capital where applicable :** To be specified by Intertrad
-- **Business or registered office address :** Rue Ordener, 75018 Paris, France — street number required
+- **Business or registered office address :** 21 Rue Ordener, 75018 Paris, France
 - **Registration and VAT number, as applicable :** No number supplied; status and applicability to be confirmed
 - **Person responsible for publication :** To be identified by Intertrad
 - **Support and privacy contact :** admin-dev@filemoire.fr
@@ -16,7 +16,7 @@ Draft terms for the test workspace. The sales and refund policy below prepares f
 
 ## The service and its scope
 
-Filémoire helps you prepare a family story, attach media, collaborate on authorised content and produce a PDF. The test version is for testing only; purchases, print orders and automatic transcription remain disabled. A displayed package is not a confirmed order.
+Filémoire helps you prepare a family story, attach media, collaborate on authorised content and produce a PDF. The test version is for testing only; purchases and print orders remain disabled. Audio transcription is available only when the service is enabled and within its stated capacity limits. A displayed package is not a confirmed order.
 
 ## Your account and invitations
 
@@ -98,7 +98,7 @@ French law is proposed for these terms without depriving consumers of mandatory 
 
 ## 9. Withdrawal request template
 
-To Intertrad — admin-dev@filemoire.fr; full postal address: [required before sales]. I notify you that I withdraw from the contract for: [goods or service]. Reference: [order]. Ordered on: [date] / received on: [date, if relevant]. Consumer’s name: [name]. Consumer’s address: [address]. Date: [date]. Signature only for paper submissions. Do not send this template for a simple enquiry; it does not require payment-card numbers.
+To Intertrad — admin-dev@filemoire.fr; postal address: 21 Rue Ordener, 75018 Paris, France. I notify you that I withdraw from the contract for: [goods or service]. Reference: [order]. Ordered on: [date] / received on: [date, if relevant]. Consumer’s name: [name]. Consumer’s address: [address]. Date: [date]. Signature only for paper submissions. Do not send this template for a simple enquiry; it does not require payment-card numbers.
 
 ## References used for this draft
 

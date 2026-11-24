@@ -1,12 +1,12 @@
 # Filémoire / Intertrad — Conditions d’utilisation, ventes et remboursements
 
-Projet du 4 novembre 2026 · Version 0.3
+Projet du 24 novembre 2026 · Version 0.5
 
-> Document de travail — à compléter et à valider. Ce projet reprend les informations communiquées pour Intertrad, à Paris, France. L’adresse postale complète, le statut juridique, les durées de conservation, les engagements des prestataires et les conditions commerciales restent à compléter et à faire relire avant validation. Les achats et impressions ne sont pas ouverts. Pendant les essais, utilisez des récits fictifs et des fichiers de test.
+> Document de travail — à compléter et à valider. Ce projet reprend les informations communiquées pour Intertrad, à Paris, France. Le statut juridique, les durées de conservation, les engagements des prestataires et les conditions commerciales restent à compléter et à faire relire avant validation. Les achats et impressions ne sont pas ouverts. Pendant les essais, utilisez des récits fictifs et des fichiers de test.
 
 - **Éditeur et responsable du traitement — nom communiqué :** Intertrad — dénomination et statut juridique à confirmer
 - **Statut ou forme juridique ; capital social si applicable :** À préciser par Intertrad
-- **Adresse professionnelle ou siège social :** Rue Ordener, 75018 Paris, France — numéro de voie à compléter
+- **Adresse professionnelle ou siège social :** 21 Rue Ordener, 75018 Paris, France
 - **Immatriculation et numéro de TVA, selon le statut :** Aucun numéro fourni ; situation et applicabilité à confirmer
 - **Responsable de la publication :** À désigner par Intertrad
 - **Contact support et confidentialité :** admin-dev@filemoire.fr
@@ -16,7 +16,7 @@ Projet de conditions pour l’espace de test. La politique commerciale et de rem
 
 ## Le service et son périmètre
 
-Filémoire permet de préparer un récit de famille, d’y associer des médias, de collaborer sur les éléments autorisés et de produire un PDF. La version de test est limitée à des essais ; achats, commandes d’impression et transcription automatique restent désactivés. Une formule affichée n’est pas une commande confirmée.
+Filémoire permet de préparer un récit de famille, d’y associer des médias, de collaborer sur les éléments autorisés et de produire un PDF. La version de test est limitée à des essais ; achats et commandes d’impression restent désactivés. La transcription audio est disponible uniquement lorsque le service est activé et dans les limites de capacité indiquées. Une formule affichée n’est pas une commande confirmée.
 
 ## Votre compte et les invitations
 
@@ -98,7 +98,7 @@ Le droit français est proposé pour ces conditions, sans priver un consommateur
 
 ## 9. Modèle de demande de rétractation
 
-À l’attention d’Intertrad — admin-dev@filemoire.fr ; adresse postale complète : [à compléter avant vente]. Je vous notifie ma décision de me rétracter du contrat concernant : [bien ou service]. Référence : [commande]. Commandé le : [date] / reçu le : [date, si applicable]. Nom du consommateur : [nom]. Adresse du consommateur : [adresse]. Date : [date]. Signature uniquement pour un envoi sur papier. Ce modèle n’a pas à être envoyé pour une simple demande d’information et ne contient aucun numéro de carte bancaire.
+À l’attention d’Intertrad — admin-dev@filemoire.fr ; adresse postale : 21 Rue Ordener, 75018 Paris, France. Je vous notifie ma décision de me rétracter du contrat concernant : [bien ou service]. Référence : [commande]. Commandé le : [date] / reçu le : [date, si applicable]. Nom du consommateur : [nom]. Adresse du consommateur : [adresse]. Date : [date]. Signature uniquement pour un envoi sur papier. Ce modèle n’a pas à être envoyé pour une simple demande d’information et ne contient aucun numéro de carte bancaire.
 
 ## Références utilisées pour ce projet
 

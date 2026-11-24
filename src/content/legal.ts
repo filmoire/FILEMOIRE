@@ -10,16 +10,16 @@ export const LEGAL_LABELS = {
     "Understand how your data is used, who can access your story and the rules for your Filémoire workspace.",
   ],
   version: [
-    "Projet du 20 novembre 2026 · Version 0.4",
-    "Draft dated 20 November 2026 · Version 0.4",
+    "Projet du 24 novembre 2026 · Version 0.5",
+    "Draft dated 24 November 2026 · Version 0.5",
   ],
   draftTitle: [
     "Document de travail — à compléter et à valider",
     "Working draft — completion and review required",
   ],
   draftBody: [
-    "Ce projet reprend les informations communiquées pour Intertrad, à Paris, France. L’adresse postale complète, le statut juridique, les durées de conservation, les engagements des prestataires et les conditions commerciales restent à compléter et à faire relire avant validation. Les achats et impressions ne sont pas ouverts. Pendant les essais, utilisez des récits fictifs et des fichiers de test.",
-    "This draft uses the information supplied for Intertrad in Paris, France. The full postal address, legal status, retention periods, provider arrangements and commercial terms still require completion and review before approval. Purchases and printing are not open. Use fictional stories and test files during testing.",
+    "Ce projet reprend les informations communiquées pour Intertrad, à Paris, France. Le statut juridique, les durées de conservation, les engagements des prestataires et les conditions commerciales restent à compléter et à faire relire avant validation. Les achats et impressions ne sont pas ouverts. Pendant les essais, utilisez des récits fictifs et des fichiers de test.",
+    "This draft uses the information supplied for Intertrad in Paris, France. The legal status, retention periods, provider arrangements and commercial terms still require completion and review before approval. Purchases and printing are not open. Use fictional stories and test files during testing.",
   ],
   navigation: ["Dans ce document", "In this document"],
   operatorTitle: ["Mentions légales", "Legal notice"],
@@ -98,8 +98,8 @@ export const OPERATOR_FIELDS: { label: LegalText; value: LegalText }[] = [
       "Business or registered office address",
     ],
     value: [
-      "Rue Ordener, 75018 Paris, France — numéro de voie à compléter",
-      "Rue Ordener, 75018 Paris, France — street number required",
+      "21 Rue Ordener, 75018 Paris, France",
+      "21 Rue Ordener, 75018 Paris, France",
     ],
   },
   {
@@ -183,8 +183,8 @@ export const PRIVACY_SECTIONS: Section[] = [
     title: ["Responsable et périmètre", "Controller and scope"],
     paragraphs: [
       [
-        "Intertrad, à Paris, France, est le nom communiqué pour l’opérateur de Filémoire et le responsable des traitements décrits ici. Vous pouvez le contacter à admin-dev@filemoire.fr. Son identité juridique et son adresse postale complète restent à confirmer dans les mentions légales.",
-        "Intertrad in Paris, France is the supplied name of Filémoire’s operator and controller for the processing described here. Contact it at admin-dev@filemoire.fr. Its legal identity and full postal address still require confirmation in the legal notice.",
+        "Intertrad, à Paris, France, est le nom communiqué pour l’opérateur de Filémoire et le responsable des traitements décrits ici. Vous pouvez le contacter à admin-dev@filemoire.fr. Son identité juridique reste à confirmer dans les mentions légales.",
+        "Intertrad in Paris, France is the supplied name of Filémoire’s operator and controller for the processing described here. Contact it at admin-dev@filemoire.fr. Its legal identity still requires confirmation in the legal notice.",
       ],
       [
         "Cette politique couvre le site, les espaces narrateur, acheteur et famille, les invitations, les médias et le support. Les paiements et l’impression ne sont pas actifs dans la version de test. La transcription audio optionnelle utilise Groq lorsqu’elle est activée, selon les modalités décrites ci-dessous.",
@@ -603,8 +603,8 @@ export const REFUND_SECTIONS: Section[] = [
     ],
     paragraphs: [
       [
-        "À l’attention d’Intertrad — admin-dev@filemoire.fr ; adresse postale complète : [à compléter avant vente]. Je vous notifie ma décision de me rétracter du contrat concernant : [bien ou service]. Référence : [commande]. Commandé le : [date] / reçu le : [date, si applicable]. Nom du consommateur : [nom]. Adresse du consommateur : [adresse]. Date : [date]. Signature uniquement pour un envoi sur papier. Ce modèle n’a pas à être envoyé pour une simple demande d’information et ne contient aucun numéro de carte bancaire.",
-        "To Intertrad — admin-dev@filemoire.fr; full postal address: [required before sales]. I notify you that I withdraw from the contract for: [goods or service]. Reference: [order]. Ordered on: [date] / received on: [date, if relevant]. Consumer’s name: [name]. Consumer’s address: [address]. Date: [date]. Signature only for paper submissions. Do not send this template for a simple enquiry; it does not require payment-card numbers.",
+        "À l’attention d’Intertrad — admin-dev@filemoire.fr ; adresse postale : 21 Rue Ordener, 75018 Paris, France. Je vous notifie ma décision de me rétracter du contrat concernant : [bien ou service]. Référence : [commande]. Commandé le : [date] / reçu le : [date, si applicable]. Nom du consommateur : [nom]. Adresse du consommateur : [adresse]. Date : [date]. Signature uniquement pour un envoi sur papier. Ce modèle n’a pas à être envoyé pour une simple demande d’information et ne contient aucun numéro de carte bancaire.",
+        "To Intertrad — admin-dev@filemoire.fr; postal address: 21 Rue Ordener, 75018 Paris, France. I notify you that I withdraw from the contract for: [goods or service]. Reference: [order]. Ordered on: [date] / received on: [date, if relevant]. Consumer’s name: [name]. Consumer’s address: [address]. Date: [date]. Signature only for paper submissions. Do not send this template for a simple enquiry; it does not require payment-card numbers.",
       ],
     ],
   },
