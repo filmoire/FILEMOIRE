@@ -90,7 +90,7 @@ export const VOICE_UPGRADE_PRICE = 7000; // différence Héritage → Voix [P]
 export const pkg = (code: PackageCode) => PACKAGES.find((p) => p.code === code)!;
 
 export const THEMES: { code: ThemeCode; name: string; description: string }[] = [
-  { code: "vie", name: "Une vie en 52 questions", description: "De l'enfance aux valeurs : le parcours complet." },
+  { code: "vie", name: "Le fil de votre vie", description: "De l'enfance aux valeurs : le parcours complet." },
   { code: "migration", name: "Migration et double culture", description: "Départs, langues, deux pays dans un même cœur." },
   { code: "metier", name: "Métier et savoir-faire", description: "Les gestes, les outils et les leçons d'un métier." },
   { code: "couple", name: "Histoire d'un couple", description: "Une rencontre, un engagement, une vie à deux." },

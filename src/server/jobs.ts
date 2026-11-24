@@ -12,12 +12,12 @@ export async function enqueue(
   kind: string,
   payload: unknown,
   key: string,
-  at = new Date(),
+  at?: Date,
 ) {
   const jobId = id();
   const inserted = await db.query(
-    "INSERT INTO jobs(id,kind,payload,dedupe_key,run_at) VALUES($1,$2,$3,$4,$5) ON CONFLICT(dedupe_key) DO NOTHING RETURNING id",
-    [jobId, kind, seal(payload), key, at],
+    "INSERT INTO jobs(id,kind,payload,dedupe_key,run_at) VALUES($1,$2,$3,$4,COALESCE($5::timestamptz,now())) ON CONFLICT(dedupe_key) DO NOTHING RETURNING id",
+    [jobId, kind, seal(payload), key, at ?? null],
   );
   if (inserted.rows[0]) return inserted.rows[0].id as string;
   const existing = await db.query("SELECT id FROM jobs WHERE dedupe_key=$1", [

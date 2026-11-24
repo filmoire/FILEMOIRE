@@ -1,4 +1,4 @@
-# Legal/privacy and refund drafts — 4 November 2026
+# Legal/privacy and refund drafts — updated 24 November 2026
 
 `/legal` contains a French/English working draft, not approved launch documents.
 The text is maintained in `src/content/legal.ts`. Both languages must be updated
@@ -13,7 +13,7 @@ under `docs/legal/PRIVACY-POLICY.{fr,en}.md` and
 ## Details supplied by the owner
 
 - Name: **Intertrad**. Its exact legal identity/form has not been verified.
-- Location: **Rue Ordener, 75018 Paris, France**. Street/building number remains missing.
+- Location: **21 Rue Ordener, 75018 Paris, France**, completed by the owner on 24 November 2026.
 - Registration/VAT: owner answered **“no”**. This is recorded as no number
   supplied, not as a claim of exemption or that registration is unnecessary.
 - Support/privacy email: **admin-dev@filemoire.fr**, now explicitly designated
@@ -44,7 +44,7 @@ no price, printer, delivery promise or discretionary refund benefit is invented.
 ## Owner completion before approval
 
 1. Confirm Intertrad's legal identity/form, applicable registration/VAT status,
-   full business address and publication director.
+   publication director and the supplied address’s business/registered-office status.
 2. Confirm a monitored process for the supplied email, provide a business
    telephone and identify a DPO only if one has actually been appointed.
 3. Verify hosts' legal identities/contact details, processor contracts, locations,
@@ -106,3 +106,7 @@ These sources guide the draft; they do not approve Filemoire or its configuratio
 ## 4 November follow-up
 
 The owner supplied Rue Ordener, 75018 Paris, France. Draft v0.3 includes it, with the street/building number still explicitly missing. The customer withdrawal form and dated downloadable/queued-email receipt are implemented and locally tested; final legal/commercial acceptance and live delivery validation remain pending. No approval flag was changed. See LAUNCH-HANDOFF.md.
+
+## Address update — 24 November 2026
+
+The owner supplied **21 rue ordener paris**; the previously supplied postcode and country complete the published address as **21 Rue Ordener, 75018 Paris, France**. Draft v0.5 updates the French/English legal notice and withdrawal template. Shareable policy copies are refreshed from the same source. Legal form/registration status, publication responsible person and business phone remain missing. No approval or sales flag was changed. The owner retained free preview hosting and deferred payment, printer, backup/vault and remaining acceptance work for now.

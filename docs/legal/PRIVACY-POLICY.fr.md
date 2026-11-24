@@ -1,12 +1,12 @@
 # Filémoire / Intertrad — Politique de confidentialité
 
-Projet du 4 novembre 2026 · Version 0.3
+Projet du 24 novembre 2026 · Version 0.5
 
-> Document de travail — à compléter et à valider. Ce projet reprend les informations communiquées pour Intertrad, à Paris, France. L’adresse postale complète, le statut juridique, les durées de conservation, les engagements des prestataires et les conditions commerciales restent à compléter et à faire relire avant validation. Les achats et impressions ne sont pas ouverts. Pendant les essais, utilisez des récits fictifs et des fichiers de test.
+> Document de travail — à compléter et à valider. Ce projet reprend les informations communiquées pour Intertrad, à Paris, France. Le statut juridique, les durées de conservation, les engagements des prestataires et les conditions commerciales restent à compléter et à faire relire avant validation. Les achats et impressions ne sont pas ouverts. Pendant les essais, utilisez des récits fictifs et des fichiers de test.
 
 - **Éditeur et responsable du traitement — nom communiqué :** Intertrad — dénomination et statut juridique à confirmer
 - **Statut ou forme juridique ; capital social si applicable :** À préciser par Intertrad
-- **Adresse professionnelle ou siège social :** Rue Ordener, 75018 Paris, France — numéro de voie à compléter
+- **Adresse professionnelle ou siège social :** 21 Rue Ordener, 75018 Paris, France
 - **Immatriculation et numéro de TVA, selon le statut :** Aucun numéro fourni ; situation et applicabilité à confirmer
 - **Responsable de la publication :** À désigner par Intertrad
 - **Contact support et confidentialité :** admin-dev@filemoire.fr
@@ -14,9 +14,9 @@ Projet du 4 novembre 2026 · Version 0.3
 
 ## Responsable et périmètre
 
-Intertrad, à Paris, France, est le nom communiqué pour l’opérateur de Filémoire et le responsable des traitements décrits ici. Vous pouvez le contacter à admin-dev@filemoire.fr. Son identité juridique et son adresse postale complète restent à confirmer dans les mentions légales.
+Intertrad, à Paris, France, est le nom communiqué pour l’opérateur de Filémoire et le responsable des traitements décrits ici. Vous pouvez le contacter à admin-dev@filemoire.fr. Son identité juridique reste à confirmer dans les mentions légales.
 
-Cette politique couvre le site, les espaces narrateur, acheteur et famille, les invitations, les médias et le support. Les paiements, l’impression et la transcription automatique ne sont pas actifs dans la version de test ; leurs prestataires et traitements devront être décrits avant activation.
+Cette politique couvre le site, les espaces narrateur, acheteur et famille, les invitations, les médias et le support. Les paiements et l’impression ne sont pas actifs dans la version de test. La transcription audio optionnelle utilise Groq lorsqu’elle est activée, selon les modalités décrites ci-dessous.
 
 ## 1. Les informations utilisées
 
@@ -50,7 +50,7 @@ Retirer un accès empêche les consultations suivantes dans le service, mais ne 
 
 ## 4. Photos, voix et protection des contenus
 
-L’enregistrement au microphone nécessite votre permission dans le navigateur. La version de test permet de conserver l’audio et de saisir ou corriger le texte manuellement ; aucun service de transcription automatique n’y est activé. Un futur service de transcription devra être présenté avant son utilisation.
+L’enregistrement au microphone nécessite votre permission dans le navigateur. Lorsque la transcription automatique est activée, l’interface le signale avant l’enregistrement ou l’import : une copie déchiffrée de l’audio est envoyée à Groq pour produire un texte, tandis que l’original reste chiffré dans le stockage Filémoire. Les anciens enregistrements ne sont envoyés que sur demande du narrateur. Le texte obtenu reste privé et à relire ; il peut être corrigé et doit être validé avant son ajout au récit. La transcription peut comporter des erreurs.
 
 Les photos sont traitées pour l’affichage et les métadonnées EXIF sont retirées lors de leur réencodage. Les récits et fichiers sont chiffrés par l’application et les accès sont contrôlés. Le service déchiffre les contenus pour les afficher et produire vos documents : il ne s’agit pas d’un chiffrement de bout en bout. Certaines données de compte et de suivi restent distinctes du récit chiffré.
 
@@ -84,6 +84,8 @@ Une réponse doit être apportée dans un mois suivant la réception de la deman
 
 ## 8. Prestataires et localisation
 
+Pour la transcription optionnelle, Groq reçoit l’audio et renvoie le texte. Selon sa documentation, les données d’inférence ne sont pas conservées par défaut, mais certaines entrées et sorties peuvent être conservées jusqu’à 30 jours pour la fiabilité ou la prévention des abus, sauf activation du réglage Zero Data Retention. Les données éventuellement conservées par Groq sont stockées aux États-Unis. Le réglage effectif du compte et les garanties contractuelles doivent être confirmés par Intertrad ; ce document ne présume pas que la conservation est désactivée.
+
 Vercel sert le site, Render exécute l’application et les tâches de traitement, Neon conserve la base de données et les fichiers privés, et Resend transmet les e-mails de connexion et d’invitation. Les destinataires sont limités aux personnes autorisées par le narrateur, aux personnes habilitées pour l’exploitation et aux prestataires nécessaires à ces fonctions, ainsi qu’aux autorités lorsqu’une obligation légale l’impose.
 
 Le projet Neon examiné est configuré dans la région AWS Europe centrale. Cela ne garantit pas que tous les traitements, accès de support ou sous-traitants restent dans l’Espace économique européen. Avant validation, Intertrad doit préciser les entités contractantes, pays, contrats de sous-traitance et garanties applicables aux éventuels transferts : décision d’adéquation ou autres mécanismes appropriés, notamment clauses contractuelles types lorsque nécessaires. Ces vérifications ne sont pas encore achevées.
@@ -100,6 +102,7 @@ Avant une ouverture à de vrais récits, Intertrad doit arrêter les conditions 
 - **Render :** Exécution de l’application, traitement des fichiers et des tâches différées.
 - **Neon :** Base de données et stockage privé des photos, enregistrements et documents.
 - **Resend :** Envoi des liens de connexion et des messages nécessaires au service.
+- **Groq :** Transcription audio optionnelle : traitement d’une copie de l’enregistrement pour préparer un texte à relire, uniquement si le service est activé.
 
 Les dénominations légales, adresses et coordonnées des hébergeurs, leurs contrats, les régions effectivement utilisées, les sous-traitants et les éventuels transferts hors de l’Espace économique européen doivent être vérifiés et ajoutés avant validation. Ce projet ne garantit pas un hébergement exclusivement européen.
 

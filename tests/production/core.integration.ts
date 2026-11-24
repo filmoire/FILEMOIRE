@@ -354,6 +354,27 @@ describe("payments and jobs", () => {
     expect(r.state).toBe("pending");
     expect(new Date(r.run_at).getTime()).toBeGreaterThan(Date.now());
   });
+  it("claims immediate jobs despite an ahead-of-database app clock and preserves explicit schedules", async () => {
+    const scheduledAt = new Date(Date.now() + 60 * 60 * 1000);
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(scheduledAt);
+    let immediateId: string | undefined;
+    let scheduledId: string | undefined;
+    try {
+      immediateId = await enqueue(pool(), "email", {}, "clock-immediate");
+      scheduledId = await enqueue(
+        pool(), "email", {}, "clock-scheduled", scheduledAt,
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+    expect(await claimJob()).toMatchObject({ id: immediateId });
+    expect(await claimJob()).toBeNull();
+    const scheduled = await pool().query("SELECT run_at FROM jobs WHERE id=$1", [
+      scheduledId,
+    ]);
+    expect(new Date(scheduled.rows[0].run_at).getTime()).toBe(scheduledAt.getTime());
+  });
   it("schedules initial questions once and suppresses queued reminders after opt-out", async () => {
     const b = await book();
     await scheduleDue();
